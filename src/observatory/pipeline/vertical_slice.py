@@ -511,7 +511,7 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                 if code in decided and mp.status == "proposed":
                     carry_decision(mp, decided[code], run_id)
                 report.crosswalks.append(prop.to_dict() | {"mapping_id": mp.id, "status": mp.status})
-            if found.ambiguous:
+            if found.ambiguous and not any(d.status == "accepted" for d in decided.values()):
                 report.warnings.append(
                     f"{tax}: best O*NET candidates are ambiguous (margin {found.margin:.3f} < "
                     f"{cw_cfg['candidates']['ambiguity_margin']}); human review should choose the mapping."

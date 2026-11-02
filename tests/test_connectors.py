@@ -172,3 +172,12 @@ def test_cbo_occupation_enriched_from_books(tmp_path):
     occ = CboFiles(d).occupation("999901")
     assert occ.description == "Descrição sintética." and occ.attributes["description_scope"] == "family"
     assert occ.attributes["ciuo88"] == ["2131"] and occ.attributes["fields_not_available_in_source_file"] == []
+
+
+def test_esco_isco_group_from_code_prefix_when_no_broader_isco_link():
+    raw = build.esco_payload("en")
+    raw["_links"].pop("broaderIscoGroup")
+    raw["code"] = "5321.1.1"
+    occ = parse_occupation(raw)
+    assert occ.group_code == "5321" and occ.attributes["isco_group_method"] == "esco_code_prefix"
+    assert occ.qualification_level == 1 / 3

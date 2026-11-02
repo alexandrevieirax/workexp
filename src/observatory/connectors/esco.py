@@ -110,9 +110,14 @@ def _label(obj: dict, key: str, lang: str) -> Any:
 
 
 def parse_occupation(raw_en: dict, raw_pt: dict | None = None, is_synthetic: bool = False) -> ParsedOccupation:
-    isco = None
+    isco, isco_method = None, None
     for link in raw_en.get("_links", {}).get("broaderIscoGroup", []):
-        isco = link.get("code") or isco
+        isco, isco_method = link.get("code") or isco, "broaderIscoGroup"
+    code = raw_en.get("code") or ""
+    if isco is None and code[:4].isdigit():
+        # Narrower ESCO occupations link to a broader occupation, not to ISCO. By ESCO's coding convention the
+        # first four digits of the occupation code are its ISCO-08 unit group (e.g. 5321.1.1 → 5321).
+        isco, isco_method = code[:4], "esco_code_prefix"
     desc_en = (_label(raw_en, "description", "en") or {}).get("literal")
     aliases: list[tuple[str, str, str]] = [(raw_en["preferredLabel"]["en"], "en", "preferred")]
     aliases += [(a, "en", "alternative") for a in (_label(raw_en, "alternativeLabel", "en") or [])]
@@ -132,6 +137,7 @@ def parse_occupation(raw_en: dict, raw_pt: dict | None = None, is_synthetic: boo
         attributes={
             "esco_code": raw_en.get("code"),
             "isco_group": isco,
+            "isco_group_method": isco_method,
             "title_pt": pt_label,
             "description_pt": ((_label(raw_en, "description", "pt") or {}).get("literal")),
             "regulated_profession_note": raw_en.get("_links", {}).get("regulatedProfessionNote", {}).get("uri"),

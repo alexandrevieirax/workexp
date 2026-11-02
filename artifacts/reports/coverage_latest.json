@@ -1,0 +1,779 @@
+{
+  "created_at": "2026-11-02T22:07:37.517876+00:00",
+  "methodology_version": "0.3.2",
+  "set_definitions": [
+    {
+      "label": "desenvolvimento-de-sistemas",
+      "profile": "cognitiva (TI)",
+      "onet_code": "15-1252.00",
+      "esco_uri": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+      "cbo_code": "212405"
+    },
+    {
+      "label": "contabilidade",
+      "profile": "cognitiva (não TI)",
+      "onet_code": "13-2011.00",
+      "esco_uri": "http://data.europa.eu/esco/occupation/eda0d957-3c3c-4139-b89a-a18bc9e18897",
+      "cbo_code": "252210"
+    },
+    {
+      "label": "eletricista",
+      "profile": "manual",
+      "onet_code": "47-2111.00",
+      "esco_uri": "http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "cbo_code": "715610"
+    },
+    {
+      "label": "tecnico-de-enfermagem",
+      "profile": "saúde, regulamentada",
+      "onet_code": "29-2061.00",
+      "esco_uri": "http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
+      "cbo_code": "322205"
+    }
+  ],
+  "sets": [
+    {
+      "label": "desenvolvimento-de-sistemas",
+      "profile": "cognitiva (TI)",
+      "run_id": "20261102T215713Z-1aa115",
+      "occupations": {
+        "ONET": {
+          "code": "15-1252.00",
+          "title": "Software Developers",
+          "scores": {
+            "OAE": 0.7071,
+            "OAP": 0.0691,
+            "OAuP": 0.4344,
+            "OTP": 0.2982
+          },
+          "intervals": {
+            "OAE": [
+              0.666,
+              0.7499
+            ],
+            "OAP": [
+              0.0555,
+              0.0838
+            ],
+            "OAuP": [
+              0.39,
+              0.4775
+            ],
+            "OTP": [
+              0.2655,
+              0.3346
+            ]
+          },
+          "mean_uncertainty": 0.25,
+          "prior_source": "onet_direct",
+          "prior_from_occupation": null,
+          "class_distribution": {
+            "significant_transformation": 0.1942,
+            "augmentation": 0.8059
+          },
+          "observed_usage_coverage": 0.6159,
+          "task_count": 17
+        },
+        "ESCO": {
+          "code": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+          "title": "software developer",
+          "scores": {
+            "OAE": 0.7915,
+            "OAP": 0.0644,
+            "OAuP": 0.4329,
+            "OTP": 0.3084
+          },
+          "intervals": {
+            "OAE": [
+              0.7374,
+              0.8433
+            ],
+            "OAP": [
+              0.0397,
+              0.0927
+            ],
+            "OAuP": [
+              0.359,
+              0.5131
+            ],
+            "OTP": [
+              0.2513,
+              0.3816
+            ]
+          },
+          "mean_uncertainty": 0.5705,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "15-1252.00",
+          "class_distribution": {
+            "augmentation": 0.8671,
+            "significant_transformation": 0.1334
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 15
+        },
+        "CBO": {
+          "code": "212405",
+          "title": "Analista de desenvolvimento de sistemas",
+          "scores": {
+            "OAE": 0.7591,
+            "OAP": 0.0639,
+            "OAuP": 0.3901,
+            "OTP": 0.262
+          },
+          "intervals": {
+            "OAE": [
+              0.718,
+              0.8
+            ],
+            "OAP": [
+              0.0527,
+              0.0761
+            ],
+            "OAuP": [
+              0.3518,
+              0.4301
+            ],
+            "OTP": [
+              0.2362,
+              0.295
+            ]
+          },
+          "mean_uncertainty": 0.5598,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "15-1253.00",
+          "class_distribution": {
+            "augmentation": 0.9381,
+            "significant_transformation": 0.0477,
+            "point_support": 0.0159
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 63
+        }
+      },
+      "crosswalks": {
+        "ESCO": {
+          "best": {
+            "target": "ONET:15-1299.08",
+            "mapping_confidence": 0.8788,
+            "confidence_class": "strong",
+            "hierarchy": 0.5
+          },
+          "ambiguous": true,
+          "margin": 0.0008,
+          "human_decisions": {
+            "15-1252.00": "accepted"
+          }
+        },
+        "CBO": {
+          "best": {
+            "target": "ONET:15-1253.00",
+            "mapping_confidence": 0.8464,
+            "confidence_class": "strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": true,
+          "margin": 0.005,
+          "human_decisions": {
+            "15-1253.00": "accepted"
+          }
+        },
+        "CBO->ESCO": {
+          "mapping_confidence": 0.7,
+          "confidence_class": "moderate",
+          "hierarchy_consistency": 1.0,
+          "qualification_consistency": 1.0
+        }
+      },
+      "warnings": [
+        "Title calibration is narrow (floor 0.776, ceiling 0.823, 74+74 pairs): for this model, non-equivalent titles score almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak evidence (weight 0.20).",
+        "ESCO: using the mapping to 15-1252.00 accepted by Alexandre.",
+        "CBO: using the mapping to 15-1253.00 accepted by Alexandre."
+      ],
+      "sources": {
+        "AEI": {
+          "status": "loaded",
+          "release": "release_2025_03_27",
+          "tasks": 3365
+        },
+        "ONET": {
+          "status": "loaded",
+          "version": "31.0",
+          "occupation": "15-1252.00",
+          "tasks": 17,
+          "descriptors": 660,
+          "sha256": "6883548adf5fde64cf6f801b35d15519c9225f2732c3cab0e281c652d16b23a9"
+        },
+        "ESCO": {
+          "status": "loaded",
+          "version": "api-default",
+          "uri": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+          "isco": "2512",
+          "essential_skills_as_tasks": 15,
+          "skills_total": 86,
+          "api_responses": 2
+        },
+        "CBO": {
+          "status": "loaded",
+          "version": "CBO2002-estrutura-csv+livros-3a-ed-2010",
+          "code": "212405",
+          "activities": 63,
+          "personal_competencies": 16,
+          "activity_scope": "occupation",
+          "sha256": "a7fd548693f507a00700465264c1c9286ebb17691297f7aa0e1b411f77b15b3c"
+        }
+      }
+    },
+    {
+      "label": "contabilidade",
+      "profile": "cognitiva (não TI)",
+      "run_id": "20261102T215840Z-feed2b",
+      "occupations": {
+        "ONET": {
+          "code": "13-2011.00",
+          "title": "Accountants and Auditors",
+          "scores": {
+            "OAE": 0.6263,
+            "OAP": 0.0627,
+            "OAuP": 0.294,
+            "OTP": 0.2003
+          },
+          "intervals": {
+            "OAE": [
+              0.5648,
+              0.6812
+            ],
+            "OAP": [
+              0.0523,
+              0.0741
+            ],
+            "OAuP": [
+              0.2582,
+              0.3267
+            ],
+            "OTP": [
+              0.1758,
+              0.2262
+            ]
+          },
+          "mean_uncertainty": 0.2351,
+          "prior_source": "onet_direct",
+          "prior_from_occupation": null,
+          "class_distribution": {
+            "augmentation": 0.765,
+            "point_support": 0.235
+          },
+          "observed_usage_coverage": 0.3459,
+          "task_count": 30
+        },
+        "ESCO": {
+          "code": "http://data.europa.eu/esco/occupation/eda0d957-3c3c-4139-b89a-a18bc9e18897",
+          "title": "accountant",
+          "scores": {
+            "OAE": 0.715,
+            "OAP": 0.0578,
+            "OAuP": 0.3098,
+            "OTP": 0.2031
+          },
+          "intervals": {
+            "OAE": [
+              0.6714,
+              0.7556
+            ],
+            "OAP": [
+              0.0407,
+              0.0777
+            ],
+            "OAuP": [
+              0.2598,
+              0.361
+            ],
+            "OTP": [
+              0.1691,
+              0.2472
+            ]
+          },
+          "mean_uncertainty": 0.45,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "13-2011.00",
+          "class_distribution": {
+            "point_support": 0.2001,
+            "augmentation": 0.8004
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 15
+        },
+        "CBO": {
+          "code": "252210",
+          "title": "Contador",
+          "scores": {
+            "OAE": 0.7352,
+            "OAP": 0.0612,
+            "OAuP": 0.3524,
+            "OTP": 0.2361
+          },
+          "intervals": {
+            "OAE": [
+              0.7071,
+              0.7648
+            ],
+            "OAP": [
+              0.0518,
+              0.0717
+            ],
+            "OAuP": [
+              0.3241,
+              0.382
+            ],
+            "OTP": [
+              0.2165,
+              0.2596
+            ]
+          },
+          "mean_uncertainty": 0.5136,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "13-2011.00",
+          "class_distribution": {
+            "augmentation": 0.9443,
+            "point_support": 0.0532
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 75
+        }
+      },
+      "crosswalks": {
+        "ESCO": {
+          "best": {
+            "target": "ONET:13-2011.00",
+            "mapping_confidence": 0.9998,
+            "confidence_class": "very_strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": false,
+          "margin": 0.1086,
+          "human_decisions": {}
+        },
+        "CBO": {
+          "best": {
+            "target": "ONET:13-2011.00",
+            "mapping_confidence": 0.8738,
+            "confidence_class": "strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": false,
+          "margin": 0.0738,
+          "human_decisions": {}
+        },
+        "CBO->ESCO": {
+          "mapping_confidence": 0.7,
+          "confidence_class": "moderate",
+          "hierarchy_consistency": 1.0,
+          "qualification_consistency": 1.0
+        }
+      },
+      "warnings": [
+        "Title calibration is narrow (floor 0.776, ceiling 0.823, 74+74 pairs): for this model, non-equivalent titles score almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak evidence (weight 0.20)."
+      ],
+      "sources": {
+        "AEI": {
+          "status": "loaded",
+          "release": "release_2025_03_27",
+          "tasks": 3365
+        },
+        "ONET": {
+          "status": "loaded",
+          "version": "31.0",
+          "occupation": "13-2011.00",
+          "tasks": 30,
+          "descriptors": 660,
+          "sha256": "6883548adf5fde64cf6f801b35d15519c9225f2732c3cab0e281c652d16b23a9"
+        },
+        "ESCO": {
+          "status": "loaded",
+          "version": "api-default",
+          "uri": "http://data.europa.eu/esco/occupation/eda0d957-3c3c-4139-b89a-a18bc9e18897",
+          "isco": "2411",
+          "essential_skills_as_tasks": 15,
+          "skills_total": 57,
+          "api_responses": 2
+        },
+        "CBO": {
+          "status": "loaded",
+          "version": "CBO2002-estrutura-csv+livros-3a-ed-2010",
+          "code": "252210",
+          "activities": 75,
+          "personal_competencies": 10,
+          "activity_scope": "occupation",
+          "sha256": "a7fd548693f507a00700465264c1c9286ebb17691297f7aa0e1b411f77b15b3c"
+        }
+      }
+    },
+    {
+      "label": "eletricista",
+      "profile": "manual",
+      "run_id": "20261102T220245Z-a1d20a",
+      "occupations": {
+        "ONET": {
+          "code": "47-2111.00",
+          "title": "Electricians",
+          "scores": {
+            "OAE": 0.5016,
+            "OAP": 0.001,
+            "OAuP": 0.2739,
+            "OTP": 0.1445
+          },
+          "intervals": {
+            "OAE": [
+              0.4404,
+              0.5613
+            ],
+            "OAP": [
+              0.0004,
+              0.002
+            ],
+            "OAuP": [
+              0.2339,
+              0.312
+            ],
+            "OTP": [
+              0.1216,
+              0.1695
+            ]
+          },
+          "mean_uncertainty": 0.2382,
+          "prior_source": "onet_direct",
+          "prior_from_occupation": null,
+          "class_distribution": {
+            "augmentation": 0.5207,
+            "point_support": 0.4792
+          },
+          "observed_usage_coverage": 0.095,
+          "task_count": 21
+        },
+        "ESCO": {
+          "code": "http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+          "title": "domestic electrician",
+          "scores": {
+            "OAE": 0.5918,
+            "OAP": 0.0015,
+            "OAuP": 0.3173,
+            "OTP": 0.1628
+          },
+          "intervals": {
+            "OAE": [
+              0.548,
+              0.6394
+            ],
+            "OAP": [
+              0.0004,
+              0.0036
+            ],
+            "OAuP": [
+              0.2667,
+              0.3706
+            ],
+            "OTP": [
+              0.1336,
+              0.2007
+            ]
+          },
+          "mean_uncertainty": 0.4349,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "47-2111.00",
+          "class_distribution": {
+            "augmentation": 0.8004,
+            "point_support": 0.2001
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 15
+        },
+        "CBO": {
+          "code": "715610",
+          "title": "Eletricista de instalações (edifícios)",
+          "scores": {
+            "OAE": 0.6649,
+            "OAP": 0.0015,
+            "OAuP": 0.3596,
+            "OTP": 0.1979
+          },
+          "intervals": {
+            "OAE": [
+              0.6251,
+              0.7084
+            ],
+            "OAP": [
+              0.0007,
+              0.0026
+            ],
+            "OAuP": [
+              0.325,
+              0.3949
+            ],
+            "OTP": [
+              0.1776,
+              0.2239
+            ]
+          },
+          "mean_uncertainty": 0.5255,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "47-2111.00",
+          "class_distribution": {
+            "augmentation": 0.9548,
+            "point_support": 0.0462
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 65
+        }
+      },
+      "crosswalks": {
+        "ESCO": {
+          "best": {
+            "target": "ONET:47-2111.00",
+            "mapping_confidence": 0.9403,
+            "confidence_class": "very_strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": false,
+          "margin": 0.0812,
+          "human_decisions": {}
+        },
+        "CBO": {
+          "best": {
+            "target": "ONET:47-2111.00",
+            "mapping_confidence": 0.8211,
+            "confidence_class": "strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": false,
+          "margin": 0.123,
+          "human_decisions": {}
+        },
+        "CBO->ESCO": {
+          "mapping_confidence": 0.7,
+          "confidence_class": "moderate",
+          "hierarchy_consistency": 1.0,
+          "qualification_consistency": 1.0
+        }
+      },
+      "warnings": [
+        "Title calibration is narrow (floor 0.776, ceiling 0.823, 74+74 pairs): for this model, non-equivalent titles score almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak evidence (weight 0.20)."
+      ],
+      "sources": {
+        "AEI": {
+          "status": "loaded",
+          "release": "release_2025_03_27",
+          "tasks": 3365
+        },
+        "ONET": {
+          "status": "loaded",
+          "version": "31.0",
+          "occupation": "47-2111.00",
+          "tasks": 21,
+          "descriptors": 660,
+          "sha256": "6883548adf5fde64cf6f801b35d15519c9225f2732c3cab0e281c652d16b23a9"
+        },
+        "ESCO": {
+          "status": "loaded",
+          "version": "api-default",
+          "uri": "http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+          "isco": "7411",
+          "essential_skills_as_tasks": 15,
+          "skills_total": 39,
+          "api_responses": 2
+        },
+        "CBO": {
+          "status": "loaded",
+          "version": "CBO2002-estrutura-csv+livros-3a-ed-2010",
+          "code": "715610",
+          "activities": 65,
+          "personal_competencies": 7,
+          "activity_scope": "occupation",
+          "sha256": "a7fd548693f507a00700465264c1c9286ebb17691297f7aa0e1b411f77b15b3c"
+        }
+      }
+    },
+    {
+      "label": "tecnico-de-enfermagem",
+      "profile": "saúde, regulamentada",
+      "run_id": "20261102T220601Z-bce402",
+      "occupations": {
+        "ONET": {
+          "code": "29-2061.00",
+          "title": "Licensed Practical and Licensed Vocational Nurses",
+          "scores": {
+            "OAE": 0.4361,
+            "OAP": 0.0054,
+            "OAuP": 0.2232,
+            "OTP": 0.1316
+          },
+          "intervals": {
+            "OAE": [
+              0.3804,
+              0.4862
+            ],
+            "OAP": [
+              0.0037,
+              0.0074
+            ],
+            "OAuP": [
+              0.1887,
+              0.2535
+            ],
+            "OTP": [
+              0.1091,
+              0.1525
+            ]
+          },
+          "mean_uncertainty": 0.2377,
+          "prior_source": "onet_direct",
+          "prior_from_occupation": null,
+          "class_distribution": {
+            "point_support": 0.8031,
+            "augmentation": 0.1969
+          },
+          "observed_usage_coverage": 0.097,
+          "task_count": 22
+        },
+        "ESCO": {
+          "code": "http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
+          "title": "nurse assistant",
+          "scores": {
+            "OAE": 0.5933,
+            "OAP": 0.0081,
+            "OAuP": 0.3069,
+            "OTP": 0.1893
+          },
+          "intervals": {
+            "OAE": [
+              0.5614,
+              0.6242
+            ],
+            "OAP": [
+              0.005,
+              0.0122
+            ],
+            "OAuP": [
+              0.2689,
+              0.3421
+            ],
+            "OTP": [
+              0.1645,
+              0.2181
+            ]
+          },
+          "mean_uncertainty": 0.4723,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "31-1133.00",
+          "class_distribution": {
+            "augmentation": 0.8325,
+            "point_support": 0.1665
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 30
+        },
+        "CBO": {
+          "code": "322205",
+          "title": "Técnico de enfermagem",
+          "scores": {
+            "OAE": 0.5589,
+            "OAP": 0.0057,
+            "OAuP": 0.2837,
+            "OTP": 0.1656
+          },
+          "intervals": {
+            "OAE": [
+              0.5418,
+              0.5762
+            ],
+            "OAP": [
+              0.0043,
+              0.0074
+            ],
+            "OAuP": [
+              0.2645,
+              0.3033
+            ],
+            "OTP": [
+              0.1537,
+              0.1818
+            ]
+          },
+          "mean_uncertainty": 0.4865,
+          "prior_source": "crosswalk_transfer",
+          "prior_from_occupation": "29-2061.00",
+          "class_distribution": {
+            "augmentation": 0.7,
+            "point_support": 0.3
+          },
+          "observed_usage_coverage": 0,
+          "task_count": 100
+        }
+      },
+      "crosswalks": {
+        "ESCO": {
+          "best": {
+            "target": "ONET:31-1133.00",
+            "mapping_confidence": 0.9309,
+            "confidence_class": "very_strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": false,
+          "margin": 0.1142,
+          "human_decisions": {}
+        },
+        "CBO": {
+          "best": {
+            "target": "ONET:29-2061.00",
+            "mapping_confidence": 0.8642,
+            "confidence_class": "strong",
+            "hierarchy": 1.0
+          },
+          "ambiguous": false,
+          "margin": 0.1435,
+          "human_decisions": {}
+        },
+        "CBO->ESCO": {
+          "mapping_confidence": 0.5667,
+          "confidence_class": "not_accepted_automatically",
+          "hierarchy_consistency": 0.0,
+          "qualification_consistency": 0.6667
+        }
+      },
+      "warnings": [
+        "Title calibration is narrow (floor 0.776, ceiling 0.823, 74+74 pairs): for this model, non-equivalent titles score almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak evidence (weight 0.20)."
+      ],
+      "sources": {
+        "AEI": {
+          "status": "loaded",
+          "release": "release_2025_03_27",
+          "tasks": 3365
+        },
+        "ONET": {
+          "status": "loaded",
+          "version": "31.0",
+          "occupation": "29-2061.00",
+          "tasks": 22,
+          "descriptors": 660,
+          "sha256": "6883548adf5fde64cf6f801b35d15519c9225f2732c3cab0e281c652d16b23a9"
+        },
+        "ESCO": {
+          "status": "loaded",
+          "version": "api-default",
+          "uri": "http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
+          "isco": "5321",
+          "essential_skills_as_tasks": 30,
+          "skills_total": 58,
+          "api_responses": 2
+        },
+        "CBO": {
+          "status": "loaded",
+          "version": "CBO2002-estrutura-csv+livros-3a-ed-2010",
+          "code": "322205",
+          "activities": 100,
+          "personal_competencies": 14,
+          "activity_scope": "occupation",
+          "sha256": "a7fd548693f507a00700465264c1c9286ebb17691297f7aa0e1b411f77b15b3c"
+        }
+      }
+    }
+  ]
+}

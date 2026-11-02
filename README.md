@@ -34,6 +34,13 @@ python -m observatory.cli slice
 python -m observatory.cli serve
 ```
 
+Para avaliar os quatro conjuntos de comparação (desenvolvimento, contabilidade, eletricista, técnico de
+enfermagem) e gerar `artifacts/reports/coverage_latest.md`:
+
+```bash
+python -m observatory.cli coverage
+```
+
 Abra http://127.0.0.1:8000 (ocupações), `/occupations/{id}` (página da ocupação) e `/about` (área "Sobre").
 A CBO exige download manual (reCAPTCHA) — veja [docs/data-sources.md](docs/data-sources.md).
 

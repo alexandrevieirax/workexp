@@ -33,6 +33,9 @@ no momento da carga; nada é reconstruído a partir de memória.
   escolhidos manualmente; colocar em `data/raw/esco/<versão>/`.
 - Campos: URI, preferredLabel, alternativeLabel, description, código ISCO,
   broaderIscoGroup, hasEssentialSkill, hasOptionalSkill (com `skillType`).
+- Ocupações ESCO mais específicas apontam para uma ocupação "mãe" (`broaderOccupation`), não para o grupo
+  ISCO. Nesses casos o grupo ISCO-08 vem dos quatro primeiros dígitos do código ESCO, pela convenção da
+  própria ESCO (5321.1.1 → 5321), e o método fica em `isco_group_method = esco_code_prefix`.
 
 ## CBO
 

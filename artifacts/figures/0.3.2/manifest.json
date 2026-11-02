@@ -47,10 +47,10 @@
       "kind": "image",
       "title": "Cálculo da exposição ocupacional",
       "caption": "Cada barra é a contribuição de uma tarefa O*NET (peso normalizado × exposição técnica); a soma é o OAE.",
-      "alt": "Barras horizontais com a contribuição de 17 tarefas para o OAE de 0.71.",
-      "data_source": "assessment #16 run 20261102T205907Z-b168d0; ONET 15-1252.00",
+      "alt": "Barras horizontais com a contribuição de 22 tarefas para o OAE de 0.44.",
+      "data_source": "assessment #31 run 20261102T220601Z-bce402; ONET 29-2061.00",
       "methodology_version": "0.3.2",
-      "sha256": "7c1dcad99a0916c5a87d38515d1a15943527f7463de16139a01af953489062eb"
+      "sha256": "85b1aca2fcdbac799c795e946f59d340dbf96373c99b3e3dd3c51324f90b12ce"
     },
     "automation_augmentation": {
       "file": "automation_augmentation.svg",
@@ -58,19 +58,19 @@
       "title": "Automação versus aumento",
       "caption": "Cada ponto é uma tarefa; acima da diagonal predomina o aumento de capacidade humana.",
       "alt": "Dispersão das tarefas com automação no eixo x e aumento no eixo y; a maioria acima da diagonal.",
-      "data_source": "assessment #16 run 20261102T205907Z-b168d0; ONET 15-1252.00",
+      "data_source": "assessment #31 run 20261102T220601Z-bce402; ONET 29-2061.00",
       "methodology_version": "0.3.2",
-      "sha256": "c0a87118e451239e33036d35832304dd7a0b545de1fec9b0ee5e5cfea0bc5499"
+      "sha256": "49b872396f236e8f45cda4430a40ac4bc3a2c2664e3a86e3e3407dd52e709b56"
     },
     "sensitivity": {
       "file": "sensitivity.svg",
       "kind": "image",
       "title": "Análise de sensibilidade",
       "caption": "Efeito no OAE de reduzir (vermelho) ou aumentar (azul) cada peso em 20%, mantendo os demais.",
-      "alt": "Gráfico de tornado; maior variação absoluta do OAE = 0.015.",
-      "data_source": "assessment #16 run 20261102T205907Z-b168d0; ONET 15-1252.00",
+      "alt": "Gráfico de tornado; maior variação absoluta do OAE = 0.017.",
+      "data_source": "assessment #31 run 20261102T220601Z-bce402; ONET 29-2061.00",
       "methodology_version": "0.3.2",
-      "sha256": "f9037eb77be99dc076151450231ce08f755b608e2b38c70a539c1b2e019a5f60"
+      "sha256": "bfd5670cce474a3c4dfb815a70c14654885e0c0ee00f8444172652ba0c026ab4"
     },
     "uncertainty": {
       "file": "uncertainty.svg",
@@ -78,9 +78,9 @@
       "title": "Incerteza",
       "caption": "Intervalos de 90% (Monte Carlo) para os quatro índices de cada ocupação avaliada.",
       "alt": "Segmentos horizontais com os intervalos de OAE, OAP, OAuP e OTP por ocupação.",
-      "data_source": "assessment #16; assessment #17; assessment #18",
+      "data_source": "assessment #31; assessment #32; assessment #33",
       "methodology_version": "0.3.2",
-      "sha256": "5fc11434b3c618619bf26e003a000d6088ee268fbdd40652cc24912098988dac"
+      "sha256": "58f01558c27f468f7d25d8376fe215703732848ad3cedef9d3befb8194fd1f53"
     },
     "crosswalk": {
       "file": "crosswalk.svg",
@@ -88,9 +88,9 @@
       "title": "Crosswalk CBO–ESCO–O*NET",
       "caption": "Componentes do mapping_confidence por par; nenhum par é aceito automaticamente.",
       "alt": "Barras agrupadas com os cinco componentes de cada correspondência proposta e a confiança final.",
-      "data_source": "mapping #1; mapping #2; mapping #3; mapping #4; mapping #5; mapping #6; mapping #7; mapping #8; mapping #9; mapping #10; mapping #11; mapping #12; mapping #13; mapping #14; mapping #15; mapping #16; mapping #17; mapping #18; mapping #19; mapping #20; mapping #21; mapping #22; mapping #23; mapping #24; mapping #25; mapping #26; mapping #27; mapping #28; mapping #29; mapping #30; mapping #31; mapping #32; mapping #33; mapping #34; mapping #35; mapping #36; mapping #37; mapping #38; mapping #39",
+      "data_source": "mapping #1; mapping #2; mapping #3; mapping #4; mapping #5; mapping #6; mapping #7; mapping #8; mapping #9; mapping #10; mapping #11; mapping #12; mapping #13; mapping #14; mapping #15; mapping #16; mapping #17; mapping #18; mapping #19; mapping #20; mapping #21; mapping #22; mapping #23; mapping #24; mapping #25; mapping #26; mapping #27; mapping #28; mapping #29; mapping #30; mapping #31; mapping #32; mapping #33; mapping #34; mapping #35; mapping #36; mapping #37; mapping #38; mapping #39; mapping #40; mapping #41; mapping #42; mapping #43; mapping #44; mapping #45; mapping #46; mapping #47; mapping #48; mapping #49; mapping #50; mapping #51; mapping #52; mapping #53; mapping #54; mapping #55; mapping #56; mapping #57; mapping #58; mapping #59; mapping #60; mapping #61; mapping #62; mapping #63; mapping #64; mapping #65; mapping #66; mapping #67; mapping #68; mapping #69; mapping #70; mapping #71; mapping #72",
       "methodology_version": "0.3.2",
-      "sha256": "91b1b11cdd073b90507a366ec04e9965526f24bf7fc27de738daec96bcde2326"
+      "sha256": "2f693a5ffac60d71f6d026967ef54e0b2efe5a893f01337d5860e09c0df90d3d"
     }
   }
 }

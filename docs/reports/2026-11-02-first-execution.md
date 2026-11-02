@@ -323,3 +323,59 @@ equivalente pela API.
 A cadeia CBO → O*NET é larga: a CIUO-88 2131 corresponde a várias unidades ISCO-08 e, por elas, a várias
 ocupações O*NET de computação. Por isso o componente de hierarquia confirma a família, mas não escolhe entre
 vizinhos; essa escolha vem das tarefas e da revisão humana.
+
+---
+
+## Adendo 6 — decisões humanas aplicadas e comparação entre quatro ocupações (metodologia 0.3.2)
+
+### Revisão de crosswalks
+
+Decisões registradas por Alexandre na página `/crosswalks`:
+
+- ESCO "software developer" → 15-1252.00 Software Developers.
+- CBO 2124-05 → 15-1253.00 Software QA Analysts and Testers. É a sugestão automática da página; minha
+  recomendação era 15-1252.00.
+
+Na execução seguinte, os priors passaram a vir das ocupações aceitas. A incerteza média caiu de 0,63 para
+0,57 (ESCO) e de 0,62 para 0,56 (CBO).
+
+A chave administrativa não carregava porque a instrução `echo ... >> .env` grava UTF-16 no PowerShell. Isso foi
+corrigido: o comando `admin-key` gera a chave, o `.env` é lido em qualquer codificação e o texto de exemplo é
+recusado.
+
+### Cobertura: `python -m observatory.cli coverage`
+
+Quatro conjuntos CBO + ESCO + O*NET (tabela completa em `artifacts/reports/coverage_latest.md`):
+
+| Conjunto | O*NET OAE | ESCO OAE | CBO OAE | OAP (3 bases) | Classe predominante no O*NET |
+|---|---|---|---|---|---|
+| Desenvolvimento de sistemas | 0,71 | 0,79 | 0,76 | 0,06–0,07 | aumento (81%) |
+| Contabilidade | 0,63 | 0,71 | 0,74 | 0,06 | aumento (76%) |
+| Eletricista de instalações | 0,50 | 0,59 | 0,66 | 0,00 | aumento (52%) |
+| Técnico de enfermagem | 0,44 | 0,59 | 0,56 | 0,01 | apoio pontual (80%) |
+
+**O que funciona:** no O*NET, o índice ordena os perfis de forma plausível (cognitivo > manual e saúde). A
+automação é praticamente nula onde há presença física e responsabilidade.
+
+**Viés encontrado:** CBO e ESCO ficam sistematicamente 0,08–0,16 acima do O*NET. A causa provável é que
+as tarefas CBO/ESCO não têm uso observado (E3 ausente), e o peso de E3 é redistribuído para E1/E2/E11, que
+tendem a ser altos. Nas tarefas O*NET, a ausência na amostra entra como 0 e puxa o índice para baixo. Correção
+proposta para a próxima versão: dar às tarefas CBO/ESCO a distribuição de uso observado da ocupação O*NET
+equivalente (aceita ou transferida), com a incerteza correspondente, em vez de redistribuir o peso.
+
+**Crosswalks novos:**
+
+- Contabilidade, eletricista e técnico de enfermagem: CBO e ESCO ligam ao O*NET esperado (13-2011, 47-2111,
+  29-2061), sem ambiguidade.
+- **ESCO "nurse assistant" → 31-1133 Psychiatric Aides (0,93)** foi escolhido automaticamente. O equivalente
+  natural é 31-1131 Nursing Assistants (0,82). Precisa de revisão humana.
+- **CBO técnico de enfermagem × ESCO nurse assistant:** hierarquia 0 e confiança 0,57, não aceito. Isso reflete
+  uma diferença real: no Brasil a profissão é de nível técnico (CIUO-88 3231 → ISCO-08 3221), e a ESCO só tem
+  ocupação individual no grupo 5321 (auxiliares).
+
+**Correção no conector ESCO:** ocupações ESCO mais específicas não trazem o vínculo com o grupo ISCO. O grupo
+passa a ser obtido pelo prefixo do código ESCO (convenção da própria ESCO, ex.: 5321.1.1 → 5321), com o
+método registrado em `isco_group_method`.
+
+**Limitação:** as figuras da área "Sobre" mostram a última ocupação avaliada. Figuras por ocupação ficam para
+a interface da fase 7.

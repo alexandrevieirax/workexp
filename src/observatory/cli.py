@@ -34,6 +34,17 @@ def cmd_slice(args) -> int:
     return 0
 
 
+def cmd_coverage(args) -> int:
+    from observatory.about.figures import build_figures
+    from observatory.pipeline.coverage import run_coverage
+
+    result = run_coverage(provider=args.provider, offline=args.offline)
+    build_figures()
+    print((get_settings().reports_dir / "coverage_latest.md").read_text(encoding="utf-8"))
+    print(f"{len(result['sets'])} occupation sets assessed")
+    return 0
+
+
 def cmd_methodology_status(args) -> int:
     from observatory.about.consistency import check_consistency
 
@@ -232,6 +243,10 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--onet", default="15-1252.00")
     s.add_argument("--esco", default="http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1")
     s.set_defaults(fn=cmd_slice)
+    cv = sub.add_parser("coverage", help="run the slice for the default occupation sets and compare them")
+    cv.add_argument("--provider", default=None)
+    cv.add_argument("--offline", action="store_true")
+    cv.set_defaults(fn=cmd_coverage)
     sub.add_parser("methodology-status").set_defaults(fn=cmd_methodology_status)
     sub.add_parser("methodology-release").set_defaults(fn=cmd_methodology_release)
     sub.add_parser("data-dictionary").set_defaults(fn=cmd_data_dictionary)

@@ -6,6 +6,7 @@ The MTE portal protects downloads with reCAPTCHA, so files must be obtained manu
 
 from __future__ import annotations
 
+import json
 import zipfile
 from pathlib import Path
 
@@ -75,6 +76,8 @@ class CboFiles:
         if "ocupacao" not in self._files:
             raise SourceUnavailableError("CBO structure files not found", PROCEDURE, str(directory))
         self.tables = {k: self._read(k, data) for k, (name, data) in self._files.items()}
+        books = directory / "cbo_books_families.json"
+        self.books = json.loads(books.read_text(encoding="utf-8")) if books.exists() else None
 
     def _discover(self) -> dict[str, tuple[str, bytes]]:
         found: dict[str, tuple[str, bytes]] = {}
@@ -119,13 +122,17 @@ class CboFiles:
         return {k: len(v) for k, v in self.tables.items()}
 
     def descriptor(self) -> SourceDescriptor:
-        digest = sha256_bytes(b"".join(d for _, d in sorted(self._files.values())))
+        payload = b"".join(d for _, d in sorted(self._files.values()))
+        books = sorted((self.books or {}).get("source_files", {}).items())
+        if books:  # the family fields from the official books are part of the source
+            payload += "".join(f"{n}:{h}" for n, h in books).encode()
+        digest = sha256_bytes(payload)
         return SourceDescriptor(
             dataset_code="CBO",
             dataset_name="Classificação Brasileira de Ocupações 2002",
             publisher="Ministério do Trabalho e Emprego (Brasil)",
             homepage="https://cbo.mte.gov.br",
-            version="CBO2002-estrutura-csv",
+            version="CBO2002-estrutura-csv" + ("+livros-3a-ed-2010" if books else ""),
             source_url="https://cbo.mte.gov.br/cbosite/pages/downloads.jsf",
             retrieval_method="manual_file" if not self.is_synthetic else "synthetic_fixture",
             file_sha256=digest,
@@ -133,7 +140,8 @@ class CboFiles:
             license_url=None,
             notes="files: "
             + ", ".join(n for n, _ in self._files.values())
-            + f"; rule cbo_semicolon_in_last_field repaired rows: {self.repaired_rows}",
+            + f"; rule cbo_semicolon_in_last_field repaired rows: {self.repaired_rows}"
+            + (f"; family fields and CIUO 88 parsed from books: {', '.join(n for n, _ in books)}" if books else ""),
             is_synthetic=self.is_synthetic,
         )
 
@@ -149,6 +157,7 @@ class CboFiles:
             fam = self.tables["familia"]
             fr = fam[fam["CODIGO"] == family]
             fam_title = fr.iloc[0]["TITULO"] if not fr.empty else None
+        book = (self.books or {}).get("families", {}).get(family)
         aliases = [(row.iloc[0]["TITULO"], "pt", "preferred")]
         if "sinonimo" in self.tables:
             syn = self.tables["sinonimo"]
@@ -157,7 +166,7 @@ class CboFiles:
             taxonomy="CBO",
             code=code,
             title=row.iloc[0]["TITULO"],
-            description=None,
+            description=book.get("descricao_sumaria") if book else None,
             language="pt",
             group_code=family,
             qualification_level=CBO_SKILL_LEVEL_BY_GG.get(code[0]),
@@ -165,7 +174,19 @@ class CboFiles:
             attributes={
                 "family_code": family,
                 "family_title": fam_title,
-                "fields_not_available_in_source_file": NOT_IN_FILE,
+                "fields_not_available_in_source_file": [] if book else NOT_IN_FILE,
+                **(
+                    {
+                        "description_scope": "family",
+                        "formacao_experiencia": book.get("formacao_experiencia"),
+                        "condicoes_gerais_exercicio": book.get("condicoes_gerais_exercicio"),
+                        "recursos_trabalho": book.get("recursos_trabalho"),
+                        "ciuo88": book.get("ciuo88"),
+                        "book_source": f"{book['book']} p.{book['pages'][0]}-{book['pages'][-1]}",
+                    }
+                    if book
+                    else {}
+                ),
             },
             is_synthetic=self.is_synthetic,
         )

@@ -1,0 +1,7 @@
+flowchart LR
+    P["Perfil profissional / curso<br/>(fase 8)"] --> E["Extração de competências,<br/>capacidades, resultados"]
+    E -->|"revisão humana"| L["Ligação elemento ↔ tarefa"]
+    L --> X["Exposição e transformação<br/>das tarefas"]
+    X --> G["Cobertura e lacunas<br/>(competências emergentes)"]
+    G --> Rc["Recomendações rastreáveis<br/>manter · atualizar · integrar IA · ..."]
+    Rc -->|"exclusão só com validação humana"| H["Comitê pedagógico"]

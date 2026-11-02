@@ -130,13 +130,10 @@ class OfficialCodeCrosswalk:
         adj = self._graph()
         targets = {(sys_b, c) for c in codes_b if c}
         frontier = {(sys_a, c) for c in codes_a if c}
-        seen = set(frontier)
-        for _ in range(max_hops):
-            if frontier & targets:
-                return 1.0, path
-            nxt = {n for node in frontier for n in adj.get(node, ()) if n not in seen}
-            seen |= nxt
-            frontier = nxt
+        # Follow the system path strictly (one step per system, never revisiting one): a detour such as
+        # ISCO08 → ISCO88 → (another) ISCO08 unit would silently widen the correspondence.
+        for nxt_sys in path[1:]:
+            frontier = {n for node in frontier for n in adj.get(node, ()) if n[0] == nxt_sys}
         return (1.0 if frontier & targets else 0.0), path
 
     def esco_targets(self, esco_code: str | None, title: str) -> tuple[set[str] | None, str]:
@@ -263,27 +260,39 @@ def propose(
     task = set_sim(a.tasks, b.tasks, "tasks", null_tasks)
     skill = set_sim(a.skills, b.skills, "skills", null_skills)
 
-    hier = None
+    # Every applicable official source votes; the component is their mean and disagreements are recorded.
+    votes: dict[str, float] = {}
     official_info: dict = {}
     if official and a.taxonomy == "ESCO" and b.taxonomy == "ONET" and official.esco_onet:
         targets, how = official.esco_targets(a.official_code, a.titles[0])
         if targets is not None:
-            hier = 1.0 if b.official_code in targets else 0.0
-            official_info = {"method": how, "official_targets": sorted(targets)}
+            votes["onet_esco_table"] = 1.0 if b.official_code in targets else 0.0
+            official_info["onet_esco_table"] = {"method": how, "official_targets": sorted(targets)}
             rules.append(
-                f"hierarchy: O*NET official ESCO→O*NET-SOC table ({how}); target "
-                f"{'in' if hier else 'not in'} the {len(targets)} mapped occupations"
+                f"hierarchy: O*NET ESCO→O*NET-SOC table ({how}); target "
+                f"{'in' if votes['onet_esco_table'] else 'not in'} the {len(targets)} mapped occupations"
             )
-    if hier is None and official and official.pairs:
-        hier, path = official.chain_consistent(
-            HIERARCHY_SYSTEM[a.taxonomy], hierarchy_codes(a), HIERARCHY_SYSTEM[b.taxonomy], hierarchy_codes(b)
+    if official and official.pairs:
+        linked, path = official.chain_consistent(
+            HIERARCHY_SYSTEM[a.taxonomy],
+            hierarchy_codes(a),
+            HIERARCHY_SYSTEM[b.taxonomy],
+            hierarchy_codes(b),
+            cw.get("official_chain_max_hops", 3),
         )
-        if hier is not None:
-            official_info = {"method": "official_table_chain", "systems": path}
+        if linked is not None:
+            votes["official_table_chain"] = linked
+            official_info["official_table_chain"] = {"systems": path}
             rules.append(
-                f"hierarchy: chain of official tables {' → '.join(path)} ({'linked' if hier else 'not linked'})"
+                f"hierarchy: chain of official tables {' → '.join(path)} ({'linked' if linked else 'not linked'})"
             )
-    if hier is None:
+    hier = sum(votes.values()) / len(votes) if votes else None
+    if votes:
+        official_info["votes"] = votes
+        if len(set(votes.values())) > 1:
+            official_info["disagreement"] = True
+            rules.append(f"hierarchy: official sources disagree {votes} → mean {hier:.2f}")
+    else:
         rules.append("hierarchy: no applicable official correspondence → unknown")
 
     qual = None

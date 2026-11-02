@@ -66,10 +66,10 @@ ainda não são usados. Regras de transformação registradas:
   unidades de tarefa**. A área Y (`COMUNICAR-SE`) contém atividades e permanece.
 - Espaços finais dos títulos são removidos.
 
-Descrição sumária, formação/experiência e condições gerais de exercício
-**não** fazem parte do ZIP de estrutura; estão nas páginas de família do portal
-e na publicação "CBO 2002 — Livro". O conector registra esses campos como
-`not_available_in_source_file`.
+Descrição sumária, formação/experiência, condições gerais de exercício e recursos de trabalho **não** fazem
+parte do ZIP de estrutura. Quando `cbo_books_families.json` existe (gerado por `import-cbo-books`), o conector os
+preenche no nível da família (`description_scope: family`) e a versão da fonte passa a ser
+`CBO2002-estrutura-csv+livros-3a-ed-2010`.
 
 ## Tabelas oficiais de correspondência (crosswalks)
 
@@ -79,12 +79,25 @@ e na publicação "CBO 2002 — Livro". O conector registra esses campos como
 | `2010_to_2019_Crosswalk.csv` | O*NET Resource Center | ✅ importada como `SOC2010_to_ONETSOC2019.csv` (SOC 2010 truncado a 7 caracteres) | elo SOC 2010 → O*NET-SOC 2019 |
 | `Correspondence_EN_ISCO_08_to_ISCO_88.xlsx` | ILO | ✅ baixada manualmente em `data/raw/crosswalks/isco/` e importada como `ISCO08_to_ISCO88.csv` (678 linhas, zeros à esquerda restaurados) | elo ISCO-08 ↔ ISCO-88 |
 | Estrutura ISCO (`ISCO.xlsx`, `isco.csv`, índice, versão árabe) | ILO | ✅ baixada manualmente; ainda não usada | rótulos e níveis de competência ISCO |
-| ISCO-08↔SOC 2010 | BLS | ⏳ **download manual** (o site bloqueia acesso automatizado) | elo que liga ESCO/ISCO ao O*NET por cadeia |
-| Tábua CBO 2002↔CIUO-88 (MTE) ou COD↔CBO (IBGE/CONCLA) | MTE / IBGE | ⏳ **download manual** (reCAPTCHA no MTE; 403 no CONCLA) | elo que liga a CBO ao ISCO |
+| `ISCO_SOC_Crosswalk.xls` (ISCO-08 → SOC 2010, ago/2012, atualizada em jun/2015) | BLS | ✅ baixada manualmente e importada como `ISCO08_to_SOC2010.csv` (1.125 linhas) | elo ESCO/ISCO → O*NET |
+| Livros CBO 2002, 3ª ed. 2010, volumes 1 e 2 (PDF) | MTE | ✅ baixados manualmente; `import-cbo-books` gera `CBO2002_to_ISCO88.csv` (601 famílias, 738 ligações) e `data/raw/cbo/cbo_books_families.json` | elo CBO → ISCO-88 e campos da família |
+| Livro CBO volume 3 (estrutura, tábua de conversão, índice) | MTE | ✅ baixado; não usado (a tábua é CBO 94 → CBO 2002) | — |
+| Tábuas "público geral" / "usuário médio" (CBO 94 → CBO 2002) | MTE | ✅ baixadas; não usadas | conversão entre versões da CBO |
+| `soc_2000_to_2010_crosswalk.xls` | BLS | ✅ baixada; não usada | — |
 
-As tabelas canônicas formam um grafo percorrido em até 3 saltos. Com a tabela da BLS, a cadeia
-ISCO-08 → SOC 2010 → O*NET-SOC 2019 passa a funcionar. Com a tábua da CBO, funciona
-CBO 2002 → ISCO-88 → ISCO-08 (ESCO).
+As tabelas canônicas formam um grafo percorrido em até 4 saltos. Hoje funcionam as cadeias
+ISCO-08 → SOC 2010 → O*NET-SOC 2019, CBO 2002 → ISCO-88 → ISCO-08 (ESCO) e
+CBO 2002 → ISCO-88 → ISCO-08 → SOC 2010 → O*NET-SOC 2019.
+
+**Livros da CBO.** Cada página de família traz o campo "CÓDIGO INTERNACIONAL CIUO 88": é a correspondência
+publicada pelo próprio MTE. O extrator (`observatory.connectors.cbo_books`) lê também a descrição sumária, a
+formação e experiência, as condições gerais de exercício e os recursos de trabalho. Todos os 738 códigos
+extraídos foram validados contra a lista ILO de unidades ISCO-88. As 22 famílias criadas ou reorganizadas
+depois da edição de 2010 (ex.: 2251–2253) ficam sem ligação.
+
+```bash
+python -m observatory.cli import-cbo-books data/raw/crosswalks/livro-1-portal-cbo.pdf data/raw/crosswalks/cbo2002_liv2.pdf
+```
 
 Comandos para quando os arquivos estiverem na pasta (ajuste os nomes de coluna ao arquivo baixado):
 

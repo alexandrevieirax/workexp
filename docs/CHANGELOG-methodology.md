@@ -5,6 +5,22 @@ dicionário, regra de crosswalk ou método curricular exige uma nova seção aqu
 `config/methodology/registry.json`, atualização da área "Sobre" (`methodology_version` no cabeçalho dos
 arquivos de conteúdo) e das referências citadas. `tests/test_about_consistency.py` verifica isso.
 
+## [0.3.2] - 2026-11-02
+
+Status: **não calibrada**. Fecha as cadeias de tabelas oficiais:
+
+- **CBO 2002 → CIUO-88:** extraída dos livros oficiais da CBO (MTE, 3ª ed., 2010, volumes 1 e 2), campo
+  "CÓDIGO INTERNACIONAL CIUO 88" de cada família. Resultado: 601 de 627 famílias, 738 ligações, todas
+  validadas contra a lista ILO de unidades ISCO-88. As 22 famílias criadas ou reorganizadas depois da edição
+  de 2010 ficam sem ligação.
+- **ISCO-08 → SOC 2010:** tabela da BLS (agosto/2012, atualizada em junho/2015), 1.125 linhas.
+- **Hierarquia por votos:** cada fonte oficial aplicável (tabela ESCO→O*NET do O*NET; cadeia de tabelas)
+  vota 0 ou 1. O componente é a média, e as divergências ficam registradas. Antes, só a primeira fonte
+  encontrada era usada.
+- **Saltos:** o limite da cadeia sobe para 4, porque CBO→O*NET passa por CBO→ISCO-88→ISCO-08→SOC 2010→O*NET-SOC.
+- Os livros também fornecem para as ocupações CBO a descrição sumária, a formação e experiência, as condições
+  gerais de exercício e os recursos de trabalho, no nível da família (`description_scope: family`).
+
 ## [0.3.1] - 2026-11-02
 
 Status: **não calibrada**. Correção sobre a 0.3.0, sem mudança de fórmula nem de pesos:

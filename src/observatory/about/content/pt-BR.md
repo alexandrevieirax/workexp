@@ -1,5 +1,5 @@
 ---
-methodology_version: 0.3.1
+methodology_version: 0.3.2
 language: pt-BR
 ---
 

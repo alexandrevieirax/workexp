@@ -155,6 +155,50 @@ def cmd_import_crosswalk(args) -> int:
     return 0
 
 
+def cmd_import_cbo_books(args) -> int:
+    """Extract family fields and the MTE family → CIUO 88 correspondence from the official CBO books (PDF)."""
+    import csv
+    import json
+    from pathlib import Path
+
+    from observatory.connectors.cbo_books import parse_books
+
+    s = get_settings()
+    paths = [Path(f) for f in args.files]
+    records, hashes = parse_books(paths)
+    out_cw = s.raw_data_dir / "crosswalks" / "CBO2002_to_ISCO88.csv"
+    with open(out_cw, "w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["from_system", "from_code", "to_system", "to_code", "source"])
+        for fam, rec in sorted(records.items()):
+            for code in rec.ciuo88:
+                w.writerow(["CBO2002", fam, "ISCO88", code, f"{rec.book} p.{rec.pages[0]}"])
+    out_fam = s.raw_data_dir / "cbo" / "cbo_books_families.json"
+    out_fam.write_text(
+        json.dumps(
+            {
+                "source_files": hashes,
+                "families": {
+                    f: {"book": r.book, "pages": r.pages, "ciuo88": r.ciuo88, **r.fields}
+                    for f, r in sorted(records.items())
+                },
+            },
+            ensure_ascii=False,
+            indent=1,
+        ),
+        encoding="utf-8",
+    )
+    _print(
+        {
+            "families": len(records),
+            "with_ciuo88": sum(1 for r in records.values() if r.ciuo88),
+            "crosswalk": str(out_cw),
+            "family_fields": str(out_fam),
+        }
+    )
+    return 0
+
+
 def cmd_serve(args) -> int:
     import uvicorn
 
@@ -210,6 +254,9 @@ def main(argv: list[str] | None = None) -> int:
     ic.add_argument("--from-pad", type=int, default=None, help="left-pad numeric from codes with zeros to N digits")
     ic.add_argument("--to-pad", type=int, default=None, help="left-pad numeric to codes with zeros to N digits")
     ic.set_defaults(fn=cmd_import_crosswalk)
+    cb = sub.add_parser("import-cbo-books", help="parse the official CBO books (PDF) for CIUO 88 links and fields")
+    cb.add_argument("files", nargs="+", help="e.g. data/raw/crosswalks/livro-1-portal-cbo.pdf cbo2002_liv2.pdf")
+    cb.set_defaults(fn=cmd_import_cbo_books)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)

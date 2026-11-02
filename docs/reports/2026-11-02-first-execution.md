@@ -276,3 +276,50 @@ Resultado: **idêntico à 0.3.0**. Faltam os dois elos que fecham as cadeias:
 Com esses arquivos em `data/raw/crosswalks/`, basta rodar `import-crosswalk` (exemplos em
 `docs/data-sources.md`) e a fatia vertical. O componente de hierarquia deixa de ser desconhecido para
 CBO→O*NET e CBO→ESCO, e passa a ter uma segunda fonte oficial para ESCO→O*NET.
+
+---
+
+## Adendo 5 — cadeias oficiais fechadas, metodologia 0.3.2 (run `20261102T205907Z-b168d0`)
+
+Fontes adicionadas (baixadas manualmente por você):
+
+- **BLS ISCO-08 → SOC 2010** (`ISCO_SOC_Crosswalk.xls`): 1.125 linhas importadas.
+- **Livros oficiais da CBO 2002** (MTE, 3ª ed., 2010, vol. 1–2): o novo extrator `import-cbo-books` lê o campo
+  "CÓDIGO INTERNACIONAL CIUO 88" de cada família, que é a correspondência publicada pelo próprio MTE.
+  601 de 627 famílias, 738 ligações, todas validadas contra a lista ILO de unidades ISCO-88. Família 2124 → 2131
+  ("Creadores y analistas de sistemas informáticos"). Os livros também dão às ocupações CBO a descrição
+  sumária, a formação e experiência, as condições gerais de exercício e os recursos de trabalho.
+- O volume 3 e as pastas `publico-geral`/`usuario-medio` trazem a tábua **CBO 94 → CBO 2002**, conversão entre
+  versões da própria CBO; não servem para ligar ao ISCO e não foram usados.
+
+Mudanças metodológicas (0.3.2):
+
+- **Hierarquia por votos de fontes oficiais**, com divergências registradas.
+- **Cadeias de até 4 saltos.** A primeira execução tinha um bug: a busca podia desviar por um sistema já
+  visitado (ISCO-08 → ISCO-88 → *outra* unidade ISCO-08 → …), o que afrouxava a correspondência e deu
+  hierarquia 1,0 a 15-1299.08. Corrigi antes da publicação (há teste de regressão) e removi os registros
+  daquela execução, com registro no log de auditoria.
+
+### Resultados
+
+| Crosswalk | Antes (0.3.1) | 0.3.2 | Hierarquia |
+|---|---|---|---|
+| ESCO → 15-1252.00 Software Developers | 0,878 (3º) | 0,878, **empatado em 1º** | 1,0 (as duas fontes concordam) |
+| ESCO → 15-1299.08 | 0,929 (1º) | 0,879 | 0,5 (tabela O*NET: sim; cadeia BLS: não) |
+| CBO 2124-05 → melhor O*NET (15-1253.00) | 0,796 | 0,846 | 1,0 (antes desconhecido) |
+| CBO 2124-05 → ESCO | 0,65 | 0,70 | 1,0 (antes desconhecido) |
+
+| Base | OAE | OAP | OAuP | E14 médio | Priors |
+|---|---|---|---|---|---|
+| O*NET | 0,71 | 0,07 | 0,43 | 0,25 | diretos |
+| ESCO | 0,79 | 0,05 | 0,43 | 0,63 | média de 15-1299.08 e 15-1252.00 (empate) |
+| CBO 2124-05 | 0,76 | 0,05 | 0,40 | 0,62 | média de 15-1253.00 e 15-1299.08 (empate) |
+
+Os escores mudam pouco (as ocupações de computação têm contextos de trabalho parecidos), mas a proveniência
+melhorou. A ESCO agora inclui o equivalente canônico 15-1252.00 na média, e a hierarquia CBO deixou de ser
+desconhecida. O empate em ambos os casos é real e está sinalizado: uma revisão humana deve escolher o
+equivalente pela API.
+
+A cadeia CBO → O*NET é larga: a CIUO-88 2131 corresponde a várias unidades ISCO-08 e, por elas, a várias
+ocupações O*NET de computação. Por isso o componente de hierarquia confirma a família, mas não escolhe entre
+vizinhos; essa escolha vem das tarefas e da revisão humana.

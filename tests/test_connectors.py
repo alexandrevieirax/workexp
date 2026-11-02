@@ -118,3 +118,57 @@ def test_aei_exact_fuzzy_and_absent(tmp_path):
     fuzzy = aei.lookup("Prepare status reports for project managers.")
     assert fuzzy.match_method == "fuzzy_text" and 0.85 <= fuzzy.match_score < 1
     assert aei.lookup("Install network cables inside office walls.") is None
+
+
+def test_cbo_books_parser_extracts_family_fields_and_ciuo(tmp_path):
+    """Synthetic two-page PDF in the layout of the official CBO books (one family continued on page 2)."""
+    import fitz
+
+    from observatory.connectors.cbo_books import parse_books
+
+    doc = fitz.open()
+    pages = [
+        "181\n[SINTÉTICO] FAMÍLIA\nCÓDIGO 9999\nTÍTULO\n9999-01 Analista sintético\nDESCRIÇÃO SUMÁRIA\n"
+        "Desenvolvem sistemas sintéti-\ncos para testes.\nFORMAÇÃO E EXPERIÊNCIA\nCurso superior.\n"
+        "CONDIÇÕES GERAIS DE EXERCÍCIO\nTrabalham em equipe.\nCÓDIGO INTERNACIONAL CIUO 88\n"
+        "2131 - Creadores y analistas de sistemas informáticos.\n2139 - Otros.",
+        "182\nCÓDIGO 9999\nRECURSOS DE TRABALHO\nComputador; rede.",
+    ]
+    for text in pages:
+        doc.new_page().insert_text((40, 40), text, fontsize=8)
+    pdf = tmp_path / "livro_sintetico.pdf"
+    doc.save(pdf)
+    records, hashes = parse_books([pdf])
+    rec = records["9999"]
+    assert rec.ciuo88 == ["2131", "2139"] and rec.pages == [1, 2]
+    assert rec.fields["descricao_sumaria"] == "Desenvolvem sistemas sintéticos para testes."
+    assert rec.fields["recursos_trabalho"] == "Computador; rede."
+    assert len(hashes["livro_sintetico.pdf"]) == 64
+
+
+def test_cbo_occupation_enriched_from_books(tmp_path):
+    import json
+
+    d = build.build_cbo_dir(tmp_path / "cbo")
+    (d / "cbo_books_families.json").write_text(
+        json.dumps(
+            {
+                "source_files": {},
+                "families": {
+                    "9999": {
+                        "book": "livro.pdf",
+                        "pages": [5, 6],
+                        "ciuo88": ["2131"],
+                        "descricao_sumaria": "Descrição sintética.",
+                        "formacao_experiencia": "Superior.",
+                        "condicoes_gerais_exercicio": "Equipe.",
+                        "recursos_trabalho": "PC.",
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    occ = CboFiles(d).occupation("999901")
+    assert occ.description == "Descrição sintética." and occ.attributes["description_scope"] == "family"
+    assert occ.attributes["ciuo88"] == ["2131"] and occ.attributes["fields_not_available_in_source_file"] == []

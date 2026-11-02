@@ -1,5 +1,5 @@
 {
-  "current": "0.3.1",
+  "current": "0.3.2",
   "versions": [
     {
       "version": "0.1.0",
@@ -30,6 +30,14 @@
       "released_at": "2026-11-02",
       "fingerprint": "820e9aedfc85162e77a85a19d01213138dacb90a69ca912d66dc8966c2b80250",
       "config_file": "methodology_v0.3.1.yaml",
+      "capability_dictionary": "ai_capabilities_v0.1.0.yaml",
+      "status": "superseded"
+    },
+    {
+      "version": "0.3.2",
+      "released_at": "2026-11-02",
+      "fingerprint": "369282fdcc615f637a6e42e8c53a27c949a3cf9bb6684fd0cb22ede628c543fc",
+      "config_file": "methodology_v0.3.2.yaml",
       "capability_dictionary": "ai_capabilities_v0.1.0.yaml",
       "status": "uncalibrated"
     }

@@ -88,7 +88,7 @@ def test_official_table_chain_drives_hierarchy():
     elec = CrosswalkSide("ONET:47-2111.00", "ONET", ["x"], "en", TASKS, [], "47-2111", 1 / 3, "47-2111.00")
     ok, bad = propose(esco, dev, EMB, CAL, CFG, off), propose(esco, elec, EMB, CAL, CFG, off)
     assert ok.hierarchy_consistency == 1.0 and bad.hierarchy_consistency == 0.0
-    assert ok.details["official"]["systems"] == ["ISCO08", "SOC2010", "ONETSOC2019"]
+    assert ok.details["official"]["official_table_chain"]["systems"] == ["ISCO08", "SOC2010", "ONETSOC2019"]
 
 
 def test_hierarchy_unknown_when_no_table_links_the_systems():
@@ -199,3 +199,50 @@ def test_candidate_search_ranks_and_flags_ambiguity(tmp_path):
     # the synthetic occupations share near-identical tasks, so the best match cannot be told apart
     assert found.ambiguous is (found.margin < CFG["crosswalk"]["candidates"]["ambiguity_margin"])
     assert set(found.candidate_origin.values()) == {"embedding_prefilter"}
+
+
+def test_official_sources_vote_and_disagreement_is_recorded():
+    off = OfficialCodeCrosswalk(
+        {("ISCO08", "2512", "SOC2010", "15-1132"), ("SOC2010", "15-1132", "ONETSOC2019", "15-1252.00")},
+        ["bls.csv"],
+        esco_onet={("2512.4", "software developer"): {"15-1252.00", "15-1299.08"}},
+    )
+    esco = CrosswalkSide("ESCO:x", "ESCO", ["software developer"], "en", TASKS, [], "2512", 1.0, "2512.4")
+    agree = CrosswalkSide("ONET:15-1252.00", "ONET", ["x"], "en", TASKS, [], "15-1252", 1.0, "15-1252.00")
+    differ = CrosswalkSide("ONET:15-1299.08", "ONET", ["x"], "en", TASKS, [], "15-1299", 1.0, "15-1299.08")
+    a, d = propose(esco, agree, EMB, CAL, CFG, off), propose(esco, differ, EMB, CAL, CFG, off)
+    assert a.hierarchy_consistency == 1.0 and "disagreement" not in a.details["official"]
+    assert d.hierarchy_consistency == 0.5 and d.details["official"]["disagreement"] is True
+    assert d.details["official"]["votes"] == {"onet_esco_table": 1.0, "official_table_chain": 0.0}
+
+
+def test_four_hop_chain_cbo_to_onet():
+    off = OfficialCodeCrosswalk(
+        {
+            ("CBO2002", "2124", "ISCO88", "2131"),
+            ("ISCO08", "2512", "ISCO88", "2131"),
+            ("ISCO08", "2512", "SOC2010", "15-1132"),
+            ("SOC2010", "15-1132", "ONETSOC2019", "15-1252.00"),
+        },
+        ["synthetic.csv"],
+    )
+    assert off.chain_consistent("CBO2002", ["212405", "2124"], "ONETSOC2019", ["15-1252.00"], 4)[0] == 1.0
+    # within 3 hops no chain of systems reaches O*NET-SOC: unknown, never "not linked"
+    assert off.chain_consistent("CBO2002", ["212405", "2124"], "ONETSOC2019", ["15-1252.00"], 3)[0] is None
+
+
+def test_chain_never_detours_through_a_visited_system():
+    """Regression: ISCO08 2512 → ISCO88 2131 → ISCO08 2511 → SOC → O*NET must not link 2512 to 2511's targets."""
+    off = OfficialCodeCrosswalk(
+        {
+            ("ISCO08", "2512", "ISCO88", "2131"),
+            ("ISCO08", "2511", "ISCO88", "2131"),
+            ("ISCO08", "2512", "SOC2010", "15-1132"),
+            ("ISCO08", "2511", "SOC2010", "15-1121"),
+            ("SOC2010", "15-1132", "ONETSOC2019", "15-1252.00"),
+            ("SOC2010", "15-1121", "ONETSOC2019", "15-1211.00"),
+        },
+        ["synthetic.csv"],
+    )
+    assert off.chain_consistent("ISCO08", ["2512"], "ONETSOC2019", ["15-1252.00"], 4)[0] == 1.0
+    assert off.chain_consistent("ISCO08", ["2512"], "ONETSOC2019", ["15-1211.00"], 4)[0] == 0.0

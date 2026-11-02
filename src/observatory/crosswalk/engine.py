@@ -92,6 +92,53 @@ class OfficialCodeCrosswalk:
                 sources.append(xlsx.name)
         return cls(pairs, sources, esco_onet)
 
+    def _graph(self) -> dict[tuple[str, str], set[tuple[str, str]]]:
+        if not hasattr(self, "_adj"):
+            adj: dict[tuple[str, str], set[tuple[str, str]]] = {}
+            for sa, ca, sb, cb in self.pairs:  # correspondences are relations: traversable both ways
+                adj.setdefault((sa, ca), set()).add((sb, cb))
+                adj.setdefault((sb, cb), set()).add((sa, ca))
+            self._adj = adj
+        return self._adj
+
+    def _system_path(self, sys_a: str, sys_b: str, max_hops: int) -> list[str] | None:
+        links: dict[str, set[str]] = {}
+        for sa, _, sb, _ in self.pairs:
+            links.setdefault(sa, set()).add(sb)
+            links.setdefault(sb, set()).add(sa)
+        frontier, seen = [[sys_a]], {sys_a}
+        while frontier:
+            path = frontier.pop(0)
+            if path[-1] == sys_b:
+                return path
+            if len(path) > max_hops:
+                continue
+            for nxt in sorted(links.get(path[-1], ())):
+                if nxt not in seen:
+                    seen.add(nxt)
+                    frontier.append([*path, nxt])
+        return None
+
+    def chain_consistent(
+        self, sys_a: str, codes_a: list[str], sys_b: str, codes_b: list[str], max_hops: int = 3
+    ) -> tuple[float | None, list[str] | None]:
+        """1.0 if official tables link a code of A to a code of B within ``max_hops`` steps, 0.0 if the systems are
+        linked but these codes are not, None if no chain of official tables connects the two systems."""
+        path = self._system_path(sys_a, sys_b, max_hops)
+        if path is None:
+            return None, None
+        adj = self._graph()
+        targets = {(sys_b, c) for c in codes_b if c}
+        frontier = {(sys_a, c) for c in codes_a if c}
+        seen = set(frontier)
+        for _ in range(max_hops):
+            if frontier & targets:
+                return 1.0, path
+            nxt = {n for node in frontier for n in adj.get(node, ()) if n not in seen}
+            seen |= nxt
+            frontier = nxt
+        return (1.0 if frontier & targets else 0.0), path
+
     def esco_targets(self, esco_code: str | None, title: str) -> tuple[set[str] | None, str]:
         t = normalize_text(title)
         if esco_code and (esco_code, t) in self.esco_onet:
@@ -103,18 +150,17 @@ class OfficialCodeCrosswalk:
                 return self.esco_onet[same[0]], f"esco_title_within_isco_group (table code {same[0][0]})"
         return None, "no_official_entry"
 
-    def systems(self) -> set[tuple[str, str]]:
-        return {(a, c) for a, _, c, _ in self.pairs}
 
-    def consistent(self, sys_a: str, code_a: str, sys_b: str, code_b: str) -> float | None:
-        if (sys_a, sys_b) in self.systems():
-            return 1.0 if (sys_a, code_a, sys_b, code_b) in self.pairs else 0.0
-        if (sys_b, sys_a) in self.systems():
-            return 1.0 if (sys_b, code_b, sys_a, code_a) in self.pairs else 0.0
-        return None
+HIERARCHY_SYSTEM = {"ESCO": "ISCO08", "ONET": "ONETSOC2019", "CBO": "CBO2002"}
 
 
-HIERARCHY_SYSTEM = {"ESCO": "ISCO08", "ONET": "SOC2018", "CBO": "CBO2002"}
+def hierarchy_codes(side: CrosswalkSide) -> list[str]:
+    """Codes a side can be looked up by in official tables (system given by HIERARCHY_SYSTEM)."""
+    if side.taxonomy == "ESCO":
+        return [c for c in (side.group_code,) if c]  # ISCO-08 unit group
+    if side.taxonomy == "CBO":
+        return [c for c in (side.official_code, side.group_code) if c]  # occupation (6 digits) or family (4)
+    return [c for c in (side.official_code,) if c]
 
 
 def _best_match_mean(a: np.ndarray, b: np.ndarray) -> float:
@@ -228,12 +274,15 @@ def propose(
                 f"hierarchy: O*NET official ESCO→O*NET-SOC table ({how}); target "
                 f"{'in' if hier else 'not in'} the {len(targets)} mapped occupations"
             )
-    if hier is None and official and a.group_code and b.group_code:
-        hier = official.consistent(
-            HIERARCHY_SYSTEM[a.taxonomy], a.group_code, HIERARCHY_SYSTEM[b.taxonomy], b.group_code
+    if hier is None and official and official.pairs:
+        hier, path = official.chain_consistent(
+            HIERARCHY_SYSTEM[a.taxonomy], hierarchy_codes(a), HIERARCHY_SYSTEM[b.taxonomy], hierarchy_codes(b)
         )
         if hier is not None:
-            rules.append(f"hierarchy: official table ({', '.join(official.sources)})")
+            official_info = {"method": "official_table_chain", "systems": path}
+            rules.append(
+                f"hierarchy: chain of official tables {' → '.join(path)} ({'linked' if hier else 'not linked'})"
+            )
     if hier is None:
         rules.append("hierarchy: no applicable official correspondence → unknown")
 

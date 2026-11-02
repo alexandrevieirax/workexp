@@ -250,3 +250,29 @@ Possíveis ajustes, a validar no conjunto ouro:
 - Baixar manualmente a tabela BLS ISCO-08↔SOC e a tábua CBO↔CIUO (reCAPTCHA) e importar com
   `python -m observatory.cli import-crosswalk`.
 - Revisar os mapeamentos propostos (`POST /api/crosswalks/{id}/review`).
+
+---
+
+## Adendo 4 — tabelas ISCO do ILO e hierarquia por cadeia, metodologia 0.3.1 (run `20261102T202544Z-90ed9f`)
+
+As tabelas que você baixou em `data/raw/crosswalks/isco/` são do **ILO**: correspondência ISCO-08↔ISCO-88
+(nos dois sentidos), estrutura ISCO-08/88/68/58 e o índice ISCO-08. **Não** são a tabela da BLS ISCO-08↔SOC.
+
+O que foi feito:
+
+- A correspondência ISCO-08↔ISCO-88 (678 linhas) foi importada no formato canônico, com os zeros à esquerda
+  restaurados (o Excel guardava 0110 como 110). A ponte SOC 2010 → O*NET-SOC 2019, do O*NET, também foi importada.
+- O motor de crosswalk passou a percorrer **cadeias de tabelas oficiais** (até 3 saltos). Se nenhuma cadeia
+  liga os dois sistemas, a hierarquia fica "desconhecida". Nada é inferido por códigos parecidos.
+- Tentei obter a correspondência COD↔CBO do IBGE/CONCLA: o site responde 403 a acesso automatizado.
+
+Resultado: **idêntico à 0.3.0**. Faltam os dois elos que fecham as cadeias:
+
+| Cadeia | Elo que falta | Onde obter |
+|---|---|---|
+| ESCO/ISCO-08 → SOC 2010 → O*NET-SOC 2019 | ISCO-08 ↔ SOC 2010 | BLS, "ISCO-08 to 2010 SOC crosswalk" (`bls.gov/soc`) |
+| CBO 2002 → ISCO-88 → ISCO-08 (ESCO) | CBO 2002 ↔ CIUO-88 (ou COD ↔ CBO) | MTE "Tábua de conversão" (reCAPTCHA) ou IBGE/CONCLA |
+
+Com esses arquivos em `data/raw/crosswalks/`, basta rodar `import-crosswalk` (exemplos em
+`docs/data-sources.md`) e a fatia vertical. O componente de hierarquia deixa de ser desconhecido para
+CBO→O*NET e CBO→ESCO, e passa a ter uma segunda fonte oficial para ESCO→O*NET.

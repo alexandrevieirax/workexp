@@ -122,7 +122,7 @@ def cmd_import_crosswalk(args) -> int:
 
     src = Path(args.file)
     if src.suffix.lower() in (".xlsx", ".xls"):
-        df = pd.read_excel(src, header=args.header_row, dtype=str)
+        df = pd.read_excel(src, sheet_name=args.sheet or 0, header=args.header_row, dtype=str)
     else:
         df = pd.read_csv(src, header=args.header_row, dtype=str, sep=None, engine="python")
     missing = [c for c in (args.from_col, args.to_col) if c not in df.columns]
@@ -130,13 +130,27 @@ def cmd_import_crosswalk(args) -> int:
         _print({"error": f"columns not found: {missing}", "available": list(df.columns)})
         return 1
     df = df.dropna(subset=[args.from_col, args.to_col])
+
+    def norm(code: str, width: int | None, pad: int | None) -> str:
+        code = code.strip().removesuffix(".0")  # Excel may store codes as numbers
+        code = code.zfill(pad) if pad and code.isdigit() else code  # restore leading zeros (e.g. ISCO 0110)
+        return code[:width] if width else code
+
     out = get_settings().raw_data_dir / "crosswalks" / f"{args.from_system}_to_{args.to_system}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", encoding="utf-8", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["from_system", "from_code", "to_system", "to_code", "source"])
         for a, b in zip(df[args.from_col], df[args.to_col], strict=True):
-            w.writerow([args.from_system, a.strip(), args.to_system, b.strip(), src.name])
+            w.writerow(
+                [
+                    args.from_system,
+                    norm(a, args.from_truncate, args.from_pad),
+                    args.to_system,
+                    norm(b, args.to_truncate, args.to_pad),
+                    src.name,
+                ]
+            )
     _print({"written": str(out), "rows": len(df)})
     return 0
 
@@ -190,6 +204,11 @@ def main(argv: list[str] | None = None) -> int:
     ic.add_argument("--to-system", required=True, help="e.g. SOC2018, ISCO88")
     ic.add_argument("--to-col", required=True)
     ic.add_argument("--header-row", type=int, default=0)
+    ic.add_argument("--sheet", default=None, help="worksheet name (Excel files)")
+    ic.add_argument("--from-truncate", type=int, default=None, help="keep only the first N characters of from codes")
+    ic.add_argument("--to-truncate", type=int, default=None, help="keep only the first N characters of to codes")
+    ic.add_argument("--from-pad", type=int, default=None, help="left-pad numeric from codes with zeros to N digits")
+    ic.add_argument("--to-pad", type=int, default=None, help="left-pad numeric to codes with zeros to N digits")
     ic.set_defaults(fn=cmd_import_crosswalk)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1")

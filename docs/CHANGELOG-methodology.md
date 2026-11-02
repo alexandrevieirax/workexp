@@ -5,6 +5,18 @@ dicionário, regra de crosswalk ou método curricular exige uma nova seção aqu
 `config/methodology/registry.json`, atualização da área "Sobre" (`methodology_version` no cabeçalho dos
 arquivos de conteúdo) e das referências citadas. `tests/test_about_consistency.py` verifica isso.
 
+## [0.3.1] - 2026-11-02
+
+Status: **não calibrada**. Correção sobre a 0.3.0, sem mudança de fórmula nem de pesos:
+
+- **Hierarquia por cadeia de tabelas oficiais:** as tabelas em `data/raw/crosswalks/*.csv` formam um grafo
+  percorrido em até 3 saltos (ex.: ISCO-08 → SOC 2010 → O*NET-SOC 2019; CBO 2002 → ISCO-88 → ISCO-08). Se
+  nenhuma cadeia liga os dois sistemas, o componente segue desconhecido. Nada é inferido por códigos parecidos.
+- **Tabelas carregadas:** correspondência ISCO-08↔ISCO-88 (ILO, baixada manualmente) e ponte SOC 2010 →
+  O*NET-SOC 2019 (O*NET). Os elos que faltam são ISCO-08↔SOC (BLS) e CBO↔ISCO-88/COD (MTE/IBGE), ambos com
+  download automatizado bloqueado; sem eles os resultados são idênticos aos da 0.3.0.
+- Importador `import-crosswalk` ganhou `--sheet`, `--*-truncate` e `--*-pad` (o Excel guardava 0110 como 110).
+
 ## [0.3.0] - 2026-11-02
 
 Status: **não calibrada**. Substitui a 0.2.0. Mudanças no crosswalk:

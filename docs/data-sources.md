@@ -76,9 +76,25 @@ e na publicação "CBO 2002 — Livro". O conector registra esses campos como
 | Tabela | Publicador | Status | Uso |
 |---|---|---|---|
 | `ESCO_to_ONET-SOC.xlsx` | O*NET Resource Center | ✅ baixada (2026-11-02), `data/raw/crosswalks/source/` | hierarquia ESCO→O*NET e candidatos |
-| `2010_to_2019_Crosswalk.csv` | O*NET Resource Center | ✅ baixada; ainda não usada | ponte SOC 2010→2018 (ex.: ligar o AEI por ID de tarefa) |
-| ISCO-08↔SOC 2010 | BLS | ⏳ **download manual** (o site bloqueia acesso automatizado) | hierarquia genérica |
-| Tábua de conversão CBO 2002↔CIUO-88 | MTE | ⏳ **download manual** (reCAPTCHA) | hierarquia CBO→ISCO |
+| `2010_to_2019_Crosswalk.csv` | O*NET Resource Center | ✅ importada como `SOC2010_to_ONETSOC2019.csv` (SOC 2010 truncado a 7 caracteres) | elo SOC 2010 → O*NET-SOC 2019 |
+| `Correspondence_EN_ISCO_08_to_ISCO_88.xlsx` | ILO | ✅ baixada manualmente em `data/raw/crosswalks/isco/` e importada como `ISCO08_to_ISCO88.csv` (678 linhas, zeros à esquerda restaurados) | elo ISCO-08 ↔ ISCO-88 |
+| Estrutura ISCO (`ISCO.xlsx`, `isco.csv`, índice, versão árabe) | ILO | ✅ baixada manualmente; ainda não usada | rótulos e níveis de competência ISCO |
+| ISCO-08↔SOC 2010 | BLS | ⏳ **download manual** (o site bloqueia acesso automatizado) | elo que liga ESCO/ISCO ao O*NET por cadeia |
+| Tábua CBO 2002↔CIUO-88 (MTE) ou COD↔CBO (IBGE/CONCLA) | MTE / IBGE | ⏳ **download manual** (reCAPTCHA no MTE; 403 no CONCLA) | elo que liga a CBO ao ISCO |
+
+As tabelas canônicas formam um grafo percorrido em até 3 saltos. Com a tabela da BLS, a cadeia
+ISCO-08 → SOC 2010 → O*NET-SOC 2019 passa a funcionar. Com a tábua da CBO, funciona
+CBO 2002 → ISCO-88 → ISCO-08 (ESCO).
+
+Comandos para quando os arquivos estiverem na pasta (ajuste os nomes de coluna ao arquivo baixado):
+
+```bash
+python -m observatory.cli import-crosswalk --file data/raw/crosswalks/<arquivo_bls>.xls --from-system ISCO08 --from-col "ISCO-08 Code" --from-pad 4 --to-system SOC2010 --to-col "2010 SOC Code"
+```
+
+```bash
+python -m observatory.cli import-crosswalk --file data/raw/crosswalks/<tabua_cbo>.csv --from-system CBO2002 --from-col "<coluna CBO>" --to-system ISCO88 --to-col "<coluna CIUO>" --to-pad 4
+```
 
 A tabela ESCO→O*NET mapeia uma ocupação ESCO a várias ocupações O*NET (ex.: "software developer" → 8).
 Os códigos ESCO mudam entre versões da ESCO: o conector exige código **e** título.

@@ -1,6 +1,6 @@
 {
-  "run_id": "20261102T200135Z-1fea10",
-  "started_at": "2026-11-02T20:01:35.425973+00:00",
+  "run_id": "20261102T202544Z-90ed9f",
+  "started_at": "2026-11-02T20:25:44.317947+00:00",
   "sources": {
     "AEI": {
       "status": "loaded",
@@ -39,7 +39,7 @@
       "occupation_id": 1,
       "code": "15-1252.00",
       "title": "Software Developers",
-      "assessment_id": 10,
+      "assessment_id": 13,
       "scores": {
         "OAE": 0.7071,
         "OAP": 0.0691,
@@ -91,7 +91,7 @@
       "occupation_id": 2,
       "code": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
       "title": "software developer",
-      "assessment_id": 11,
+      "assessment_id": 14,
       "scores": {
         "OAE": 0.7915,
         "OAP": 0.038,
@@ -146,7 +146,7 @@
       "occupation_id": 3,
       "code": "212405",
       "title": "Analista de desenvolvimento de sistemas",
-      "assessment_id": 12,
+      "assessment_id": 15,
       "scores": {
         "OAE": 0.7591,
         "OAP": 0.0514,
@@ -263,7 +263,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 7
+      "mapping_id": 18
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
@@ -327,7 +327,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 8
+      "mapping_id": 19
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
@@ -391,7 +391,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 9
+      "mapping_id": 20
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
@@ -455,7 +455,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 10
+      "mapping_id": 21
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
@@ -519,7 +519,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 11
+      "mapping_id": 22
     },
     {
       "source": "CBO:212405",
@@ -565,7 +565,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 12
+      "mapping_id": 23
     },
     {
       "source": "CBO:212405",
@@ -611,7 +611,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 13
+      "mapping_id": 24
     },
     {
       "source": "CBO:212405",
@@ -657,7 +657,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 14
+      "mapping_id": 25
     },
     {
       "source": "CBO:212405",
@@ -703,7 +703,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 15
+      "mapping_id": 26
     },
     {
       "source": "CBO:212405",
@@ -749,7 +749,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 16
+      "mapping_id": 27
     },
     {
       "source": "CBO:212405",
@@ -790,7 +790,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 17
+      "mapping_id": 28
     }
   ],
   "crosswalk_candidates": {
@@ -1062,7 +1062,7 @@
       }
     },
     "caveat": "Labels are AI-drafted (not gold); calibration uses the same items, so error rates are in-sample.",
-    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261102T200135Z-1fea10",
+    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261102T202544Z-90ed9f",
     "title_pair_calibration": {
       "model_key": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
       "floor": 0.7762947618961336,
@@ -1079,15 +1079,15 @@
     "CBO: 2 O*NET candidates tied within the ambiguity margin; priors pooled from 15-1253.00, 15-1299.08 (extra uncertainty). Human review should pick the equivalent."
   ],
   "methodology": {
-    "version": "0.3.0",
-    "fingerprint": "aea0fd36f3ad3b5701f34a05dbbe6e4bfcf63d7cf3bf3e1df1a574a83817cdda",
+    "version": "0.3.1",
+    "fingerprint": "820e9aedfc85162e77a85a19d01213138dacb90a69ca912d66dc8966c2b80250",
     "status": "uncalibrated",
     "capability_dictionary": "0.1.0",
     "capability_review_status": "unreviewed"
   },
   "pipeline": {
-    "source_tree_sha256": "aa90b128793fe835b25952179781b814ef7192ffc4bbb712506a4ee81602e83b",
-    "git_commit": "126041ec62882540e9708c9f4a93c9aaf08e1362",
+    "source_tree_sha256": "d0bc4430b6c30ac9f2359a200b621bbd5783f609a69bcf33a4189059eec6f98c",
+    "git_commit": "fccc747771e85a9f26e4ef997fe1870470385bee",
     "git_dirty": true
   }
 }

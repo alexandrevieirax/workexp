@@ -73,15 +73,34 @@ def test_unknown_components_are_neutral_and_reported():
     assert any("unknown" in r for r in p.rules_applied)
 
 
-def test_official_table_drives_hierarchy():
-    off = OfficialCodeCrosswalk({("ISCO08", "2512", "SOC2018", "15-1252")}, ["synthetic.csv"])
-    ok = propose(
-        side("a", ["x"], TASKS, "ESCO", group="2512"), side("b", ["x"], TASKS, group="15-1252"), EMB, CAL, CFG, off
+def test_official_table_chain_drives_hierarchy():
+    """ISCO-08 → SOC 2010 → O*NET-SOC 2019 through two official tables (synthetic rows)."""
+    off = OfficialCodeCrosswalk(
+        {
+            ("ISCO08", "2512", "SOC2010", "15-1132"),
+            ("SOC2010", "15-1132", "ONETSOC2019", "15-1252.00"),
+            ("SOC2010", "47-2111", "ONETSOC2019", "47-2111.00"),
+        },
+        ["synthetic.csv"],
     )
-    bad = propose(
-        side("a", ["x"], TASKS, "ESCO", group="2512"), side("b", ["x"], TASKS, group="47-2111"), EMB, CAL, CFG, off
-    )
+    esco = CrosswalkSide("ESCO:x", "ESCO", ["x"], "en", TASKS, [], "2512", 1.0, "2512.3")
+    dev = CrosswalkSide("ONET:15-1252.00", "ONET", ["x"], "en", TASKS, [], "15-1252", 1.0, "15-1252.00")
+    elec = CrosswalkSide("ONET:47-2111.00", "ONET", ["x"], "en", TASKS, [], "47-2111", 1 / 3, "47-2111.00")
+    ok, bad = propose(esco, dev, EMB, CAL, CFG, off), propose(esco, elec, EMB, CAL, CFG, off)
     assert ok.hierarchy_consistency == 1.0 and bad.hierarchy_consistency == 0.0
+    assert ok.details["official"]["systems"] == ["ISCO08", "SOC2010", "ONETSOC2019"]
+
+
+def test_hierarchy_unknown_when_no_table_links_the_systems():
+    off = OfficialCodeCrosswalk({("ISCO08", "2512", "ISCO88", "2131")}, ["ilo.csv"])
+    cbo = CrosswalkSide("CBO:212405", "CBO", ["x"], "pt", TASKS, [], "2124", 1.0, "212405")
+    esco = CrosswalkSide("ESCO:x", "ESCO", ["x"], "en", TASKS, [], "2512", 1.0, "2512.3")
+    # ISCO-08↔ISCO-88 alone does not reach CBO 2002: never inferred from similar-looking codes
+    assert propose(cbo, esco, EMB, CAL, CFG, off).hierarchy_consistency is None
+    off.pairs.add(("CBO2002", "212405", "ISCO88", "2131"))
+    if hasattr(off, "_adj"):
+        del off._adj
+    assert propose(cbo, esco, EMB, CAL, CFG, off).hierarchy_consistency == 1.0
 
 
 def test_confidence_classes():

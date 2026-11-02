@@ -62,6 +62,20 @@ python -m observatory.cli benchmark-models
 
 A linha de base lexical offline (`--provider baseline`) continua disponível para testes e ambientes sem ML.
 
+## Revisão humana dos crosswalks
+
+A página `/crosswalks` lista, para cada ocupação ESCO/CBO, os candidatos O*NET ranqueados, com os cinco
+componentes, os votos das fontes oficiais (e divergências), o histórico e um formulário para **aceitar** ou
+**rejeitar** com justificativa. As decisões ficam no histórico do mapeamento, em `expert_review` e no log de
+auditoria. Nas execuções seguintes, um candidato aceito define a ocupação O*NET de onde vêm os priors E6–E10 e
+um rejeitado sai do ranking.
+
+A revisão exige uma chave administrativa. Defina-a em `.env` (não versionado) antes de iniciar o servidor:
+
+```bash
+echo OBS_ADMIN_API_KEY=troque-por-uma-chave-longa >> .env
+```
+
 ## Governança metodológica
 
 Pesos, limiares e listas de elementos ficam em [`config/methodology/`](config/methodology/). Qualquer mudança

@@ -43,7 +43,7 @@ def test_language_switch(client):
 # ------------------------------------------------------------------ accessibility
 def test_pages_are_accessible(client):
     occ_id = client.get("/api/occupations").json()[0]["id"]
-    for url in ["/", f"/occupations/{occ_id}", "/about"]:
+    for url in ["/", f"/occupations/{occ_id}", "/about", "/crosswalks"]:
         html = client.get(url).text
         tags = _parse(html)
         assert sum(1 for t, _ in tags if t == "h1") == 1, url

@@ -23,6 +23,7 @@ from observatory.connectors.onet import OnetArchive
 from observatory.crosswalk.candidates import CandidateSearch, OnetIndex
 from observatory.crosswalk.candidates import search as candidate_search
 from observatory.crosswalk.engine import CrosswalkSide, OfficialCodeCrosswalk, calibrate_pairs, propose
+from observatory.crosswalk.review import carry_decision, human_decisions
 from observatory.db import models as M
 from observatory.db.session import make_engine, session_factory, session_scope
 from observatory.embeddings import store as emb_store
@@ -262,14 +263,16 @@ def onet_priors_for(onet: OnetArchive, codes: list[str], cfg: dict) -> dict:
     return out
 
 
-def mapping_status(s: Session, source: M.Occupation, prop) -> str | None:
-    code = prop.target.split(":", 1)[1]
-    return s.scalar(
-        select(M.OccupationSourceMapping.status)
-        .join(M.Occupation, M.Occupation.id == M.OccupationSourceMapping.target_occupation_id)
-        .where(M.OccupationSourceMapping.source_occupation_id == source.id, M.Occupation.code == code)
-        .order_by(M.OccupationSourceMapping.id.desc())
-    )
+def without_rejected(found: CandidateSearch, decided: dict) -> CandidateSearch:
+    ranked = [
+        p
+        for p in found.ranked
+        if decided.get(p.target.split(":", 1)[1], None) is None
+        or decided[p.target.split(":", 1)[1]].status != "rejected"
+    ]
+    margin = round(ranked[0].mapping_confidence - ranked[1].mapping_confidence, 4) if len(ranked) > 1 else None
+    ambiguous = margin is not None and margin < found.ambiguity_margin
+    return CandidateSearch(found.source, ranked, ambiguous, margin, found.candidate_origin, found.ambiguity_margin)
 
 
 def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> SliceReport:
@@ -484,17 +487,29 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
         cw_cfg = m.config["crosswalk"]
         onet_index = OnetIndex(onet, embedder)
         searches: dict[str, CandidateSearch] = {}
+        decisions: dict[str, dict] = {}
         for tax, lang in (("ESCO", "en"), ("CBO", "pt")):
             if tax not in occs:
                 continue
             src = side(occs[tax], lang, skills_by[tax].get(lang, []))
             found = candidate_search(src, onet_index, title_cal, m.config, official)
+            # Human decisions from earlier runs: rejected candidates leave the ranking, accepted ones are kept.
+            decided = human_decisions(s, tax, occs[tax].code)
+            all_ranked = list(found.ranked)
+            found = without_rejected(found, decided)
             searches[tax] = found
-            report.crosswalk_candidates[tax] = found.to_dict()
-            for prop in found.ranked[: cw_cfg["candidates"]["persist_top"]]:
+            decisions[tax] = decided
+            report.crosswalk_candidates[tax] = found.to_dict() | {
+                "human_decisions": {c: d.status for c, d in decided.items()}
+            }
+            keep = found.ranked[: cw_cfg["candidates"]["persist_top"]]
+            keep += [p for p in all_ranked if p not in keep and p.target.split(":", 1)[1] in decided]
+            for prop in keep:
                 code = prop.target.split(":", 1)[1]
                 target = occ_onet if code == cfg.onet_code else ingest.occupation(s, sv_onet, onet.occupation(code))
                 mp = persist_mapping(s, occs[tax], target, prop, cal.model_key, m.version, run_id)
+                if code in decided and mp.status == "proposed":
+                    carry_decision(mp, decided[code], run_id)
                 report.crosswalks.append(prop.to_dict() | {"mapping_id": mp.id, "status": mp.status})
             if found.ambiguous:
                 report.warnings.append(
@@ -526,7 +541,7 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                 found = searches.get(tax)
                 best = found.best if found else None
                 cw_quality = best.mapping_confidence if best else None
-                accepted = best is not None and mapping_status(s, occ, best) == "accepted"
+                accepted_codes = [c for c, d in decisions.get(tax, {}).items() if d.status == "accepted"]
                 strong = best is not None and CLASS_RANK[best.confidence_class] >= min_rank
                 unambiguous = found is not None and not (
                     found.ambiguous and cw_cfg["candidates"]["require_unambiguous"]
@@ -537,7 +552,19 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                     and tied
                     and all(CLASS_RANK[p.confidence_class] >= min_rank for p in tied)
                 )
-                if best is not None and (accepted or (strong and unambiguous)):
+                if accepted_codes:  # a human reviewer chose the equivalent: it overrides automatic ranking
+                    latest = max(accepted_codes, key=lambda c: decisions[tax][c].at)
+                    mp_dec = s.get(M.OccupationSourceMapping, decisions[tax][latest].mapping_id)
+                    ctx = PriorContext(
+                        onet_priors_for(onet, [latest], m.config),
+                        "crosswalk_transfer",
+                        mp_dec.mapping_confidence if mp_dec else None,
+                        latest,
+                    )
+                    report.warnings.append(
+                        f"{tax}: using the mapping to {latest} accepted by {decisions[tax][latest].reviewer}."
+                    )
+                elif best is not None and strong and unambiguous:
                     code = best.target.split(":", 1)[1]
                     ctx = PriorContext(
                         onet_priors_for(onet, [code], m.config), "crosswalk_transfer", best.mapping_confidence, code

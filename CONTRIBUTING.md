@@ -23,8 +23,8 @@ Versões com `status: released` são imutáveis.
 ## Contestação de resultados
 
 Abra uma *issue* com o rótulo `contestacao` contendo: ocupação/tarefa, versão metodológica e fingerprint
-(mostrados na página da ocupação), a evidência e a justificativa. Correções de crosswalk são feitas via revisão
-humana (`POST /api/crosswalks/{id}/review`), sempre com justificativa e histórico.
+(mostrados na página da ocupação), a evidência e a justificativa. Correções de crosswalk são feitas na página
+`/crosswalks` (ou `POST /api/crosswalks/{id}/review`), sempre com justificativa e histórico.
 
 ## Dados
 

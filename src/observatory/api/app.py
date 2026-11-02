@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from typing import Literal
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
@@ -15,10 +15,10 @@ from observatory.about.render import render_about
 from observatory.api import html as H
 from observatory.capabilities.dictionary import load_dictionary
 from observatory.config import get_settings
+from observatory.crosswalk.review import ReviewError, apply_review
 from observatory.db import models as M
 from observatory.db.session import make_engine, session_factory
 from observatory.methodology import load_methodology, load_registry
-from observatory.pipeline.ingest import audit
 
 app = FastAPI(title="AI Occupational and Curriculum Exposure Observatory", version="0.1.0")
 _factory = None
@@ -257,33 +257,7 @@ def api_review(
     mp = s.get(M.OccupationSourceMapping, mapping_id)
     if mp is None:
         raise HTTPException(404, "mapping not found")
-    before = _mapping_dict(mp)
-    status = {"accept": "accepted", "reject": "rejected", "edit": "edited", "split": "split", "merge": "merged"}
-    mp.status = status[body.action]
-    mp.reviewer, mp.justification = body.reviewer, body.justification
-    if body.action == "edit" and body.edits:
-        for k in ("mapping_confidence", "confidence_class", "target_occupation_id"):
-            if k in body.edits:
-                setattr(mp, k, body.edits[k])
-    mp.history.append(
-        M.CrosswalkChange(
-            action=body.action,
-            before=before,
-            after=body.model_dump(),
-            actor=body.reviewer,
-            justification=body.justification,
-        )
-    )
-    s.add(
-        M.ExpertReview(
-            target_type="crosswalk",
-            target_id=str(mp.id),
-            reviewer=body.reviewer,
-            decision=body.action,
-            justification=body.justification,
-        )
-    )
-    audit(s, actor, f"crosswalk_{body.action}", f"mapping:{mp.id}", body.model_dump())
+    apply_review(s, mp, body.action, body.reviewer, body.justification, actor, body.edits, _mapping_dict(mp))
     s.commit()
     return _mapping_dict(mp)
 
@@ -345,6 +319,75 @@ def page_occupation(occ_id: int, lang: str = "pt-BR", s: Session = Depends(get_s
     if o is None:
         raise HTTPException(404, "occupation not found")
     return H.layout(o.title, H.occupation_page(_occupation_dict(s, o), lang), lang)
+
+
+def _review_groups(s: Session) -> list[dict]:
+    m = load_methodology()
+    margin_cfg = m.config["crosswalk"]["candidates"]["ambiguity_margin"]
+    maps = s.scalars(
+        select(M.OccupationSourceMapping).where(M.OccupationSourceMapping.methodology_version == m.version)
+    ).all()
+    groups: dict[tuple[str, str], dict] = {}
+    for mp in maps:
+        src = mp.source_occupation
+        g = groups.setdefault(
+            (src.taxonomy, src.code),
+            {"source": {"id": src.id, "taxonomy": src.taxonomy, "code": src.code, "title": src.title}, "mappings": []},
+        )
+        d = _mapping_dict(mp, src.id)
+        d["target_id"] = mp.target_occupation_id
+        d["target_assessed"] = _latest_assessment(s, mp.target_occupation_id) is not None
+        d["official"] = (mp.rules_applied or {}).get("official", {})
+        g["mappings"].append(d)
+    order = {"ESCO": 0, "CBO": 1}
+    out = []
+    for key in sorted(groups, key=lambda k: (order.get(k[0], 9), k[1])):
+        g = groups[key]
+        g["mappings"].sort(key=lambda x: -x["mapping_confidence"])
+        live = [x for x in g["mappings"] if x["status"] != "rejected" and x["other_taxonomy"] == "ONET"]
+        g["margin"] = round(live[0]["mapping_confidence"] - live[1]["mapping_confidence"], 4) if len(live) > 1 else None
+        g["ambiguous"] = g["margin"] is not None and g["margin"] < margin_cfg
+        out.append(g)
+    return out
+
+
+@app.get("/crosswalks", response_class=HTMLResponse)
+def page_crosswalks(lang: str = "pt-BR", msg: str | None = None, s: Session = Depends(get_session)) -> str:
+    return H.layout(H.t(lang)["review_title"], H.review_page(_review_groups(s), lang, msg), lang)
+
+
+@app.post("/crosswalks/{mapping_id}/review", response_class=HTMLResponse)
+async def page_review(mapping_id: int, request: Request, lang: str = "pt-BR", s: Session = Depends(get_session)):
+    form = await request.form()
+    key = get_settings().admin_api_key
+    status_code, message = 200, None
+    mp = s.get(M.OccupationSourceMapping, mapping_id)
+    if mp is None:
+        status_code, message = 404, "mapping not found"
+    elif key == "change-me":
+        status_code, message = 503, "admin endpoints disabled: set OBS_ADMIN_API_KEY"
+    elif form.get("api_key") != key:
+        status_code, message = 401, "chave administrativa inválida / invalid admin key"
+    else:
+        try:
+            apply_review(
+                s,
+                mp,
+                str(form.get("action", "")),
+                str(form.get("reviewer", "")),
+                str(form.get("justification", "")),
+                "admin:review-page",
+                None,
+                _mapping_dict(mp),
+            )
+            s.commit()
+            q = "&lang=en" if lang == "en" else ""
+            return RedirectResponse(f"/crosswalks?msg=mapping+{mapping_id}+{mp.status}{q}#m{mapping_id}", 303)
+        except ReviewError as exc:
+            s.rollback()
+            status_code, message = 400, str(exc)
+    body = H.review_page(_review_groups(s), lang, message, error=True)
+    return HTMLResponse(H.layout(H.t(lang)["review_title"], body, lang), status_code=status_code)
 
 
 @app.get("/about", response_class=HTMLResponse)

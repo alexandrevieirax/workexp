@@ -150,6 +150,11 @@ ranqueados pela confiança composta; se o segundo estiver a menos de 0,03 do pri
 **ambíguo**: se todos os empatados forem fortes, os priors são a média deles (`crosswalk_pooled`, com
 fragilidade extra); caso contrário não há transferência sem revisão humana. A calibração de títulos usa 148 pares com
 rótulos de fontes oficiais (`data/validation/occupation_pairs_v0.2.0.jsonl`).
+**Decisões humanas** (página `/crosswalks` ou `POST /api/crosswalks/{id}/review`) são procuradas por
+(taxonomia e código de origem, código de destino), não pelo identificador da linha, porque cada execução cria
+novas propostas. Elas são herdadas pelas novas linhas, com histórico `carry`. Um candidato **aceito** define
+de onde vêm os priors, independentemente do ranking automático; um **rejeitado** sai do ranking antes do
+cálculo de ambiguidade.
 Hierarquia: para ESCO→O*NET, pertencimento à tabela oficial do O*NET (código **e** título, pois os códigos ESCO
 mudam entre versões); nos demais pares, consistência de grupos ISCO/SOC quando houver tabela oficial;
 desconhecido = 0,5 (neutro), sinalizado. Correspondências < 0,60 nunca são

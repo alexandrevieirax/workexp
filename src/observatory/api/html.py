@@ -29,7 +29,11 @@ vertical-align:top}th{background:var(--card)}.bar{height:8px;background:var(--li
 figure{margin:16px 0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
 figure img{max-width:100%;height:auto;background:#fff}pre{white-space:pre-wrap;overflow-x:auto;background:var(--card);
 border:1px solid var(--line);padding:10px;border-radius:6px}.note{color:var(--muted);font-style:italic}
-form.inline{display:inline}input,button,select{font:inherit;padding:6px 8px}h1{font-size:1.6rem}h2{margin-top:2rem}
+form.inline{display:inline}form.review{display:grid;gap:6px;min-width:220px}
+form.review textarea{min-height:56px}.status-accepted{color:var(--good);font-weight:700}
+.status-rejected{color:#b3261e;font-weight:700}.msg{border-left:4px solid var(--accent);padding:8px 12px;
+background:var(--card);margin:12px 0}.msg.err{border-color:#b3261e}tr.decided-accepted{outline:2px solid var(--good)}
+input,button,select{font:inherit;padding:6px 8px}h1{font-size:1.6rem}h2{margin-top:2rem}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 """
 
@@ -48,7 +52,8 @@ def layout(title: str, body: str, lang: str = "pt-BR", mermaid: bool = False) ->
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{e(title)}</title>
 <style>{CSS}</style></head><body><a class="skip" href="#main">{s["skip"]}</a>
 <header class="top"><div class="in"><span class="brand">{e(s["app_name"])}</span><nav aria-label="principal">
-<a href="/{q}">{s["nav_home"]}</a><a href="/about{q}">{s["nav_about"]}</a>
+<a href="/{q}">{s["nav_home"]}</a><a href="/crosswalks{q}">{s["nav_crosswalks"]}</a>
+<a href="/about{q}">{s["nav_about"]}</a>
 <a href="?lang={other[0]}" lang="{other[0]}">{other[1]}</a></nav></div></header>
 <main id="main"><p class="disclaimer" role="note">{e(s["disclaimer"])}</p>{body}</main>
 {MERMAID if mermaid else ""}</body></html>"""
@@ -250,3 +255,101 @@ def about_page(about: dict, lang: str) -> str:
         f'</p><nav aria-label="sumário"><details><summary>Sumário</summary><ol>{toc}</ol></details></nav>'
         + about["html"]
     )
+
+
+def _status(st: str) -> str:
+    return f'<span class="badge status-{e(st)}">{e(st)}</span>'
+
+
+def _votes(official: dict, s: dict) -> str:
+    votes = official.get("votes") or {}
+    if not votes:
+        return f'<span class="muted">{s["unknown"]}</span>'
+    items = "".join(f"<li>{e(k)}: {v:.0f}</li>" for k, v in votes.items())
+    warn = f"<strong>{s['disagree']}</strong>" if official.get("disagreement") else ""
+    return f"<ul>{items}</ul>{warn}"
+
+
+def _review_form(mid: int, q: str, s: dict) -> str:
+    return (
+        f'<form class="review" method="post" action="/crosswalks/{mid}/review{q}">'
+        f'<label for="r{mid}">{s["reviewer"]}</label>'
+        f'<input id="r{mid}" name="reviewer" required minlength="2" autocomplete="name">'
+        f'<label for="j{mid}">{s["justification_label"]}</label>'
+        f'<textarea id="j{mid}" name="justification" required minlength="10"></textarea>'
+        f'<label for="k{mid}">{s["api_key"]}</label>'
+        f'<input id="k{mid}" name="api_key" type="password" required autocomplete="off">'
+        f'<div><button name="action" value="accept">{s["accept"]}</button> '
+        f'<button name="action" value="reject">{s["reject"]}</button></div></form>'
+    )
+
+
+def _review_row(i: int, m: dict, q: str, s: dict) -> str:
+    keys = (
+        "title_similarity",
+        "task_similarity",
+        "skill_similarity",
+        "hierarchy_consistency",
+        "qualification_consistency",
+    )
+    comps = " / ".join("?" if m[k] is None else f"{m[k]:.2f}" for k in keys)
+    title = e(m["other_title"])
+    tgt = f'<a href="/occupations/{m["target_id"]}{q}">{title}</a>' if m["target_assessed"] else title
+    hist = "".join(
+        f"<li>{e(h['at'][:19])} · {e(h['action'])} · {e(h['actor'])}"
+        + (f" — {e(h['justification'])}" if h["justification"] else "")
+        + "</li>"
+        for h in m["history"]
+    )
+    rules = "".join(f"<li>{e(r)}</li>" for r in m["rules"])
+    decided = ""
+    if m["status"] != "proposed":
+        decided = f'<p class="muted">{e(m["reviewer"] or "")}: {e(m["justification"] or "")}</p>'
+    return (
+        f'<tr id="m{m["id"]}" class="decided-{e(m["status"])}"><td>{i}</td>'
+        f"<td><code>{e(m['other_code'])}</code><br>{tgt}</td>"
+        f'<td>{m["mapping_confidence"]:.3f}<br><span class="badge">{e(m["confidence_class"])}</span></td>'
+        f"<td>{comps}</td><td>{_votes(m['official'], s)}</td><td>{_status(m['status'])}{decided}</td>"
+        f"<td><details><summary>{s['rules']}</summary><ul>{rules}</ul><ol>{hist}</ol></details></td>"
+        f"<td>{_review_form(m['id'], q, s)}</td></tr>"
+    )
+
+
+def review_page(groups: list[dict], lang: str, message: str | None = None, error: bool = False) -> str:
+    s = t(lang)
+    msg = ""
+    if message:
+        cls = "msg err" if error else "msg"
+        msg = f'<p class="{cls}" role="status">{e(message)}</p>'
+    if not groups:
+        return f"<h1>{s['review_title']}</h1>{msg}<p>{s['no_mappings']}</p>"
+    q = "?lang=en" if lang == "en" else ""
+    parts = [f"<h1>{s['review_title']}</h1>{msg}<p>{e(s['review_intro'])}</p>"]
+    for g in groups:
+        src = g["source"]
+        amb = ""
+        if g["margin"] is not None:
+            badge = f'<span class="badge">{s["ambiguous"]}</span> ' if g["ambiguous"] else ""
+            amb = f'<p>{badge}<span class="muted">{s["margin"]}: {g["margin"]:.3f}</span></p>'
+        rows = "".join(_review_row(i, m, q, s) for i, m in enumerate(g["mappings"], 1))
+        head = "".join(
+            f'<th scope="col">{h}</th>'
+            for h in (
+                s["rank"],
+                s["target"],
+                "mapping_confidence",
+                s["components"],
+                s["official_sources"],
+                s["status"],
+                s["rules"],
+                s["review"],
+            )
+        )
+        parts.append(
+            f'<section aria-labelledby="g{src["id"]}"><h2 id="g{src["id"]}">{e(src["title"])} '
+            f'<span class="badge">{e(src["taxonomy"])}</span></h2>'
+            f'<p class="muted"><code>{e(src["code"])}</code></p>{amb}'
+            f'<div class="table-wrap"><table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
+            "</section>"
+        )
+    return "".join(parts)

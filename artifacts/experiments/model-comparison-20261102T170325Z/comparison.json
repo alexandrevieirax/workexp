@@ -1,0 +1,871 @@
+{
+  "created_at": "2026-11-02T17:06:44.481430+00:00",
+  "benchmark_version": "0.1.0",
+  "selection_rule": "mean(MAP overall, MAP pt, occupation-pair AUC); eligible if FPR <= baseline FPR",
+  "caveats": [
+    "Benchmark labels are AI-drafted (not gold) and small (36 task queries, 10 occupation pairs).",
+    "Calibration and error rates are in-sample.",
+    "Temporal stability cannot be measured with a single snapshot; model snapshots are pinned instead."
+  ],
+  "results": [
+    {
+      "spec": "baseline",
+      "model": {
+        "model_key": "baseline/char-ngram-hashing@v1-d2048",
+        "dimension": 2048,
+        "params": {
+          "analyzer": "char_wb+word",
+          "ngram_range": [
+            3,
+            5
+          ],
+          "norm": "l2",
+          "alternate_sign": false,
+          "lowercase": true,
+          "strip_accents": true
+        },
+        "is_semantic": false
+      },
+      "seconds": 2.3,
+      "calibration": {
+        "model_key": "baseline/char-ngram-hashing@v1-d2048",
+        "floor": 0.15503419935703278,
+        "ceiling": 0.23400503396987915,
+        "benchmark_version": "0.1.0",
+        "n_related": 44,
+        "n_unrelated": 101,
+        "method": "floor=p75(unrelated), ceiling=median(related)"
+      },
+      "overall": {
+        "p@1": 0.2258,
+        "p@3": 0.2796,
+        "p@5": 0.2065,
+        "r@1": 0.0602,
+        "r@3": 0.2548,
+        "r@5": 0.3043,
+        "MAP": 0.2743,
+        "ndcg@5": 0.3093,
+        "n_queries": 31
+      },
+      "by_language": {
+        "pt": {
+          "p@1": 0.0,
+          "p@3": 0.1905,
+          "p@5": 0.1143,
+          "r@1": 0.0,
+          "r@3": 0.1667,
+          "r@5": 0.1667,
+          "MAP": 0.1592,
+          "ndcg@5": 0.1439,
+          "n_queries": 7
+        },
+        "en": {
+          "p@1": 0.2917,
+          "p@3": 0.3056,
+          "p@5": 0.2333,
+          "r@1": 0.0778,
+          "r@3": 0.2806,
+          "r@5": 0.3444,
+          "MAP": 0.3079,
+          "ndcg@5": 0.3576,
+          "n_queries": 24
+        }
+      },
+      "by_tag": {
+        "cognitive": {
+          "p@1": 0.2857,
+          "p@3": 0.3651,
+          "p@5": 0.2667,
+          "r@1": 0.0794,
+          "r@3": 0.327,
+          "r@5": 0.3841,
+          "MAP": 0.338,
+          "ndcg@5": 0.3935,
+          "n_queries": 21
+        },
+        "high_risk": {
+          "p@1": 0.0,
+          "p@3": 0.2,
+          "p@5": 0.16,
+          "r@1": 0.0,
+          "r@3": 0.1733,
+          "r@5": 0.2133,
+          "MAP": 0.2346,
+          "ndcg@5": 0.2283,
+          "n_queries": 5
+        },
+        "hybrid": {
+          "p@1": 0.2,
+          "p@3": 0.1333,
+          "p@5": 0.12,
+          "r@1": 0.04,
+          "r@3": 0.1067,
+          "r@5": 0.1733,
+          "MAP": 0.2077,
+          "ndcg@5": 0.2037,
+          "n_queries": 5
+        },
+        "manual": {
+          "p@1": 0.0,
+          "p@3": 0.0667,
+          "p@5": 0.04,
+          "r@1": 0.0,
+          "r@3": 0.1,
+          "r@5": 0.1,
+          "MAP": 0.0736,
+          "ndcg@5": 0.0613,
+          "n_queries": 5
+        },
+        "physical_presence": {
+          "p@1": 0.0,
+          "p@3": 0.0833,
+          "p@5": 0.05,
+          "r@1": 0.0,
+          "r@3": 0.1042,
+          "r@5": 0.1042,
+          "MAP": 0.1132,
+          "ndcg@5": 0.0753,
+          "n_queries": 8
+        },
+        "regulated": {
+          "p@1": 0.0,
+          "p@3": 0.1111,
+          "p@5": 0.1333,
+          "r@1": 0.0,
+          "r@3": 0.0889,
+          "r@5": 0.1639,
+          "MAP": 0.1608,
+          "ndcg@5": 0.1566,
+          "n_queries": 6
+        },
+        "routine": {
+          "p@1": 0.375,
+          "p@3": 0.4167,
+          "p@5": 0.3,
+          "r@1": 0.1042,
+          "r@3": 0.3542,
+          "r@5": 0.4167,
+          "MAP": 0.3715,
+          "ndcg@5": 0.4364,
+          "n_queries": 8
+        },
+        "social": {
+          "p@1": 0.5,
+          "p@3": 0.3333,
+          "p@5": 0.25,
+          "r@1": 0.1333,
+          "r@3": 0.3,
+          "r@5": 0.3833,
+          "MAP": 0.3245,
+          "ndcg@5": 0.4588,
+          "n_queries": 4
+        }
+      },
+      "spearman": 0.5778,
+      "fpr": 0.0891,
+      "fnr": 0.2727,
+      "occupation_pairs": {
+        "auc": 0.6,
+        "n_pos": 5,
+        "n_neg": 5,
+        "pairs": [
+          {
+            "id": "op-001",
+            "label": 2,
+            "cosine": 0.853
+          },
+          {
+            "id": "op-002",
+            "label": 2,
+            "cosine": 0.4166
+          },
+          {
+            "id": "op-003",
+            "label": 2,
+            "cosine": 0.0554
+          },
+          {
+            "id": "op-004",
+            "label": 0,
+            "cosine": 0.3136
+          },
+          {
+            "id": "op-005",
+            "label": 0,
+            "cosine": 0.084
+          },
+          {
+            "id": "op-006",
+            "label": 0,
+            "cosine": 0.1837
+          },
+          {
+            "id": "op-007",
+            "label": 0,
+            "cosine": 0.0748
+          },
+          {
+            "id": "op-008",
+            "label": 2,
+            "cosine": 0.4866
+          },
+          {
+            "id": "op-009",
+            "label": 2,
+            "cosine": 0.0249
+          },
+          {
+            "id": "op-010",
+            "label": 0,
+            "cosine": 0.3472
+          }
+        ],
+        "cross_lingual_equivalent_mean": 0.1656
+      },
+      "reproducible": true,
+      "calibration_spread": 0.079,
+      "selection_score": 0.3445,
+      "eligible": true
+    },
+    {
+      "spec": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+      "model": {
+        "model_key": "sentence-transformers/sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
+        "dimension": 768,
+        "params": {
+          "query_prefix": "",
+          "passage_prefix": "",
+          "normalize": true
+        },
+        "is_semantic": true
+      },
+      "seconds": 44.1,
+      "calibration": {
+        "model_key": "sentence-transformers/sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
+        "floor": 0.23697087168693542,
+        "ceiling": 0.6137651801109314,
+        "benchmark_version": "0.1.0",
+        "n_related": 44,
+        "n_unrelated": 101,
+        "method": "floor=p75(unrelated), ceiling=median(related)"
+      },
+      "overall": {
+        "p@1": 0.6129,
+        "p@3": 0.4516,
+        "p@5": 0.3613,
+        "r@1": 0.2102,
+        "r@3": 0.4629,
+        "r@5": 0.5839,
+        "MAP": 0.5543,
+        "ndcg@5": 0.6039,
+        "n_queries": 31
+      },
+      "by_language": {
+        "pt": {
+          "p@1": 0.8571,
+          "p@3": 0.4762,
+          "p@5": 0.3714,
+          "r@1": 0.35,
+          "r@3": 0.5024,
+          "r@5": 0.6143,
+          "MAP": 0.6672,
+          "ndcg@5": 0.7173,
+          "n_queries": 7
+        },
+        "en": {
+          "p@1": 0.5417,
+          "p@3": 0.4444,
+          "p@5": 0.3583,
+          "r@1": 0.1694,
+          "r@3": 0.4514,
+          "r@5": 0.575,
+          "MAP": 0.5214,
+          "ndcg@5": 0.5708,
+          "n_queries": 24
+        }
+      },
+      "by_tag": {
+        "cognitive": {
+          "p@1": 0.7143,
+          "p@3": 0.4921,
+          "p@5": 0.4,
+          "r@1": 0.2135,
+          "r@3": 0.4183,
+          "r@5": 0.554,
+          "MAP": 0.5915,
+          "ndcg@5": 0.6207,
+          "n_queries": 21
+        },
+        "high_risk": {
+          "p@1": 0.4,
+          "p@3": 0.6,
+          "p@5": 0.48,
+          "r@1": 0.08,
+          "r@3": 0.5733,
+          "r@5": 0.6933,
+          "MAP": 0.5654,
+          "ndcg@5": 0.6427,
+          "n_queries": 5
+        },
+        "hybrid": {
+          "p@1": 0.6,
+          "p@3": 0.5333,
+          "p@5": 0.4,
+          "r@1": 0.2067,
+          "r@3": 0.5133,
+          "r@5": 0.5933,
+          "MAP": 0.5344,
+          "ndcg@5": 0.6636,
+          "n_queries": 5
+        },
+        "manual": {
+          "p@1": 0.2,
+          "p@3": 0.2,
+          "p@5": 0.16,
+          "r@1": 0.2,
+          "r@3": 0.6,
+          "r@5": 0.7,
+          "MAP": 0.4181,
+          "ndcg@5": 0.4736,
+          "n_queries": 5
+        },
+        "physical_presence": {
+          "p@1": 0.25,
+          "p@3": 0.2917,
+          "p@5": 0.2,
+          "r@1": 0.1875,
+          "r@3": 0.5625,
+          "r@5": 0.625,
+          "MAP": 0.4103,
+          "ndcg@5": 0.4931,
+          "n_queries": 8
+        },
+        "regulated": {
+          "p@1": 0.5,
+          "p@3": 0.5,
+          "p@5": 0.4,
+          "r@1": 0.15,
+          "r@3": 0.5056,
+          "r@5": 0.6056,
+          "MAP": 0.5578,
+          "ndcg@5": 0.6342,
+          "n_queries": 6
+        },
+        "routine": {
+          "p@1": 0.625,
+          "p@3": 0.4583,
+          "p@5": 0.4,
+          "r@1": 0.1771,
+          "r@3": 0.3854,
+          "r@5": 0.5521,
+          "MAP": 0.5349,
+          "ndcg@5": 0.542,
+          "n_queries": 8
+        },
+        "social": {
+          "p@1": 1.0,
+          "p@3": 0.75,
+          "p@5": 0.6,
+          "r@1": 0.3,
+          "r@3": 0.6833,
+          "r@5": 0.8667,
+          "MAP": 0.8491,
+          "ndcg@5": 0.9321,
+          "n_queries": 4
+        }
+      },
+      "spearman": 0.8767,
+      "fpr": 0.0198,
+      "fnr": 0.0455,
+      "occupation_pairs": {
+        "auc": 0.88,
+        "n_pos": 5,
+        "n_neg": 5,
+        "pairs": [
+          {
+            "id": "op-001",
+            "label": 2,
+            "cosine": 0.9623
+          },
+          {
+            "id": "op-002",
+            "label": 2,
+            "cosine": 0.8354
+          },
+          {
+            "id": "op-003",
+            "label": 2,
+            "cosine": 0.7058
+          },
+          {
+            "id": "op-004",
+            "label": 0,
+            "cosine": 0.8118
+          },
+          {
+            "id": "op-005",
+            "label": 0,
+            "cosine": 0.2604
+          },
+          {
+            "id": "op-006",
+            "label": 0,
+            "cosine": 0.6529
+          },
+          {
+            "id": "op-007",
+            "label": 0,
+            "cosine": 0.7169
+          },
+          {
+            "id": "op-008",
+            "label": 2,
+            "cosine": 0.7825
+          },
+          {
+            "id": "op-009",
+            "label": 2,
+            "cosine": 0.8129
+          },
+          {
+            "id": "op-010",
+            "label": 0,
+            "cosine": 0.3301
+          }
+        ],
+        "cross_lingual_equivalent_mean": 0.7847
+      },
+      "reproducible": true,
+      "calibration_spread": 0.3768,
+      "selection_score": 0.7005,
+      "eligible": true
+    },
+    {
+      "spec": "sentence-transformers:intfloat/multilingual-e5-large",
+      "model": {
+        "model_key": "sentence-transformers/intfloat/multilingual-e5-large@3d7cfbdacd47",
+        "dimension": 1024,
+        "params": {
+          "query_prefix": "query: ",
+          "passage_prefix": "passage: ",
+          "normalize": true
+        },
+        "is_semantic": true
+      },
+      "seconds": 80.0,
+      "calibration": {
+        "model_key": "sentence-transformers/intfloat/multilingual-e5-large@3d7cfbdacd47",
+        "floor": 0.8093116879463196,
+        "ceiling": 0.8385113179683685,
+        "benchmark_version": "0.1.0",
+        "n_related": 44,
+        "n_unrelated": 101,
+        "method": "floor=p75(unrelated), ceiling=median(related)"
+      },
+      "overall": {
+        "p@1": 0.3871,
+        "p@3": 0.3656,
+        "p@5": 0.2968,
+        "r@1": 0.1258,
+        "r@3": 0.3753,
+        "r@5": 0.4935,
+        "MAP": 0.4091,
+        "ndcg@5": 0.4623,
+        "n_queries": 31
+      },
+      "by_language": {
+        "pt": {
+          "p@1": 0.0,
+          "p@3": 0.1429,
+          "p@5": 0.1714,
+          "r@1": 0.0,
+          "r@3": 0.1119,
+          "r@5": 0.2167,
+          "MAP": 0.2041,
+          "ndcg@5": 0.1851,
+          "n_queries": 7
+        },
+        "en": {
+          "p@1": 0.5,
+          "p@3": 0.4306,
+          "p@5": 0.3333,
+          "r@1": 0.1625,
+          "r@3": 0.4521,
+          "r@5": 0.5743,
+          "MAP": 0.469,
+          "ndcg@5": 0.5432,
+          "n_queries": 24
+        }
+      },
+      "by_tag": {
+        "cognitive": {
+          "p@1": 0.3333,
+          "p@3": 0.381,
+          "p@5": 0.3048,
+          "r@1": 0.1048,
+          "r@3": 0.3365,
+          "r@5": 0.4286,
+          "MAP": 0.3933,
+          "ndcg@5": 0.4319,
+          "n_queries": 21
+        },
+        "high_risk": {
+          "p@1": 0.4,
+          "p@3": 0.4,
+          "p@5": 0.36,
+          "r@1": 0.1067,
+          "r@3": 0.48,
+          "r@5": 0.6,
+          "MAP": 0.4466,
+          "ndcg@5": 0.5996,
+          "n_queries": 5
+        },
+        "hybrid": {
+          "p@1": 1.0,
+          "p@3": 0.5333,
+          "p@5": 0.44,
+          "r@1": 0.34,
+          "r@3": 0.5133,
+          "r@5": 0.66,
+          "MAP": 0.6296,
+          "ndcg@5": 0.7403,
+          "n_queries": 5
+        },
+        "manual": {
+          "p@1": 0.0,
+          "p@3": 0.1333,
+          "p@5": 0.12,
+          "r@1": 0.0,
+          "r@3": 0.4,
+          "r@5": 0.6,
+          "MAP": 0.2553,
+          "ndcg@5": 0.3123,
+          "n_queries": 5
+        },
+        "physical_presence": {
+          "p@1": 0.375,
+          "p@3": 0.25,
+          "p@5": 0.2,
+          "r@1": 0.1458,
+          "r@3": 0.4375,
+          "r@5": 0.6042,
+          "MAP": 0.3856,
+          "ndcg@5": 0.4374,
+          "n_queries": 8
+        },
+        "regulated": {
+          "p@1": 0.3333,
+          "p@3": 0.2778,
+          "p@5": 0.2667,
+          "r@1": 0.1167,
+          "r@3": 0.3722,
+          "r@5": 0.4722,
+          "MAP": 0.3635,
+          "ndcg@5": 0.5098,
+          "n_queries": 6
+        },
+        "routine": {
+          "p@1": 0.125,
+          "p@3": 0.2917,
+          "p@5": 0.275,
+          "r@1": 0.0417,
+          "r@3": 0.25,
+          "r@5": 0.375,
+          "MAP": 0.3097,
+          "ndcg@5": 0.3179,
+          "n_queries": 8
+        },
+        "social": {
+          "p@1": 0.75,
+          "p@3": 0.6667,
+          "p@5": 0.55,
+          "r@1": 0.2167,
+          "r@3": 0.6,
+          "r@5": 0.7833,
+          "MAP": 0.7017,
+          "ndcg@5": 0.7966,
+          "n_queries": 4
+        }
+      },
+      "spearman": 0.5381,
+      "fpr": 0.1683,
+      "fnr": 0.2727,
+      "occupation_pairs": {
+        "auc": 0.88,
+        "n_pos": 5,
+        "n_neg": 5,
+        "pairs": [
+          {
+            "id": "op-001",
+            "label": 2,
+            "cosine": 0.9725
+          },
+          {
+            "id": "op-002",
+            "label": 2,
+            "cosine": 0.9108
+          },
+          {
+            "id": "op-003",
+            "label": 2,
+            "cosine": 0.8609
+          },
+          {
+            "id": "op-004",
+            "label": 0,
+            "cosine": 0.8685
+          },
+          {
+            "id": "op-005",
+            "label": 0,
+            "cosine": 0.8557
+          },
+          {
+            "id": "op-006",
+            "label": 0,
+            "cosine": 0.8796
+          },
+          {
+            "id": "op-007",
+            "label": 0,
+            "cosine": 0.8604
+          },
+          {
+            "id": "op-008",
+            "label": 2,
+            "cosine": 0.9116
+          },
+          {
+            "id": "op-009",
+            "label": 2,
+            "cosine": 0.8899
+          },
+          {
+            "id": "op-010",
+            "label": 0,
+            "cosine": 0.874
+          }
+        ],
+        "cross_lingual_equivalent_mean": 0.8872
+      },
+      "reproducible": true,
+      "calibration_spread": 0.0292,
+      "selection_score": 0.4977,
+      "eligible": false
+    },
+    {
+      "spec": "sentence-transformers:BAAI/bge-m3",
+      "model": {
+        "model_key": "sentence-transformers/BAAI/bge-m3@5617a9f61b02",
+        "dimension": 1024,
+        "params": {
+          "query_prefix": "",
+          "passage_prefix": "",
+          "normalize": true
+        },
+        "is_semantic": true
+      },
+      "seconds": 72.8,
+      "calibration": {
+        "model_key": "sentence-transformers/BAAI/bge-m3@5617a9f61b02",
+        "floor": 0.5489291548728943,
+        "ceiling": 0.6441414058208466,
+        "benchmark_version": "0.1.0",
+        "n_related": 44,
+        "n_unrelated": 101,
+        "method": "floor=p75(unrelated), ceiling=median(related)"
+      },
+      "overall": {
+        "p@1": 0.3871,
+        "p@3": 0.3656,
+        "p@5": 0.3097,
+        "r@1": 0.1188,
+        "r@3": 0.372,
+        "r@5": 0.5086,
+        "MAP": 0.4394,
+        "ndcg@5": 0.4761,
+        "n_queries": 31
+      },
+      "by_language": {
+        "pt": {
+          "p@1": 0.1429,
+          "p@3": 0.2857,
+          "p@5": 0.2286,
+          "r@1": 0.0286,
+          "r@3": 0.2476,
+          "r@5": 0.331,
+          "MAP": 0.3141,
+          "ndcg@5": 0.2947,
+          "n_queries": 7
+        },
+        "en": {
+          "p@1": 0.4583,
+          "p@3": 0.3889,
+          "p@5": 0.3333,
+          "r@1": 0.1451,
+          "r@3": 0.4083,
+          "r@5": 0.5604,
+          "MAP": 0.476,
+          "ndcg@5": 0.529,
+          "n_queries": 24
+        }
+      },
+      "by_tag": {
+        "cognitive": {
+          "p@1": 0.381,
+          "p@3": 0.3492,
+          "p@5": 0.3143,
+          "r@1": 0.1103,
+          "r@3": 0.2984,
+          "r@5": 0.4508,
+          "MAP": 0.4138,
+          "ndcg@5": 0.444,
+          "n_queries": 21
+        },
+        "high_risk": {
+          "p@1": 0.4,
+          "p@3": 0.3333,
+          "p@5": 0.28,
+          "r@1": 0.08,
+          "r@3": 0.3867,
+          "r@5": 0.4933,
+          "MAP": 0.401,
+          "ndcg@5": 0.4294,
+          "n_queries": 5
+        },
+        "hybrid": {
+          "p@1": 0.6,
+          "p@3": 0.6,
+          "p@5": 0.48,
+          "r@1": 0.1733,
+          "r@3": 0.5533,
+          "r@5": 0.76,
+          "MAP": 0.6501,
+          "ndcg@5": 0.7118,
+          "n_queries": 5
+        },
+        "manual": {
+          "p@1": 0.2,
+          "p@3": 0.2,
+          "p@5": 0.12,
+          "r@1": 0.1,
+          "r@3": 0.5,
+          "r@5": 0.5,
+          "MAP": 0.3363,
+          "ndcg@5": 0.375,
+          "n_queries": 5
+        },
+        "physical_presence": {
+          "p@1": 0.25,
+          "p@3": 0.2917,
+          "p@5": 0.225,
+          "r@1": 0.1042,
+          "r@3": 0.5,
+          "r@5": 0.6042,
+          "MAP": 0.42,
+          "ndcg@5": 0.4539,
+          "n_queries": 8
+        },
+        "regulated": {
+          "p@1": 0.3333,
+          "p@3": 0.2778,
+          "p@5": 0.2667,
+          "r@1": 0.0667,
+          "r@3": 0.35,
+          "r@5": 0.5083,
+          "MAP": 0.3947,
+          "ndcg@5": 0.4109,
+          "n_queries": 6
+        },
+        "routine": {
+          "p@1": 0.125,
+          "p@3": 0.3333,
+          "p@5": 0.3,
+          "r@1": 0.0417,
+          "r@3": 0.2812,
+          "r@5": 0.4271,
+          "MAP": 0.3489,
+          "ndcg@5": 0.4005,
+          "n_queries": 8
+        },
+        "social": {
+          "p@1": 0.5,
+          "p@3": 0.5833,
+          "p@5": 0.5,
+          "r@1": 0.1333,
+          "r@3": 0.4833,
+          "r@5": 0.7,
+          "MAP": 0.6314,
+          "ndcg@5": 0.7,
+          "n_queries": 4
+        }
+      },
+      "spearman": 0.7533,
+      "fpr": 0.0198,
+      "fnr": 0.1818,
+      "occupation_pairs": {
+        "auc": 0.6,
+        "n_pos": 5,
+        "n_neg": 5,
+        "pairs": [
+          {
+            "id": "op-001",
+            "label": 2,
+            "cosine": 0.797
+          },
+          {
+            "id": "op-002",
+            "label": 2,
+            "cosine": 0.681
+          },
+          {
+            "id": "op-003",
+            "label": 2,
+            "cosine": 0.5623
+          },
+          {
+            "id": "op-004",
+            "label": 0,
+            "cosine": 0.5823
+          },
+          {
+            "id": "op-005",
+            "label": 0,
+            "cosine": 0.591
+          },
+          {
+            "id": "op-006",
+            "label": 0,
+            "cosine": 0.6087
+          },
+          {
+            "id": "op-007",
+            "label": 0,
+            "cosine": 0.565
+          },
+          {
+            "id": "op-008",
+            "label": 2,
+            "cosine": 0.6472
+          },
+          {
+            "id": "op-009",
+            "label": 2,
+            "cosine": 0.5118
+          },
+          {
+            "id": "op-010",
+            "label": 0,
+            "cosine": 0.5764
+          }
+        ],
+        "cross_lingual_equivalent_mean": 0.5851
+      },
+      "reproducible": true,
+      "calibration_spread": 0.0952,
+      "selection_score": 0.4512,
+      "eligible": true
+    }
+  ],
+  "chosen": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+}

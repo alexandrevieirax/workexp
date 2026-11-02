@@ -25,7 +25,6 @@ class Settings(BaseSettings):
     reports_dir: Path = PROJECT_ROOT / "artifacts" / "reports"
     logs_dir: Path = PROJECT_ROOT / "logs"
     docs_dir: Path = PROJECT_ROOT / "docs"
-    embedding_provider: str = "baseline"
     admin_api_key: str = "change-me"
     http_timeout_s: float = 60.0
 

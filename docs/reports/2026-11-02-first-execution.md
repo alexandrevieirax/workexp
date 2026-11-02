@@ -96,3 +96,101 @@ FPR 0,09, FNR 0,27 — erros *in-sample* e rótulos rascunhados por IA.
 - Busca de candidatos top-N no crosswalk e interface de revisão (aceitar/rejeitar/editar/dividir/mesclar).
 - Expandir para ≥ 3 ocupações completas (entregável 26) e fixar a versão ESCO (`selectedVersion`).
 - Validação de construto contra AIOE, índice GPT (Eloundou et al.) e RTI.
+
+---
+
+## Adendo — carga da CBO (2026-11-02, run `20261102T160636Z-3649df`)
+
+Os arquivos oficiais "Estrutura CBO (CSV)" foram colocados manualmente em `data/raw/cbo/` e validados
+(2.725 ocupações, 627 famílias, 7.870 sinônimos, 192.745 linhas de perfil). Ocupação **2124-05 —
+Analista de desenvolvimento de sistemas** (família 2124, Analistas de tecnologia da informação): 63
+atividades em 9 grandes áreas e 16 competências pessoais; 11 sinônimos.
+
+### Ajustes exigidos pelos dados reais
+
+- O arquivo de sinônimos usa `CODIGO;TITULO`, não `OCUPACAO;SINONIMO` como eu tinha documentado: mapeamento
+  de colunas adicionado.
+- 13 linhas do `PerfilOcupacional.csv` têm `;` extra no texto da atividade: reparadas e contadas.
+- Área Z ("Demonstrar competências pessoais") passou a ser competência pessoal, não tarefa.
+
+### Problemas metodológicos expostos pela CBO e corrigidos
+
+- **CBO→ESCO aparecia como "forte" (0,83)** porque, sem amostra nula, a similaridade de tarefas caía num
+  fallback que saturava em 1,0. Agora o componente fica desconhecido: 0,65, "moderada".
+- **O OAE da CBO (0,754) ficava fora do próprio intervalo [0,672–0,743]**: o ruído gaussiano recortado do
+  Monte Carlo só podia reduzir valores saturados. Substituído por ruído Beta com média preservada; um teste
+  agora exige que todo ponto esteja dentro do intervalo.
+- O motor de exposição (Monte Carlo, flags de incerteza) não estava coberto pelo fingerprint; agora está.
+
+### Resultados atuais (metodologia 0.1.0, fingerprint `26d94e190c288112…`)
+
+| Base | OAE | OAP | OAuP | OTP | E14 médio | Prior E6–E10 |
+|---|---|---|---|---|---|---|
+| O*NET 15-1252.00 | 0,75 [0,70–0,80] | 0,07 [0,05–0,10] | 0,46 [0,39–0,52] | 0,33 [0,28–0,39] | 0,48 | O*NET direto |
+| ESCO software developer | 0,78 [0,71–0,85] | 0,05 [0,02–0,09] | 0,30 [0,21–0,40] | 0,22 [0,15–0,31] | 1,00 | padrão |
+| CBO 2124-05 | 0,75 [0,71–0,80] | 0,05 [0,03–0,07] | 0,28 [0,23–0,33] | 0,19 [0,17–0,24] | 0,97 | padrão |
+
+| Crosswalk | Título | Tarefas | Confiança | Classe |
+|---|---|---|---|---|
+| ESCO → O*NET | 1,00 | 0,13 | 0,42 | não aceito |
+| CBO → O*NET | 0,01 | 0,03 | 0,29 | não aceito |
+| CBO → ESCO (pt) | 1,00 | desconhecido | 0,65 | moderada |
+
+Leitura: nas três bases o aumento supera amplamente a automação. As tarefas da CBO e da ESCO ficam em
+"evidência insuficiente" porque não têm uso observado, pesos de tarefa nem priors transferidos. O CBO→O*NET
+quase nulo (título 0,01) mostra a limitação central da linha de base lexical: ela não liga português a
+inglês. Esse é o motivo prioritário para avaliar modelos multilíngues.
+
+---
+
+## Adendo 2 — modelo de embeddings multilíngue e metodologia 0.2.0 (run `20261102T171223Z-e47f52`)
+
+Quatro modelos foram comparados no benchmark com uma regra de seleção registrada **antes** dos resultados
+(ADR 0002): média de MAP geral, MAP em português e AUC dos pares de ocupações, exigindo FPR não pior que a
+linha de base.
+
+| Modelo | MAP | MAP pt | FPR | AUC pares | Score |
+|---|---|---|---|---|---|
+| linha de base lexical | 0,27 | 0,16 | 0,09 | 0,60 | 0,34 |
+| **paraphrase-multilingual-mpnet-base-v2** | **0,55** | **0,67** | **0,02** | **0,88** | **0,70** |
+| multilingual-e5-large | 0,41 | 0,20 | 0,17 (inelegível) | 0,88 | 0,50 |
+| BGE-M3 | 0,44 | 0,31 | 0,02 | 0,60 | 0,45 |
+
+O mpnet foi adotado como metodologia **0.2.0** (snapshot fixado). A 0.1.0 ficou `superseded`. A trava de
+governança bloqueou o pipeline até a nova versão, o changelog, a área "Sobre" e as referências serem
+atualizados.
+
+### Resultados com a 0.2.0
+
+| Base | OAE | OAP | OAuP | OTP | E14 médio |
+|---|---|---|---|---|---|
+| O*NET 15-1252.00 | 0,71 [0,67–0,75] | 0,07 [0,06–0,08] | 0,43 [0,39–0,48] | 0,30 [0,27–0,33] | 0,25 (antes 0,48) |
+| ESCO software developer | 0,79 [0,72–0,86] | 0,05 [0,03–0,08] | 0,31 [0,22–0,40] | 0,22 [0,16–0,30] | 0,79 |
+| CBO 2124-05 | 0,76 [0,72–0,80] | 0,05 [0,04–0,07] | 0,29 [0,25–0,33] | 0,20 [0,17–0,24] | 0,77 |
+
+| Crosswalk | Título | Tarefas | Confiança 0.1.0 → 0.2.0 |
+|---|---|---|---|
+| ESCO → O*NET | 1,00 | 0,29 | 0,42 → 0,51 |
+| CBO → O*NET | 0,01 → 1,00 | 0,03 → 0,24 | 0,29 → 0,56 |
+| CBO → ESCO | 1,00 | desconhecido | 0,65 → 0,65 |
+
+O modelo multilíngue resolveu a ligação português↔inglês: CBO→O*NET passou a vencer as 40 ocupações nulas
+em similaridade de tarefas. Nenhum mapeamento chega ao limiar de 0,60 para O*NET. Há duas razões: o componente
+de hierarquia continua desconhecido (sem tabela oficial ISCO↔SOC) e a reescala contra o nulo, `(s − μ)/(1 − μ)`,
+é severa para equivalentes entre bases. Por isso os priors do O*NET ainda não chegam à CBO e à ESCO, e suas
+tarefas seguem majoritariamente em "evidência insuficiente".
+
+### Problemas novos registrados
+
+- **Calibração de títulos quase degenerada** (piso 0,812, teto 0,813): com 10 pares, um falso amigo pontua
+  quase como um equivalente. O título vira um degrau 0/1, e o pipeline agora emite um alerta. É preciso ampliar
+  os pares de ocupações do benchmark.
+- **e5-large** teve desempenho ruim em português, possivelmente pelo uso assimétrico de prefixos; a variante
+  simétrica não foi testada.
+
+### Próximos passos atualizados
+
+1. Carregar a tabela oficial ISCO-08↔SOC e a tábua CBO↔CIUO; revisar a reescala do nulo (por exemplo, posição
+   percentil ou comparação com os N melhores candidatos) antes da calibração.
+2. Ampliar e anotar por humanos o benchmark (pares de ocupações, sobretudo).
+3. Revisão humana dos três crosswalks pela API, o que liberaria a transferência de priors.

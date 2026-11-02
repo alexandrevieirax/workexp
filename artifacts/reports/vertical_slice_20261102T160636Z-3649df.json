@@ -1,6 +1,6 @@
 {
-  "run_id": "20261102T155405Z-a9fc3d",
-  "started_at": "2026-11-02T15:54:05.069731+00:00",
+  "run_id": "20261102T160636Z-3649df",
+  "started_at": "2026-11-02T16:06:36.726381+00:00",
   "sources": {
     "AEI": {
       "status": "loaded",
@@ -25,9 +25,13 @@
       "api_responses": 2
     },
     "CBO": {
-      "status": "pending_manual_download",
-      "expected_location": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\data\\raw\\cbo",
-      "procedure": "Open https://cbo.mte.gov.br/cbosite/pages/downloads.jsf, solve the reCAPTCHA, download 'Estrutura CBO (CSV) - Arquivo ZIP' and save the zip (or its CSVs) in data/raw/cbo/. Then run: python -m observatory.cli validate-cbo"
+      "status": "loaded",
+      "version": "CBO2002-estrutura-csv",
+      "code": "212405",
+      "activities": 63,
+      "personal_competencies": 16,
+      "activity_scope": "occupation",
+      "sha256": "9af07a69955556ce87672220adefbac9adbbc3de46e3048db0bd1630d7164f55"
     }
   },
   "occupations": {
@@ -44,20 +48,20 @@
       },
       "intervals": {
         "OAE": [
-          0.6906,
-          0.7771
+          0.7037,
+          0.7998
         ],
         "OAP": [
-          0.0494,
-          0.092
+          0.0499,
+          0.0986
         ],
         "OAuP": [
-          0.3758,
-          0.4835
+          0.3865,
+          0.5223
         ],
         "OTP": [
-          0.2695,
-          0.3624
+          0.2834,
+          0.3925
         ]
       },
       "quality": {
@@ -97,20 +101,20 @@
       },
       "intervals": {
         "OAE": [
-          0.6682,
-          0.7959
+          0.7066,
+          0.8464
         ],
         "OAP": [
-          0.0213,
-          0.0764
+          0.0196,
+          0.0928
         ],
         "OAuP": [
-          0.1948,
-          0.3505
+          0.2051,
+          0.3984
         ],
         "OTP": [
-          0.1384,
-          0.2575
+          0.1505,
+          0.3145
         ]
       },
       "quality": {
@@ -129,6 +133,61 @@
         "embedding_model_is_semantic": false
       },
       "max_abs_delta_OAE": 0.0125,
+      "limitations": [
+        "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
+        "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
+        "Modelo de embeddings de linha de base é lexical; correspondências semânticas e entre idiomas são frágeis.",
+        "Priors do dicionário de capacidades de IA não foram revisados por especialistas.",
+        "Sem descritores ocupacionais: E6–E10 usam prior neutro 0,5 (alta incerteza).",
+        "A fonte não publica importância/frequência das tarefas: pesos uniformes.",
+        "Nenhuma evidência de uso observado para as tarefas desta ocupação."
+      ]
+    },
+    "CBO": {
+      "occupation_id": 3,
+      "code": "212405",
+      "title": "Analista de desenvolvimento de sistemas",
+      "assessment_id": 3,
+      "scores": {
+        "OAE": 0.7542,
+        "OAP": 0.0503,
+        "OAuP": 0.2835,
+        "OTP": 0.1918
+      },
+      "intervals": {
+        "OAE": [
+          0.712,
+          0.7972
+        ],
+        "OAP": [
+          0.0342,
+          0.0683
+        ],
+        "OAuP": [
+          0.2336,
+          0.3317
+        ],
+        "OTP": [
+          0.1672,
+          0.2431
+        ]
+      },
+      "quality": {
+        "task_count": 63,
+        "task_coverage": 0,
+        "observed_usage_coverage": 0,
+        "source_quality": null,
+        "weight_method": "uniform_unweighted_source",
+        "prior_source": "default",
+        "prior_from_occupation": null,
+        "crosswalk_quality": 0.2872,
+        "mean_uncertainty": 0.9714,
+        "class_distribution": {
+          "insufficient_evidence": 1.0017
+        },
+        "embedding_model_is_semantic": false
+      },
+      "max_abs_delta_OAE": 0.0128,
       "limitations": [
         "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
         "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
@@ -189,6 +248,88 @@
         "auto_accept": false
       },
       "mapping_id": 1
+    },
+    {
+      "source": "CBO:212405",
+      "target": "ONET:15-1252.00",
+      "title_similarity": 0.0125,
+      "task_similarity": 0.0276,
+      "skill_similarity": null,
+      "hierarchy_consistency": null,
+      "qualification_consistency": 1.0,
+      "mapping_confidence": 0.2872,
+      "confidence_class": "not_accepted_automatically",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: bidirectional best-match mean rescaled vs empirical null (n=40): (s - mean_null) / (1 - mean_null)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: no official correspondence table loaded → unknown",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['skill_similarity', 'hierarchy_consistency']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.3481,
+        "unknown_components": [
+          "skill_similarity",
+          "hierarchy_consistency"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.1649,
+            "null_mean": 0.1412,
+            "null_max": 0.1766,
+            "n_null": 40,
+            "raw_rank_vs_null": 0.975
+          }
+        },
+        "languages": [
+          "pt",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 2
+    },
+    {
+      "source": "CBO:212405",
+      "target": "ESCO:http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+      "title_similarity": 1.0,
+      "task_similarity": null,
+      "skill_similarity": null,
+      "hierarchy_consistency": null,
+      "qualification_consistency": 1.0,
+      "mapping_confidence": 0.65,
+      "confidence_class": "moderate",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: fewer than 5 null occupations → component unknown (raw 0.362 recorded)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: no official correspondence table loaded → unknown",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['task_similarity', 'skill_similarity', 'hierarchy_consistency']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.4985,
+        "unknown_components": [
+          "task_similarity",
+          "skill_similarity",
+          "hierarchy_consistency"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.3617,
+            "n_null": 0
+          }
+        },
+        "languages": [
+          "pt",
+          "pt"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 3
     }
   ],
   "benchmark": {
@@ -241,7 +382,7 @@
       }
     },
     "caveat": "Labels are AI-drafted (not gold); calibration uses the same items, so error rates are in-sample.",
-    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261102T155405Z-a9fc3d",
+    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261102T160636Z-3649df",
     "title_pair_calibration": {
       "model_key": "baseline/char-ngram-hashing@v1-d2048",
       "floor": 0.3471825122833252,
@@ -254,19 +395,19 @@
   },
   "warnings": [
     "Embedding provider is the lexical baseline; install '.[ml]' and evaluate multilingual-e5-large / BGE-M3 before drawing substantive conclusions.",
-    "CBO not loaded: official files require manual download (reCAPTCHA). Open https://cbo.mte.gov.br/cbosite/pages/downloads.jsf, solve the reCAPTCHA, download 'Estrutura CBO (CSV) - Arquivo ZIP' and save the zip (or its CSVs) in data/raw/cbo/. Then run: python -m observatory.cli validate-cbo",
-    "ESCO: crosswalk to O*NET is 'not_accepted_automatically' (0.42); O*NET priors NOT transferred, default prior used."
+    "ESCO: crosswalk to O*NET is 'not_accepted_automatically' (0.42); O*NET priors NOT transferred, default prior used.",
+    "CBO: crosswalk to O*NET is 'not_accepted_automatically' (0.29); O*NET priors NOT transferred, default prior used."
   ],
   "methodology": {
     "version": "0.1.0",
-    "fingerprint": "ce96c3dc753389700129daf77a4802c561ef5702708935495a0bf57b74332bb4",
+    "fingerprint": "26d94e190c288112610b951386c01131410162e56a3ceed74012841b495d4b98",
     "status": "uncalibrated",
     "capability_dictionary": "0.1.0",
     "capability_review_status": "unreviewed"
   },
   "pipeline": {
-    "source_tree_sha256": "9b580e775301f8efc94b162c4ae4040a8d268f0908f62b493413166ea357fcb8",
-    "git_commit": null,
+    "source_tree_sha256": "2310d24670b048740e205a9d11693d52c821063304697af2bd991de5b5e7097a",
+    "git_commit": "44e49f3e3045dd48b27d6c728119e0a383b297bb",
     "git_dirty": true
   }
 }

@@ -35,7 +35,8 @@ def sandbox(tmp_path, monkeypatch):
 
 
 def test_weight_change_without_new_version_fails(sandbox):
-    cfg = sandbox / "methodology" / "methodology_v0.1.0.yaml"
+    cfg = load_methodology().config_path
+    cfg = sandbox / "methodology" / cfg.name
     cfg.write_text(cfg.read_text(encoding="utf-8").replace("alpha: 0.50", "alpha: 0.60"), encoding="utf-8")
     problems = consistency.check_consistency()
     assert any(p.startswith("fingerprint") for p in problems)
@@ -55,7 +56,9 @@ def test_capability_dictionary_change_changes_fingerprint(sandbox):
 
 def test_missing_changelog_section_fails(sandbox):
     cl = sandbox / "docs" / "CHANGELOG-methodology.md"
-    cl.write_text(cl.read_text(encoding="utf-8").replace("## [0.1.0]", "## [0.0.9]"), encoding="utf-8")
+    cl.write_text(
+        cl.read_text(encoding="utf-8").replace(f"## [{load_methodology().version}]", "## [9.9.9]"), encoding="utf-8"
+    )
     assert any(p.startswith("changelog") for p in consistency.check_consistency())
 
 

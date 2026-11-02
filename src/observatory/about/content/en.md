@@ -1,5 +1,5 @@
 ---
-methodology_version: 0.1.0
+methodology_version: 0.2.0
 language: en
 ---
 
@@ -57,8 +57,9 @@ No mapping is auto-accepted in the current version; titles alone weigh only 20%.
 
 {{embedding_summary}}
 
-Generic leaderboards do not replace the domain benchmark [@muennighoff2023mteb]; candidates:
-[@wang2024multilingual; @chen2024bge].
+Generic leaderboards do not replace the domain benchmark [@muennighoff2023mteb]. Version 0.2.0 compared the
+lexical baseline, paraphrase-multilingual-mpnet-base-v2 [@reimers2020making], multilingual-E5-large
+[@wang2024multilingual] and BGE-M3 [@chen2024bge] under a selection rule fixed before the results (ADR 0002).
 
 ## 10. Formulas {#formulas}
 

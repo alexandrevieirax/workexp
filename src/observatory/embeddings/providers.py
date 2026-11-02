@@ -8,6 +8,7 @@ from __future__ import annotations
 import abc
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 
@@ -87,7 +88,7 @@ class SentenceTransformerProvider(EmbeddingProvider):
             from sentence_transformers import SentenceTransformer
         except ImportError as exc:  # pragma: no cover - optional dependency
             raise ImportError("sentence-transformers not installed; pip install '.[ml]'") from exc
-        self._model = SentenceTransformer(model_name, revision=revision, device=device)
+        self._model = SentenceTransformer(model_name, revision=revision, device=device or "cpu")
         meta = CANDIDATE_MODELS.get(model_name, {"query_prefix": "", "passage_prefix": ""})
         self.dimension = int(self._model.get_sentence_embedding_dimension())
         self.params = {
@@ -95,11 +96,27 @@ class SentenceTransformerProvider(EmbeddingProvider):
             "passage_prefix": meta["passage_prefix"],
             "normalize": True,
         }
-        self.model_key = f"sentence-transformers/{model_name}@{revision or 'default'}"
+        # Pin the exact Hugging Face snapshot so cached vectors are tied to the weights that produced them.
+        self.model_key = f"sentence-transformers:{model_name}@{(revision or _resolved_revision(model_name))[:12]}"
 
     def _encode(self, texts: list[str], kind: str) -> np.ndarray:  # pragma: no cover - needs model download
         prefix = self.params["query_prefix"] if kind == "query" else self.params["passage_prefix"]
-        return self._model.encode([prefix + t for t in texts], normalize_embeddings=True, convert_to_numpy=True)
+        return self._model.encode(
+            [prefix + t for t in texts],
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            batch_size=32,
+            show_progress_bar=False,
+        )
+
+
+def _resolved_revision(model_name: str) -> str:
+    try:
+        from huggingface_hub import snapshot_download
+
+        return Path(snapshot_download(model_name, local_files_only=True)).name[:12]
+    except Exception:  # pragma: no cover - offline cache layout differences
+        return "unresolved"
 
 
 class ExternalAPIProvider(EmbeddingProvider):
@@ -148,9 +165,9 @@ def cosine_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return a @ b.T
 
 
-def get_provider(spec: str) -> EmbeddingProvider:
+def get_provider(spec: str, revision: str | None = None) -> EmbeddingProvider:
     if spec == "baseline":
         return HashingBaselineProvider()
     if spec.startswith("sentence-transformers:"):
-        return SentenceTransformerProvider(spec.split(":", 1)[1])
+        return SentenceTransformerProvider(spec.split(":", 1)[1], revision=revision)
     raise ValueError(f"unknown embedding provider spec {spec!r}")

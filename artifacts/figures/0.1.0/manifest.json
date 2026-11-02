@@ -1,6 +1,6 @@
 {
   "methodology_version": "0.1.0",
-  "fingerprint": "ce96c3dc753389700129daf77a4802c561ef5702708935495a0bf57b74332bb4",
+  "fingerprint": "26d94e190c288112610b951386c01131410162e56a3ceed74012841b495d4b98",
   "figures": {
     "flow": {
       "file": "flow.mmd",
@@ -48,9 +48,9 @@
       "title": "Cálculo da exposição ocupacional",
       "caption": "Cada barra é a contribuição de uma tarefa O*NET (peso normalizado × exposição técnica); a soma é o OAE.",
       "alt": "Barras horizontais com a contribuição de 17 tarefas para o OAE de 0.75.",
-      "data_source": "assessment #1 run 20261102T155405Z-a9fc3d; ONET 15-1252.00",
+      "data_source": "assessment #1 run 20261102T160636Z-3649df; ONET 15-1252.00",
       "methodology_version": "0.1.0",
-      "sha256": "d4b202de19c411f2a3d451cccc9f42468fabc7013a253dde0dab76530774a0b6"
+      "sha256": "e37f0d636e5bdbe48d8ac1fa789170a75c8f0778055f41535f0358d2993cec3f"
     },
     "automation_augmentation": {
       "file": "automation_augmentation.svg",
@@ -58,9 +58,9 @@
       "title": "Automação versus aumento",
       "caption": "Cada ponto é uma tarefa; acima da diagonal predomina o aumento de capacidade humana.",
       "alt": "Dispersão das tarefas com automação no eixo x e aumento no eixo y; a maioria acima da diagonal.",
-      "data_source": "assessment #1 run 20261102T155405Z-a9fc3d; ONET 15-1252.00",
+      "data_source": "assessment #1 run 20261102T160636Z-3649df; ONET 15-1252.00",
       "methodology_version": "0.1.0",
-      "sha256": "71ff7892fc2d5b8e2b92d97b92b55ef46f05231b33c48934d6a9f7361de47794"
+      "sha256": "5935c05fa300eb62ad0c97042fdb7a83517eccf76728f676d873694cdbfa993e"
     },
     "sensitivity": {
       "file": "sensitivity.svg",
@@ -68,9 +68,9 @@
       "title": "Análise de sensibilidade",
       "caption": "Efeito no OAE de reduzir (vermelho) ou aumentar (azul) cada peso em 20%, mantendo os demais.",
       "alt": "Gráfico de tornado; maior variação absoluta do OAE = 0.014.",
-      "data_source": "assessment #1 run 20261102T155405Z-a9fc3d; ONET 15-1252.00",
+      "data_source": "assessment #1 run 20261102T160636Z-3649df; ONET 15-1252.00",
       "methodology_version": "0.1.0",
-      "sha256": "c118bba77b2a180d932b22c92c1a0e8be58935518e476ea034b9a94c2378d341"
+      "sha256": "c051427560e03def3e3171325bfc893bf69354ed335fbe879bb1df9ff3b54b66"
     },
     "uncertainty": {
       "file": "uncertainty.svg",
@@ -78,9 +78,9 @@
       "title": "Incerteza",
       "caption": "Intervalos de 90% (Monte Carlo) para os quatro índices de cada ocupação avaliada.",
       "alt": "Segmentos horizontais com os intervalos de OAE, OAP, OAuP e OTP por ocupação.",
-      "data_source": "assessment #1; assessment #2",
+      "data_source": "assessment #1; assessment #2; assessment #3",
       "methodology_version": "0.1.0",
-      "sha256": "293462b6927d47c7b1ed78bb4d3c92a00e7c448fd4b9b48575b6aa026c0a6a49"
+      "sha256": "f3e74622fd6c22aa7da92f0304606e2869d3bf8734601e22db795f2af9f686d8"
     },
     "crosswalk": {
       "file": "crosswalk.svg",
@@ -88,9 +88,9 @@
       "title": "Crosswalk CBO–ESCO–O*NET",
       "caption": "Componentes do mapping_confidence por par; nenhum par é aceito automaticamente.",
       "alt": "Barras agrupadas com os cinco componentes de cada correspondência proposta e a confiança final.",
-      "data_source": "mapping #1",
+      "data_source": "mapping #1; mapping #2; mapping #3",
       "methodology_version": "0.1.0",
-      "sha256": "10a003cdff8c0d9f0ba1ee37690b6d9e93a597441979321377073c6e1d068e15"
+      "sha256": "736e56017a30f654946d8f34e01fbecd296aeddc049ce41c992ea17b52769a2c"
     }
   }
 }

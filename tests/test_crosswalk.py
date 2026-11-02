@@ -15,13 +15,26 @@ def side(ref, titles, tasks, tax="ONET", group=None, q=0.75, lang="en"):
 
 
 TASKS = ["Write computer programs from specifications", "Test software and fix defects", "Prepare reports"]
+NULLS = [[f"Unrelated synthetic duty number {i}"] for i in range(10)]
 
 
 def test_identical_occupations_score_high_but_are_never_auto_accepted():
     p = propose(
-        side("a", ["software developer"], TASKS, "ESCO"), side("b", ["software developer"], TASKS), EMB, CAL, CAL, CFG
+        side("a", ["software developer"], TASKS, "ESCO"),
+        side("b", ["software developer"], TASKS),
+        EMB,
+        CAL,
+        CFG,
+        null_tasks=NULLS,
     )
     assert p.task_similarity == 1.0 and p.status == "proposed" and p.details["auto_accept"] is False
+
+
+def test_set_similarity_without_null_sample_is_unknown_not_saturated():
+    """Regression: CBO→ESCO had no null sample and the old fallback reported task_similarity = 1.0."""
+    p = propose(side("a", ["x"], TASKS, "CBO"), side("b", ["x"], TASKS, "ESCO"), EMB, CAL, CFG)
+    assert p.task_similarity is None and "task_similarity" in p.details["unknown_components"]
+    assert p.details["null"]["tasks"]["n_null"] == 0
 
 
 def test_title_match_alone_cannot_reach_moderate():
@@ -31,16 +44,15 @@ def test_title_match_alone_cannot_reach_moderate():
         side("b", ["engineer"], ["Write computer programs", "Design database schemas"]),
         EMB,
         CAL,
-        CAL,
         CFG,
-        null_tasks=[[f"Unrelated synthetic duty number {i}"] for i in range(10)],
+        null_tasks=NULLS,
     )
     assert p.title_similarity == 1.0
     assert p.confidence_class == "not_accepted_automatically"
 
 
 def test_unknown_components_are_neutral_and_reported():
-    p = propose(side("a", ["x"], TASKS, "ESCO", q=None), side("b", ["x"], TASKS), EMB, CAL, CAL, CFG)
+    p = propose(side("a", ["x"], TASKS, "ESCO", q=None), side("b", ["x"], TASKS), EMB, CAL, CFG)
     assert p.qualification_consistency is None and p.hierarchy_consistency is None
     assert set(p.details["unknown_components"]) >= {
         "qualification_consistency",
@@ -53,10 +65,10 @@ def test_unknown_components_are_neutral_and_reported():
 def test_official_table_drives_hierarchy():
     off = OfficialCodeCrosswalk({("ISCO08", "2512", "SOC2018", "15-1252")}, ["synthetic.csv"])
     ok = propose(
-        side("a", ["x"], TASKS, "ESCO", group="2512"), side("b", ["x"], TASKS, group="15-1252"), EMB, CAL, CAL, CFG, off
+        side("a", ["x"], TASKS, "ESCO", group="2512"), side("b", ["x"], TASKS, group="15-1252"), EMB, CAL, CFG, off
     )
     bad = propose(
-        side("a", ["x"], TASKS, "ESCO", group="2512"), side("b", ["x"], TASKS, group="47-2111"), EMB, CAL, CAL, CFG, off
+        side("a", ["x"], TASKS, "ESCO", group="2512"), side("b", ["x"], TASKS, group="47-2111"), EMB, CAL, CFG, off
     )
     assert ok.hierarchy_consistency == 1.0 and bad.hierarchy_consistency == 0.0
 

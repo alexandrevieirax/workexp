@@ -4,7 +4,7 @@
 |---|---|---|---|---|---|---|
 | `ONET` | O*NET Database (text) | U.S. DOL / O*NET Resource Center | 31.0 (agosto/2026) | download automático | CC BY 4.0 | ✅ conector + carga |
 | `ESCO` | ESCO API | Comissão Europeia | versão padrão da API na data de obtenção | API REST pública | CC BY 4.0 (ver termos ESCO) | ✅ conector API; ⏳ carga em massa (CSV oficial) |
-| `CBO` | Classificação Brasileira de Ocupações 2002 | Ministério do Trabalho e Emprego | arquivo "Estrutura CBO (CSV)" | **download manual** (reCAPTCHA) | dados públicos governamentais — confirmar termos | ✅ conector de arquivo; ⏳ arquivo não obtido |
+| `CBO` | Classificação Brasileira de Ocupações 2002 | Ministério do Trabalho e Emprego | arquivo "Estrutura CBO (CSV)" | **download manual** (reCAPTCHA) | dados públicos governamentais — confirmar termos | ✅ conector de arquivo + carga (obtido em 2026-11-02) |
 | `AEI` | Anthropic Economic Index | Anthropic (Hugging Face `Anthropic/EconomicIndex`) | release_2025_03_27 | download automático | verificar no cartão do dataset | ✅ conector + carga (E3) |
 
 A data e o hash SHA-256 de cada arquivo são gravados em `source_version`
@@ -45,16 +45,26 @@ O portal `cbo.mte.gov.br/cbosite/pages/downloads.jsf` protege os downloads com
 3. Execute `python -m observatory.cli validate-cbo` para validar o esquema.
 4. Execute `python -m observatory.cli slice`.
 
-Esquema esperado (separador `;`, codificação ISO-8859-1 ou UTF-8; o conector
-detecta). Os nomes de colunas abaixo são o layout conhecido; a validação
-informa colunas ausentes em vez de adivinhar:
+Esquema verificado nos arquivos oficiais obtidos em 2026-11-02 (separador `;`,
+ISO-8859-1, CRLF). A validação informa colunas ausentes em vez de adivinhar:
 
-| Arquivo (padrão do nome) | Colunas mínimas |
-|---|---|
-| `*Ocupacao*.csv` | `CODIGO`, `TITULO` |
-| `*Familia*.csv` | `CODIGO`, `TITULO` |
-| `*Sinonimo*.csv` | `OCUPACAO`, `SINONIMO` |
-| `*PerfilOcupacional*.csv` | `COD_FAMILIA`, `COD_OCUPACAO`, `SGL_GRANDE_AREA`, `NOME_GRANDE_AREA`, `COD_ATIVIDADE`, `NOME_ATIVIDADE` |
+| Arquivo (sufixo do nome) | Colunas | Linhas |
+|---|---|---|
+| `Ocupacao.csv` | `CODIGO`, `TITULO` | 2.725 |
+| `Familia.csv` | `CODIGO`, `TITULO` | 627 |
+| `Sinonimo.csv` | `CODIGO` (ocupação), `TITULO` (sinônimo) → mapeados para `OCUPACAO`, `SINONIMO` | 7.870 |
+| `PerfilOcupacional.csv` | `COD_GRANDE_GRUPO` … `COD_FAMILIA`, `COD_OCUPACAO`, `SGL_GRANDE_AREA`, `NOME_GRANDE_AREA`, `COD_ATIVIDADE`, `NOME_ATIVIDADE` | 192.745 |
+
+`Grande Grupo.csv`, `SubGrupo Principal.csv` e `SubGrupo.csv` estão presentes e
+ainda não são usados. Regras de transformação registradas:
+
+- **`cbo_semicolon_in_last_field`** — 13 linhas do `PerfilOcupacional.csv` oficial têm
+  `;` dentro ou ao fim do texto da atividade (última coluna). O excedente é reunido na
+  última coluna e `;` finais são removidos; a contagem fica em `source_version.notes`.
+- **Área Z** (`DEMONSTRAR COMPETÊNCIAS PESSOAIS`) contém atributos pessoais, não
+  atividades: é gravada como `skill` do tipo `personal_competency` e **excluída das
+  unidades de tarefa**. A área Y (`COMUNICAR-SE`) contém atividades e permanece.
+- Espaços finais dos títulos são removidos.
 
 Descrição sumária, formação/experiência e condições gerais de exercício
 **não** fazem parte do ZIP de estrutura; estão nas páginas de família do portal

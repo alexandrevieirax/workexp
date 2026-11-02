@@ -16,6 +16,8 @@ FORMULA_MODULES = [
     PROJECT_ROOT / "src" / "observatory" / "exposure" / "formulas.py",
     PROJECT_ROOT / "src" / "observatory" / "exposure" / "weights.py",
     PROJECT_ROOT / "src" / "observatory" / "crosswalk" / "engine.py",
+    PROJECT_ROOT / "src" / "observatory" / "exposure" / "engine.py",  # Monte Carlo, sensitivity, uncertainty flags
+    PROJECT_ROOT / "src" / "observatory" / "exposure" / "dimensions.py",  # E1 matching, priors, lexical cues
 ]
 
 

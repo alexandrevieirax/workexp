@@ -97,7 +97,6 @@ def propose(
     a: CrosswalkSide,
     b: CrosswalkSide,
     embedder: Embedder,
-    sentence_cal: Calibration,
     title_cal: Calibration | None,
     cfg: dict,
     official: OfficialCodeCrosswalk | None = None,
@@ -105,7 +104,8 @@ def propose(
     null_skills: list[list[str]] | None = None,
 ) -> CrosswalkProposal:
     """Set similarities are rescaled against an empirical null: the same source compared with randomly sampled
-    occupations of the target taxonomy. 0 = no more similar than a random occupation, 1 = identical sets."""
+    occupations of the target taxonomy. 0 = no more similar than a random occupation, 1 = identical sets.
+    Without a null sample the component is unknown (a sentence-level calibration saturates at 1.0)."""
     cw = cfg["crosswalk"]
     rules: list[str] = []
     unknown = cw["unknown_component_value"]
@@ -140,8 +140,9 @@ def propose(
                 f"(n={len(null)}): (s - mean_null) / (1 - mean_null)"
             )
             return float(np.clip((raw - mu) / (1 - mu), 0, 1)) if mu < 1 else 0.0
-        rules.append(f"{name}: no null sample → sentence calibration fallback (likely to saturate; low trust)")
-        return float(sentence_cal.apply(np.array([raw]))[0])
+        null_stats[name] = {"raw": round(raw, 4), "n_null": len(nulls)}
+        rules.append(f"{name}: fewer than 5 null occupations → component unknown (raw {raw:.3f} recorded)")
+        return None
 
     task = set_sim(a.tasks, b.tasks, "tasks", null_tasks)
     skill = set_sim(a.skills, b.skills, "skills", null_skills)

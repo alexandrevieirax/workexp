@@ -53,6 +53,7 @@ def slice_run(synthetic_env):
             cbo_code="999901",
             aei_release="release_synthetic",
             offline=True,
+            provider="baseline",  # tests must not download models (CI installs no ML extras)
         )
     )
     return synthetic_env, report

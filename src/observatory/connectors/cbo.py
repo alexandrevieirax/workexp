@@ -6,8 +6,6 @@ The MTE portal protects downloads with reCAPTCHA, so files must be obtained manu
 
 from __future__ import annotations
 
-import fnmatch
-import io
 import zipfile
 from pathlib import Path
 
@@ -21,6 +19,7 @@ from observatory.connectors.base import (
     is_marked_synthetic,
     require_columns,
 )
+from observatory.normalization.text import strip_accents
 from observatory.provenance import sha256_bytes
 
 PROCEDURE = (
@@ -28,15 +27,21 @@ PROCEDURE = (
     "'Estrutura CBO (CSV) - Arquivo ZIP' and save the zip (or its CSVs) in data/raw/cbo/. "
     "Then run: python -m observatory.cli validate-cbo"
 )
+# File-name suffix (normalized: lowercase, no accents/spaces/underscores) -> required columns.
 SCHEMA = {
-    "ocupacao": ("*ocupa*o*.csv", ["CODIGO", "TITULO"]),
-    "familia": ("*familia*.csv", ["CODIGO", "TITULO"]),
-    "sinonimo": ("*sinonimo*.csv", ["OCUPACAO", "SINONIMO"]),
+    "ocupacao": ("ocupacao.csv", ["CODIGO", "TITULO"]),
+    "familia": ("familia.csv", ["CODIGO", "TITULO"]),
+    "sinonimo": ("sinonimo.csv", ["OCUPACAO", "SINONIMO"]),
     "perfil": (
-        "*perfil*.csv",
+        "perfilocupacional.csv",
         ["COD_FAMILIA", "COD_OCUPACAO", "SGL_GRANDE_AREA", "NOME_GRANDE_AREA", "COD_ATIVIDADE", "NOME_ATIVIDADE"],
     ),
 }
+# The official Sinonimo.csv ships as CODIGO;TITULO (occupation code; synonym). Mapped to canonical names.
+COLUMN_ALIASES = {"sinonimo": {"CODIGO": "OCUPACAO", "TITULO": "SINONIMO"}}
+# Perfil Ocupacional area "Z" ("DEMONSTRAR COMPETÊNCIAS PESSOAIS") lists personal attributes (e.g. "Demonstrar
+# capacidade de raciocínio abstrato"), not work activities: kept as personal competencies, excluded from task units.
+PERSONAL_COMPETENCY_AREAS = {"Z"}
 NOT_IN_FILE = ["descricao_sumaria", "formacao_experiencia", "condicoes_gerais_exercicio", "recursos_trabalho"]
 # CBO 2002 grandes grupos follow the ISCO-88 skill-level logic; same 0-1 rescaling as ESCO.
 CBO_SKILL_LEVEL_BY_GG = {
@@ -65,6 +70,7 @@ class CboFiles:
     def __init__(self, directory: Path, is_synthetic: bool = False):
         self.directory = directory
         self.is_synthetic = is_synthetic or (directory.exists() and is_marked_synthetic(directory))
+        self.repaired_rows: dict[str, int] = {}
         self._files = self._discover()
         if "ocupacao" not in self._files:
             raise SourceUnavailableError("CBO structure files not found", PROCEDURE, str(directory))
@@ -81,18 +87,31 @@ class CboFiles:
             elif p.suffix.lower() == ".zip":
                 with zipfile.ZipFile(p) as z:
                     candidates += [(Path(n).name, z.read(n)) for n in z.namelist() if n.lower().endswith(".csv")]
-        for key, (pattern, _) in SCHEMA.items():
+        for key, (suffix, _) in SCHEMA.items():
             for name, data in candidates:
-                norm = name.lower().replace(" ", "").replace("_", "")
-                if fnmatch.fnmatch(norm, pattern.replace("_", "")) and key not in found:
+                norm = strip_accents(name).lower().replace(" ", "").replace("_", "")
+                if norm.endswith(suffix) and key not in found:
                     found[key] = (name, data)
         return found
 
     def _read(self, key: str, data: bytes) -> pd.DataFrame:
         text = _decode(data)
         sep = ";" if text.count(";") >= text.count(",") else ","
-        df = pd.read_csv(io.StringIO(text), sep=sep, dtype=str, keep_default_na=False)
-        df.columns = [c.strip().upper() for c in df.columns]
+        lines = [ln for ln in text.splitlines() if ln.strip()]
+        header = [c.strip().upper() for c in lines[0].split(sep)]
+        rows, repaired = [], 0
+        for ln in lines[1:]:
+            parts = ln.split(sep, len(header) - 1)  # extra separators stay inside the last (free-text) column
+            if len(parts) < len(header):
+                raise ValueError(f"[CBO] {self._files[key][0]}: row with {len(parts)} fields: {ln[:80]!r}")
+            if sep in parts[-1] or parts[-1].endswith(sep):
+                repaired += 1
+                parts[-1] = parts[-1].rstrip(sep).strip()
+            rows.append(parts)
+        self.repaired_rows[key] = repaired
+        df = pd.DataFrame(rows, columns=header, dtype=str)
+        df = df.rename(columns=COLUMN_ALIASES.get(key, {}))
+        df = df.apply(lambda col: col.str.strip())
         require_columns("CBO", self._files[key][0], list(df.columns), SCHEMA[key][1])
         return df
 
@@ -112,7 +131,9 @@ class CboFiles:
             file_sha256=digest,
             license_name="Dados públicos governamentais (confirmar termos de uso MTE)",
             license_url=None,
-            notes="files: " + ", ".join(n for n, _ in self._files.values()),
+            notes="files: "
+            + ", ".join(n for n, _ in self._files.values())
+            + f"; rule cbo_semicolon_in_last_field repaired rows: {self.repaired_rows}",
             is_synthetic=self.is_synthetic,
         )
 
@@ -149,10 +170,8 @@ class CboFiles:
             is_synthetic=self.is_synthetic,
         )
 
-    def activities(self, code: str) -> list[ParsedTask]:
+    def _profile_rows(self, code: str) -> tuple[pd.DataFrame, str]:
         """Activities are published per family; rows may also carry the occupation code."""
-        if "perfil" not in self.tables:
-            return []
         code = code.replace("-", "")
         pf = self.tables["perfil"]
         rows = pf[pf["COD_OCUPACAO"].str.replace("-", "") == code]
@@ -160,7 +179,28 @@ class CboFiles:
         if rows.empty:
             rows = pf[pf["COD_FAMILIA"] == code[:4]]
             scope = "family"
-        rows = rows.drop_duplicates(subset=["SGL_GRANDE_AREA", "COD_ATIVIDADE"])
+        return rows.drop_duplicates(subset=["SGL_GRANDE_AREA", "COD_ATIVIDADE"]), scope
+
+    def personal_competencies(self, code: str) -> list[dict]:
+        if "perfil" not in self.tables:
+            return []
+        rows, scope = self._profile_rows(code)
+        rows = rows[rows["SGL_GRANDE_AREA"].isin(PERSONAL_COMPETENCY_AREAS)]
+        return [
+            {
+                "original_id": f"{code[:4]}:{r['SGL_GRANDE_AREA']}:{r['COD_ATIVIDADE']}",
+                "label": r["NOME_ATIVIDADE"],
+                "scope": scope,
+            }
+            for _, r in rows.iterrows()
+        ]
+
+    def activities(self, code: str) -> list[ParsedTask]:
+        if "perfil" not in self.tables:
+            return []
+        code = code.replace("-", "")
+        rows, scope = self._profile_rows(code)
+        rows = rows[~rows["SGL_GRANDE_AREA"].isin(PERSONAL_COMPETENCY_AREAS)]
         return [
             ParsedTask(
                 original_id=f"{code[:4]}:{r['SGL_GRANDE_AREA']}:{r['COD_ATIVIDADE']}",

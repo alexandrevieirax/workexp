@@ -106,9 +106,11 @@ w = w_raw / Σ w_raw
 `OAE`, `OAP`, `OAuP`, `OTP` = somas ponderadas das quatro saídas por tarefa.
 
 Indicadores complementares:
-- **Intervalo de 90%** por Monte Carlo (ruído nas dimensões proporcional a E14,
-  pesos das fórmulas por Dirichlet concentrada no valor do YAML, expoentes α, β, γ
-  perturbados); semente fixa para reprodutibilidade.
+- **Intervalo de 90%** por Monte Carlo (ruído nas dimensões com desvio proporcional a E14,
+  amostrado de uma Beta com média igual ao valor — limitada a [0, 1] sem viés; pesos das
+  fórmulas por Dirichlet concentrada no valor do YAML; expoentes α, β, γ perturbados);
+  semente fixa para reprodutibilidade. Ruído gaussiano recortado foi descartado porque
+  empurrava valores saturados para dentro e deixava o ponto fora do próprio intervalo.
 - **Cobertura**: fração do peso das tarefas com E1 válido e prior não-padrão.
 - **Qualidade das fontes**: fração de ratings não suprimidos e com N ≥ limite.
 - **Qualidade do crosswalk**: melhor `mapping_confidence` disponível.
@@ -135,9 +137,10 @@ entre conjuntos, **reescalada contra uma distribuição nula empírica**: o mesm
 de origem comparado com `null_sample_size` ocupações aleatórias da taxonomia de destino
 (semente fixa). `componente = (s − média_nula)/(1 − média_nula)`, recortado em [0, 1]:
 0 = tão parecido quanto uma ocupação aleatória; 1 = conjuntos idênticos. A posição de `s`
-na distribuição nula também é registrada. Sem amostra nula (pares CBO–ESCO na v0), usa-se a
-calibração de sentenças, marcada como de baixa confiança. Na primeira execução, sem essa
-reescala, a calibração tarefa–capacidade saturava em 1,0 — por isso foi substituída.
+na distribuição nula também é registrada. Sem amostra nula (< 5 ocupações; pares CBO–ESCO na
+v0) o componente é **desconhecido** (valor neutro, sinalizado) e a similaridade bruta é apenas
+registrada. Antes, usava-se a calibração tarefa–capacidade, que saturava em 1,0 e chegou a
+classificar CBO→ESCO como "forte" (0,83) sem base — por isso foi removida.
 Hierarquia: consistência de grupos ISCO/SOC quando há código oficial;
 desconhecido = 0,5 (neutro), sinalizado. Correspondências < 0,60 nunca são
 aceitas automaticamente; nenhuma é aceita automaticamente na v0 — todas nascem

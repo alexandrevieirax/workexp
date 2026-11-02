@@ -1,5 +1,5 @@
 ---
-methodology_version: 0.1.0
+methodology_version: 0.2.0
 language: pt-BR
 ---
 
@@ -71,8 +71,11 @@ e histórico. Títulos semelhantes não bastam: o título pesa apenas 20%.
 
 {{embedding_summary}}
 
-Rankings genéricos não substituem o benchmark do domínio [@muennighoff2023mteb]. Candidatos a avaliar:
-multilingual-E5-large [@wang2024multilingual] e BGE-M3 [@chen2024bge].
+Rankings genéricos não substituem o benchmark do domínio [@muennighoff2023mteb]. Na versão 0.2.0 foram
+comparados, com regra de seleção registrada antes dos resultados (ADR 0002), a linha de base lexical,
+paraphrase-multilingual-mpnet-base-v2 [@reimers2020making], multilingual-E5-large [@wang2024multilingual] e
+BGE-M3 [@chen2024bge]. O modelo escolhido tem o *snapshot* fixado na configuração; a escolha é provisória até
+existir um conjunto ouro anotado por especialistas.
 
 ## 10. Fórmulas {#formulas}
 

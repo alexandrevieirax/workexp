@@ -25,10 +25,14 @@ Formato inspirado em Gebru et al. (2021). Hash e data de cada arquivo usados fic
 
 ## CBO 2002
 
-- **Publicador:** Ministério do Trabalho e Emprego. **Status:** conector pronto; arquivo **não obtido**
-  (download protegido por reCAPTCHA).
-- **Cuidados:** atividades são descritas por família ocupacional; descrição sumária, formação e condições de
-  exercício não vêm no ZIP de estrutura.
+- **Publicador:** Ministério do Trabalho e Emprego. **Status:** "Estrutura CBO (CSV)" obtida manualmente
+  (reCAPTCHA) em 2026-11-02 e carregada; SHA-256 em `source_version`.
+- **Conteúdo usado:** ocupações, famílias, sinônimos, perfil ocupacional (grandes áreas e atividades).
+- **Cuidados:** atividades vêm por ocupação no arquivo, mas são definidas no nível da família; área Z
+  (competências pessoais) não é tratada como tarefa; 13 linhas com `;` extra reparadas e contadas; não há
+  importância/frequência das atividades (pesos uniformes); descrição sumária, formação e condições de
+  exercício não vêm no arquivo de estrutura.
+- **Representatividade:** mercado brasileiro; versão estrutural sem data de revisão explícita no arquivo.
 
 ## Anthropic Economic Index (release 2025-03-27)
 

@@ -1,0 +1,96 @@
+{
+  "methodology_version": "0.2.0",
+  "fingerprint": "5b12d6efbec60a532c792629cd953d115e44ec49916de57638c763827c7aa4fe",
+  "figures": {
+    "flow": {
+      "file": "flow.mmd",
+      "kind": "mermaid",
+      "title": "Fluxo geral do modelo",
+      "caption": "Etapas do pipeline, da fonte oficial à interface; gerado de PIPELINE_STAGES no código.",
+      "alt": "Fluxograma: fontes, ingestão, normalização, crosswalk, embeddings, dicionário de capacidades, dimensões por tarefa, resultados, agregação e interface.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.2.0",
+      "sha256": "7db45b96999756bb8aa81506425d6b402c7e4892e82cb973c3706af1a31c5967"
+    },
+    "relation": {
+      "file": "relation.mmd",
+      "kind": "mermaid",
+      "title": "Relação ocupação–tarefa–capacidade de IA",
+      "caption": "Como cada evidência entra nas dimensões da tarefa e como as tarefas são agregadas na ocupação.",
+      "alt": "Diagrama: ocupação possui tarefas ponderadas; tarefas se ligam a capacidades de IA; capacidades, uso observado e descritores O*NET alimentam as dimensões; resultados são somados nos índices.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.2.0",
+      "sha256": "7e6e57ab8fc8542e0d505b866bf68ffd797f929af5967ba454596673be3914cd"
+    },
+    "er": {
+      "file": "er.mmd",
+      "kind": "mermaid",
+      "title": "Arquitetura de dados (núcleo analítico)",
+      "caption": "Diagrama entidade-relacionamento gerado automaticamente dos modelos SQLAlchemy.",
+      "alt": "Diagrama entidade-relacionamento das tabelas de fonte, ocupação, tarefa, crosswalk, capacidade, embedding e avaliação.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.2.0",
+      "sha256": "58964da6bf8826fcd795fc800952c8e6b7e1972655ce075f04312f3abd9b39b6"
+    },
+    "curriculum": {
+      "file": "curriculum.mmd",
+      "kind": "mermaid",
+      "title": "Da transformação da ocupação à recomendação curricular",
+      "caption": "Fluxo conceitual do módulo curricular (fase 8, ainda não implementado).",
+      "alt": "Fluxo: curso, extração, ligação a tarefas, exposição, lacunas, recomendações e validação humana.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.2.0",
+      "sha256": "e9514249d4d6aa453be189d8cc0e2c9615c60afccdfc4c21f7412dcb60e4323c"
+    },
+    "calculation": {
+      "file": "calculation.svg",
+      "kind": "image",
+      "title": "Cálculo da exposição ocupacional",
+      "caption": "Cada barra é a contribuição de uma tarefa O*NET (peso normalizado × exposição técnica); a soma é o OAE.",
+      "alt": "Barras horizontais com a contribuição de 17 tarefas para o OAE de 0.71.",
+      "data_source": "assessment #7 run 20261102T171223Z-e47f52; ONET 15-1252.00",
+      "methodology_version": "0.2.0",
+      "sha256": "37c1ff621541cbee8c08ad478f5820d4275625f5761d54fdec2275fbfdaded04"
+    },
+    "automation_augmentation": {
+      "file": "automation_augmentation.svg",
+      "kind": "image",
+      "title": "Automação versus aumento",
+      "caption": "Cada ponto é uma tarefa; acima da diagonal predomina o aumento de capacidade humana.",
+      "alt": "Dispersão das tarefas com automação no eixo x e aumento no eixo y; a maioria acima da diagonal.",
+      "data_source": "assessment #7 run 20261102T171223Z-e47f52; ONET 15-1252.00",
+      "methodology_version": "0.2.0",
+      "sha256": "0bb3d39bab93349f9237a8f327756f1821f835dfcfcd0105a82bcdc20da38d70"
+    },
+    "sensitivity": {
+      "file": "sensitivity.svg",
+      "kind": "image",
+      "title": "Análise de sensibilidade",
+      "caption": "Efeito no OAE de reduzir (vermelho) ou aumentar (azul) cada peso em 20%, mantendo os demais.",
+      "alt": "Gráfico de tornado; maior variação absoluta do OAE = 0.015.",
+      "data_source": "assessment #7 run 20261102T171223Z-e47f52; ONET 15-1252.00",
+      "methodology_version": "0.2.0",
+      "sha256": "549e3ab55e83141a9fe55f0aee3d3683cf27ed1d9b010fbcfdef0d9eb3326eda"
+    },
+    "uncertainty": {
+      "file": "uncertainty.svg",
+      "kind": "image",
+      "title": "Incerteza",
+      "caption": "Intervalos de 90% (Monte Carlo) para os quatro índices de cada ocupação avaliada.",
+      "alt": "Segmentos horizontais com os intervalos de OAE, OAP, OAuP e OTP por ocupação.",
+      "data_source": "assessment #7; assessment #8; assessment #9",
+      "methodology_version": "0.2.0",
+      "sha256": "2580c9558f43af720ba05ed5adfde5877eebc38781272d409d98f3deeffd8460"
+    },
+    "crosswalk": {
+      "file": "crosswalk.svg",
+      "kind": "image",
+      "title": "Crosswalk CBO–ESCO–O*NET",
+      "caption": "Componentes do mapping_confidence por par; nenhum par é aceito automaticamente.",
+      "alt": "Barras agrupadas com os cinco componentes de cada correspondência proposta e a confiança final.",
+      "data_source": "mapping #1; mapping #2; mapping #3; mapping #4; mapping #5; mapping #6",
+      "methodology_version": "0.2.0",
+      "sha256": "71b07c687105e50d4ee6454eccfafc14407a2b42f0c17beeb76ab7a9e81e8011"
+    }
+  }
+}

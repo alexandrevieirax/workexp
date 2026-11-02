@@ -215,12 +215,15 @@ def build_cbo_dir(directory: Path, with_perfil: bool = True, drop_column: str | 
     (directory / "CBO2002 - Familia.csv").write_text(
         f"CODIGO;TITULO\n9999;{TAG} Família sintética\n", encoding="latin-1"
     )
-    (directory / "CBO2002 - Sinonimo.csv").write_text(f"OCUPACAO;SINONIMO\n999901;{TAG} Sinônimo\n", encoding="latin-1")
+    # Official layout: Sinonimo.csv is CODIGO;TITULO (occupation code; synonym).
+    (directory / "CBO2002 - Sinonimo.csv").write_text(f"CODIGO;TITULO\n999901;{TAG} Sinônimo\n", encoding="latin-1")
     if with_perfil:
         rows = [
             ["9999", "999901", "A", "PLANEJAR", "1", "Elaborar relatórios de status do projeto"],
             ["9999", "999901", "A", "PLANEJAR", "2", "Desenvolver programas de computador"],
-            ["9999", "999901", "B", "EXECUTAR", "1", "Instalar cabos de rede"],
+            # the official file has rows with stray ';' inside / after the last free-text column
+            ["9999", "999901", "B", "EXECUTAR", "1", "Instalar cabos de rede; testar conexões;"],
+            ["9999", "999901", "Z", "DEMONSTRAR COMPETÊNCIAS PESSOAIS", "1", "Demonstrar capacidade de síntese"],
         ]
         (directory / "CBO2002 - PerfilOcupacional.csv").write_text(
             "COD_GRANDE_GRUPO;COD_SUBGRUPO_PRINCIPAL;COD_SUBGRUPO;COD_FAMILIA;COD_OCUPACAO;SGL_GRANDE_AREA;"

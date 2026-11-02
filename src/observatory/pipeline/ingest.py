@@ -220,5 +220,23 @@ def methodology(session: Session, m: Methodology) -> M.MethodologyVersion:
     return mv
 
 
+def cbo_personal_competencies(session: Session, sv: M.SourceVersion, occ: M.Occupation, comps: list[dict]) -> int:
+    if session.scalar(select(M.OccupationSkill.id).where(M.OccupationSkill.occupation_id == occ.id).limit(1)):
+        return 0
+    for c in comps:
+        sk = M.Skill(
+            source_version_id=sv.id,
+            taxonomy="CBO",
+            label=c["label"],
+            skill_type="personal_competency",
+            **_prov(c["label"], "pt", c["original_id"], occ.is_synthetic),
+        )
+        session.add(sk)
+        session.flush()
+        session.add(M.OccupationSkill(occupation_id=occ.id, skill_id=sk.id, relation="personal_competency"))
+    session.flush()
+    return len(comps)
+
+
 def audit(session: Session, actor: str, action: str, target: str, payload: dict | None = None) -> None:
     session.add(M.AuditLog(actor=actor, action=action, target=target, payload=payload))

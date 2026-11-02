@@ -5,15 +5,18 @@ inteligência artificial, separando **exposição potencial, uso observado, auto
 transformação**, com incerteza explícita e rastreabilidade até fonte, versão, modelo e commit.
 
 > Exposição à IA **não** significa substituição de trabalhadores, desaparecimento da profissão, automação
-> integral, risco de desemprego nem obsolescência de competências. A metodologia 0.1.0 **não está calibrada**.
+> integral, risco de desemprego nem obsolescência de competências. A metodologia 0.2.0 **não está calibrada**.
 
 Estado: **fase 0–1 + fatia vertical** (ver [relatório da primeira execução](docs/reports/2026-11-02-first-execution.md)).
 
 ## Início rápido (sem Docker, SQLite)
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev,ml]"
 ```
+
+O extra `ml` instala PyTorch e Sentence Transformers; o modelo de embeddings da metodologia (~1 GB) é baixado
+na primeira execução. Sem ele, use `slice --provider baseline` (os resultados são marcados como não oficiais).
 
 ```bash
 python -m observatory.cli download-onet --version 31.0
@@ -48,16 +51,16 @@ Defina `OBS_DATABASE_URL` (ver `.env.example`). O tipo `VectorType` usa `pgvecto
 
 ## Modelos de embeddings
 
-O padrão é uma **linha de base lexical offline** (`baseline/char-ngram-hashing@v1-d2048`), escolhida para o MVP
-rodar sem downloads nem API paga — **não é um modelo semântico**. Para avaliar modelos multilíngues:
+O modelo faz parte da metodologia (`embedding.provider` e `embedding.revision` no YAML). Na 0.2.0 é
+`paraphrase-multilingual-mpnet-base-v2` (snapshot fixado), escolhido entre quatro candidatos por uma regra
+registrada antes dos resultados ([ADR 0002](docs/adr/0002-embedding-model-selection.md)). Para repetir a
+comparação:
 
 ```bash
-pip install -e ".[ml]"
+python -m observatory.cli benchmark-models
 ```
 
-```bash
-python -m observatory.cli slice --provider sentence-transformers:intfloat/multilingual-e5-large
-```
+A linha de base lexical offline (`--provider baseline`) continua disponível para testes e ambientes sem ML.
 
 ## Governança metodológica
 

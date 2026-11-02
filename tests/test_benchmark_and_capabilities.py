@@ -53,3 +53,17 @@ def test_references_flag_peer_review_and_verification():
 
 def test_curriculum_analysis_is_phase_8():
     pytest.skip("Curriculum analysis engine is scheduled for phase 8; only its schema exists in v0.")
+
+
+def test_model_comparison_records_rule_and_choice(tmp_path):
+    from observatory.benchmark.compare import compare
+    from observatory.methodology import load_methodology
+
+    m = load_methodology()
+    report = compare(
+        ["baseline"], load_dictionary(), get_settings().validation_dir / "benchmark_v0.1.0.jsonl", m.config, tmp_path
+    )
+    r = report["results"][0]
+    assert report["chosen"] == "baseline" and r["eligible"] and r["reproducible"]
+    assert 0 <= r["occupation_pairs"]["auc"] <= 1 and r["selection_score"] > 0
+    assert "selection_rule" in report and (tmp_path / "comparison.md").exists()

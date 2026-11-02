@@ -107,7 +107,10 @@ def test_figures_are_generated_versioned_and_described(client, synthetic_env):
     from observatory.about.figures import build_figures
 
     manifest = build_figures()
-    assert manifest["methodology_version"] == "0.1.0"
+    from observatory.methodology import load_methodology
+
+    v = load_methodology().version
+    assert manifest["methodology_version"] == v
     for name in (
         "flow",
         "relation",
@@ -121,6 +124,6 @@ def test_figures_are_generated_versioned_and_described(client, synthetic_env):
         f = manifest["figures"][name]
         assert f["alt"] and f["caption"] and len(f["sha256"]) == 64
     html = client.get("/about").text
-    assert re.search(r'<img src="/figures/0\.1\.0/calculation\.svg" alt="[^"]+"', html)
-    assert client.get("/figures/0.1.0/calculation.svg").status_code == 200
-    assert client.get("/figures/0.1.0/..%2F..%2Fobs.sqlite").status_code == 404
+    assert re.search(rf'<img src="/figures/{re.escape(v)}/calculation\.svg" alt="[^"]+"', html)
+    assert client.get(f"/figures/{v}/calculation.svg").status_code == 200
+    assert client.get(f"/figures/{v}/..%2F..%2Fobs.sqlite").status_code == 404

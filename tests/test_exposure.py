@@ -72,6 +72,18 @@ def test_classification_rules():
     }
 
 
+def test_beta_noise_is_mean_preserving_and_bounded():
+    import numpy as np
+
+    from observatory.exposure.engine import beta_noise
+
+    rng = np.random.default_rng(0)
+    for m in (0.0, 0.02, 0.5, 0.97, 1.0):
+        xs = [beta_noise(rng, m, 0.2) for _ in range(4000)]
+        assert all(0 <= x <= 1 for x in xs)
+        assert abs(np.mean(xs) - m) < 0.02
+
+
 def test_uncertainty_score_bounds():
     assert F.uncertainty_score({}, CFG) == 0
     full = {k: 1.0 for k in CFG["uncertainty"]["weights"]}
@@ -87,9 +99,12 @@ def test_occupational_indices_are_weighted_sums():
 def test_engine_on_synthetic_slice_is_reproducible(slice_run):
     _, report = slice_run
     onet = report.occupations["ONET"]
-    for k in ("OAE", "OAP", "OAuP", "OTP"):
-        lo, hi = onet["intervals"][k]
-        assert 0 <= lo <= hi <= 1
+    for occ in (report.occupations[t] for t in ("ONET", "ESCO", "CBO")):
+        for k in ("OAE", "OAP", "OAuP", "OTP"):
+            lo, hi = occ["intervals"][k]
+            assert 0 <= lo <= hi <= 1
+            # regression: clipped Gaussian noise pushed the point estimate outside its own interval
+            assert lo - 1e-3 <= occ["scores"][k] <= hi + 1e-3, (k, occ["scores"][k], lo, hi)
     assert onet["quality"]["task_count"] == 4
     assert onet["quality"]["prior_source"] == "onet_direct"
     assert onet["max_abs_delta_OAE"] >= 0
@@ -106,6 +121,7 @@ def test_monte_carlo_is_seeded(synthetic_env):
         cbo_code="999901",
         aei_release="release_synthetic",
         offline=True,
+        provider="baseline",
     )
     a = run(SliceConfig(**kw))
     b = run(SliceConfig(**kw))

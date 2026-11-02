@@ -348,7 +348,7 @@ class ExposureEngine:
                 d = dict(r["d"])
                 for k in NOISY_DIMS:
                     if d.get(k) is not None:
-                        d[k] = float(np.clip(d[k] + rng.normal(0, sd), 0, 1))
+                        d[k] = beta_noise(rng, d[k], sd)
                 outs.append(F.task_outputs(d, cfg))
             for k, v in F.occupational_indices(weights, outs).items():
                 draws[k].append(v)
@@ -420,6 +420,17 @@ class ExposureEngine:
         if quality["observed_usage_coverage"] == 0:
             lim.append("Nenhuma evidência de uso observado para as tarefas desta ocupação.")
         return lim
+
+
+def beta_noise(rng: np.random.Generator, mean: float, sd: float) -> float:
+    """Mean-preserving bounded noise. Clipped Gaussian noise biases values near 0 or 1 inwards (a saturated
+    value could only decrease), which pushed point estimates outside their own intervals."""
+    var_max = mean * (1 - mean)
+    if var_max <= 1e-9:
+        return float(mean)
+    var = min(sd**2, 0.9 * var_max)
+    k = var_max / var - 1
+    return float(rng.beta(mean * k, (1 - mean) * k))
 
 
 def _r(x: float | None) -> float | None:

@@ -80,9 +80,23 @@ def test_cbo_import(tmp_path):
     occ = cbo.occupation("9999-01")
     assert occ.title.startswith(build.TAG) and occ.group_code == "9999"
     assert "descricao_sumaria" in occ.attributes["fields_not_available_in_source_file"]
+    assert [a for a, _, kind in occ.aliases if kind == "synonym"] == [f"{build.TAG} Sinônimo"]
     acts = cbo.activities("999901")
     assert len(acts) == 3 and acts[0].language == "pt" and acts[0].attributes["scope"] == "occupation"
     assert cbo.descriptor().retrieval_method == "synthetic_fixture"
+
+
+def test_cbo_personal_competencies_are_not_tasks(tmp_path):
+    cbo = CboFiles(build.build_cbo_dir(tmp_path / "cbo"))
+    assert all(a.attributes["area_code"] != "Z" for a in cbo.activities("999901"))
+    assert [c["label"] for c in cbo.personal_competencies("999901")] == ["Demonstrar capacidade de síntese"]
+
+
+def test_cbo_stray_semicolons_are_repaired_and_counted(tmp_path):
+    cbo = CboFiles(build.build_cbo_dir(tmp_path / "cbo"))
+    assert "Instalar cabos de rede; testar conexões" in [a.statement for a in cbo.activities("999901")]
+    assert cbo.repaired_rows["perfil"] == 1
+    assert "repaired rows" in cbo.descriptor().notes
 
 
 def test_cbo_schema_validation(tmp_path):

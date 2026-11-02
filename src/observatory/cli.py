@@ -91,6 +91,28 @@ def cmd_figures(args) -> int:
     return 0
 
 
+def cmd_benchmark_models(args) -> int:
+    from datetime import UTC, datetime
+
+    from observatory.benchmark.compare import compare
+    from observatory.capabilities.dictionary import load_dictionary
+    from observatory.methodology import load_methodology
+
+    s = get_settings()
+    m = load_methodology()
+    out = s.experiments_dir / f"model-comparison-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}"
+    report = compare(
+        args.providers,
+        load_dictionary(s.capabilities_dir / m.capability_dictionary_file),
+        s.validation_dir / "benchmark_v0.1.0.jsonl",
+        m.config,
+        out,
+    )
+    print((out / "comparison.md").read_text(encoding="utf-8"))
+    print("chosen:", report["chosen"])
+    return 0
+
+
 def cmd_serve(args) -> int:
     import uvicorn
 
@@ -104,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="observatory")
     sub = p.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("slice", help="run the vertical slice end to end")
-    s.add_argument("--provider", default=get_settings().embedding_provider)
+    s.add_argument("--provider", default=None, help="override the methodology embedding provider")
     s.add_argument("--offline", action="store_true", help="use cached ESCO responses only")
     s.add_argument("--cbo", default="212405")
     s.add_argument("--onet", default="15-1252.00")
@@ -121,6 +143,18 @@ def main(argv: list[str] | None = None) -> int:
     a = sub.add_parser("download-aei")
     a.add_argument("--release", default="release_2025_03_27")
     a.set_defaults(fn=cmd_download_aei)
+    bm = sub.add_parser("benchmark-models", help="compare embedding providers on the domain benchmark")
+    bm.add_argument(
+        "--providers",
+        nargs="+",
+        default=[
+            "baseline",
+            "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+            "sentence-transformers:intfloat/multilingual-e5-large",
+            "sentence-transformers:BAAI/bge-m3",
+        ],
+    )
+    bm.set_defaults(fn=cmd_benchmark_models)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)

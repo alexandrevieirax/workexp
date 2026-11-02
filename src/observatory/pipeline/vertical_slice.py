@@ -42,7 +42,7 @@ class SliceConfig:
     esco_uri: str = "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1"
     cbo_code: str = "212405"
     aei_release: str = "release_2025_03_27"
-    provider: str = "baseline"
+    provider: str | None = None  # None → methodology default (config: embedding.provider)
     offline: bool = False
     database_url: str | None = None
 
@@ -235,7 +235,17 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
     with session_scope(factory) as s:
         ingest.methodology(s, m)
         cap_pk = ingest.capabilities(s, d)
-        embedder = Embedder(get_provider(cfg.provider))
+        emb_cfg = m.config.get("embedding", {})
+        default_provider = emb_cfg.get("provider", "baseline")
+        provider_spec = cfg.provider or default_provider
+        if provider_spec != default_provider:
+            report.warnings.append(
+                f"Embedding provider overridden ({provider_spec}); methodology {m.version} specifies "
+                f"{default_provider}. Results are not the official methodology output."
+            )
+        embedder = Embedder(
+            get_provider(provider_spec, emb_cfg.get("revision") if provider_spec == default_provider else None)
+        )
         emb_store.load_into(embedder, s)
         index = CapabilityIndex(d, embedder)
         meta, bench = load_benchmark(settings.validation_dir / "benchmark_v0.1.0.jsonl")
@@ -252,6 +262,13 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
         title_cal = calibrate_pairs(
             embedder, [i for i in bench if i["item_type"] == "occupation_pair"], meta["version"]
         )
+        if title_cal.ceiling - title_cal.floor < 0.05:
+            report.warnings.append(
+                f"Title calibration is nearly degenerate (floor {title_cal.floor:.3f}, "
+                f"ceiling {title_cal.ceiling:.3f}): "
+                "with only 10 occupation pairs a false friend scores almost like an equivalent, so title_similarity "
+                "behaves as a 0/1 step. Treat title components as weak evidence until the pair set is expanded."
+            )
         bench_result = evaluate(index, cal, bench, sm["negative_penalty"])
         exp_dir = settings.experiments_dir / f"benchmark-{run_id}"
         exp_dir.mkdir(parents=True, exist_ok=True)
@@ -355,9 +372,20 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
             occ_cbo = ingest.occupation(s, sv_cbo, cbo.occupation(cfg.cbo_code))
             acts = cbo.activities(cfg.cbo_code)
             ingest.tasks(s, sv_cbo, occ_cbo, acts)
+            comps = cbo.personal_competencies(cfg.cbo_code)
+            ingest.cbo_personal_competencies(s, sv_cbo, occ_cbo, comps)
             occs["CBO"] = occ_cbo
+            # Personal competencies are not comparable to O*NET DWAs / ESCO skills → skill component unknown.
             skills_by["CBO"] = {"pt": []}
-            report.sources["CBO"] = {"status": "loaded", "code": cfg.cbo_code, "activities": len(acts)}
+            report.sources["CBO"] = {
+                "status": "loaded",
+                "version": sv_cbo.version,
+                "code": cfg.cbo_code,
+                "activities": len(acts),
+                "personal_competencies": len(comps),
+                "activity_scope": acts[0].attributes["scope"] if acts else None,
+                "sha256": sv_cbo.file_sha256,
+            }
         except SourceUnavailableError as exc:
             report.warnings.append(
                 "CBO not loaded: official files require manual download (reCAPTCHA). " + exc.procedure
@@ -386,7 +414,6 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                 side(occs[a_tax], la, skills_by[a_tax].get(la, [])),
                 side(occs[b_tax], lb, skills_by[b_tax].get(lb, [])),
                 embedder,
-                cal,
                 title_cal,
                 m.config,
                 official,

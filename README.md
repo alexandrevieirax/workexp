@@ -70,11 +70,15 @@ componentes, os votos das fontes oficiais (e divergências), o histórico e um f
 auditoria. Nas execuções seguintes, um candidato aceito define a ocupação O*NET de onde vêm os priors E6–E10 e
 um rejeitado sai do ranking.
 
-A revisão exige uma chave administrativa. Defina-a em `.env` (não versionado) antes de iniciar o servidor:
+A revisão exige uma chave administrativa. Gere-a com o comando abaixo, que grava `OBS_ADMIN_API_KEY` no
+arquivo `.env` (local, não versionado, UTF-8) e mostra a chave uma vez; depois reinicie o servidor:
 
 ```bash
-echo OBS_ADMIN_API_KEY=troque-por-uma-chave-longa >> .env
+python -m observatory.cli admin-key
 ```
+
+Não use `echo ... >> .env` no PowerShell: ele grava o arquivo em UTF-16. O sistema agora lê esse formato, mas
+o comando acima é o caminho recomendado. Valores de exemplo ou chaves com menos de 16 caracteres são recusados.
 
 ## Governança metodológica
 

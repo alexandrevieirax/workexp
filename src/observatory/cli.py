@@ -199,6 +199,20 @@ def cmd_import_cbo_books(args) -> int:
     return 0
 
 
+def cmd_admin_key(args) -> int:
+    """Generate a strong admin key, store it in .env (UTF-8) and print it once."""
+    import secrets
+
+    from observatory.config import write_admin_key
+
+    key = secrets.token_urlsafe(24)
+    path = write_admin_key(key)
+    print(f"Chave administrativa gravada em {path}")
+    print(f"Chave: {key}")
+    print("Guarde-a: ela é pedida no formulário de revisão. Reinicie o servidor para aplicar.")
+    return 0
+
+
 def cmd_serve(args) -> int:
     import uvicorn
 
@@ -257,6 +271,7 @@ def main(argv: list[str] | None = None) -> int:
     cb = sub.add_parser("import-cbo-books", help="parse the official CBO books (PDF) for CIUO 88 links and fields")
     cb.add_argument("files", nargs="+", help="e.g. data/raw/crosswalks/livro-1-portal-cbo.pdf cbo2002_liv2.pdf")
     cb.set_defaults(fn=cmd_import_cbo_books)
+    sub.add_parser("admin-key", help="generate the admin key used to record reviews").set_defaults(fn=cmd_admin_key)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)

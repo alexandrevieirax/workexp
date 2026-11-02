@@ -33,7 +33,7 @@ def synthetic_env(tmp_path, monkeypatch):
         "OBS_REPORTS_DIR": str(tmp_path / "reports"),
         "OBS_EXPERIMENTS_DIR": str(tmp_path / "experiments"),
         "OBS_FIGURES_DIR": str(tmp_path / "figures"),
-        "OBS_ADMIN_API_KEY": "test-key",
+        "OBS_ADMIN_API_KEY": "test-key-long-enough-123",
     }.items():
         monkeypatch.setenv(key, val)
     get_settings.cache_clear()

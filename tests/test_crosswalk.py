@@ -117,13 +117,16 @@ def test_review_requires_key_and_records_history(client):
     mid = maps[0]["id"]
     body = {"action": "accept", "reviewer": "Especialista Teste", "justification": "Revisão sintética de teste."}
     assert client.post(f"/api/crosswalks/{mid}/review", json=body).status_code == 401
-    r = client.post(f"/api/crosswalks/{mid}/review", json=body, headers={"x-api-key": "test-key"})
+    r = client.post(f"/api/crosswalks/{mid}/review", json=body, headers={"x-api-key": "test-key-long-enough-123"})
     assert r.status_code == 200 and r.json()["status"] == "accepted"
     actions = [h["action"] for h in r.json()["history"]]
     assert actions == ["create", "accept"]
     short = {"action": "reject", "reviewer": "x", "justification": "curta"}
     assert (
-        client.post(f"/api/crosswalks/{mid}/review", json=short, headers={"x-api-key": "test-key"}).status_code == 422
+        client.post(
+            f"/api/crosswalks/{mid}/review", json=short, headers={"x-api-key": "test-key-long-enough-123"}
+        ).status_code
+        == 422
     )
 
 

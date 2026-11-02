@@ -42,10 +42,10 @@ def configure(database_url: str) -> None:
 
 
 def require_admin(x_api_key: str | None = Header(default=None)) -> str:
-    key = get_settings().admin_api_key
-    if key == "change-me":
-        raise HTTPException(status_code=503, detail="admin endpoints disabled: set OBS_ADMIN_API_KEY")
-    if x_api_key != key:
+    settings = get_settings()
+    if not settings.admin_key_configured:
+        raise HTTPException(status_code=503, detail="admin key not configured: python -m observatory.cli admin-key")
+    if x_api_key != settings.admin_api_key:
         raise HTTPException(status_code=401, detail="admin API key required")
     return "admin"
 
@@ -321,15 +321,34 @@ def page_occupation(occ_id: int, lang: str = "pt-BR", s: Session = Depends(get_s
     return H.layout(o.title, H.occupation_page(_occupation_dict(s, o), lang), lang)
 
 
+def recommend(candidates: list[dict], window: float) -> dict | None:
+    """Plain, explainable suggestion: among candidates within ``window`` of the best one, prefer those confirmed
+    by every applicable official source, then the same qualification level, then the higher confidence."""
+    if not candidates:
+        return None
+    best = candidates[0]["mapping_confidence"]
+    pool = [c for c in candidates if best - c["mapping_confidence"] <= window]
+
+    def key(c: dict) -> tuple:
+        votes = (c.get("official") or {}).get("votes") or {}
+        confirmed = bool(votes) and set(votes.values()) == {1.0}
+        same_level = (c.get("qualification_consistency") or 0) >= 0.99
+        return (confirmed, same_level, c["mapping_confidence"])
+
+    return max(pool, key=key)
+
+
 def _review_groups(s: Session) -> list[dict]:
     m = load_methodology()
-    margin_cfg = m.config["crosswalk"]["candidates"]["ambiguity_margin"]
+    cand_cfg = m.config["crosswalk"]["candidates"]
     maps = s.scalars(
         select(M.OccupationSourceMapping).where(M.OccupationSourceMapping.methodology_version == m.version)
     ).all()
     groups: dict[tuple[str, str], dict] = {}
     for mp in maps:
         src = mp.source_occupation
+        if mp.target_occupation.taxonomy != "ONET":
+            continue  # CBO→ESCO is shown on the occupation pages; the review chooses O*NET equivalents
         g = groups.setdefault(
             (src.taxonomy, src.code),
             {"source": {"id": src.id, "taxonomy": src.taxonomy, "code": src.code, "title": src.title}, "mappings": []},
@@ -338,55 +357,83 @@ def _review_groups(s: Session) -> list[dict]:
         d["target_id"] = mp.target_occupation_id
         d["target_assessed"] = _latest_assessment(s, mp.target_occupation_id) is not None
         d["official"] = (mp.rules_applied or {}).get("official", {})
+        d["null"] = (mp.rules_applied or {}).get("null", {})
         g["mappings"].append(d)
     order = {"ESCO": 0, "CBO": 1}
     out = []
     for key in sorted(groups, key=lambda k: (order.get(k[0], 9), k[1])):
         g = groups[key]
         g["mappings"].sort(key=lambda x: -x["mapping_confidence"])
-        live = [x for x in g["mappings"] if x["status"] != "rejected" and x["other_taxonomy"] == "ONET"]
+        g["candidates"] = [x for x in g["mappings"] if x["status"] != "rejected"]
+        live = g["candidates"]
         g["margin"] = round(live[0]["mapping_confidence"] - live[1]["mapping_confidence"], 4) if len(live) > 1 else None
-        g["ambiguous"] = g["margin"] is not None and g["margin"] < margin_cfg
+        g["ambiguous"] = g["margin"] is not None and g["margin"] < cand_cfg["ambiguity_margin"]
+        g["recommended"] = recommend(live, 2 * cand_cfg["ambiguity_margin"])
+        decided = [x for x in g["mappings"] if x["status"] == "accepted"]
+        g["decided"] = decided[0] if decided else None
         out.append(g)
     return out
 
 
 @app.get("/crosswalks", response_class=HTMLResponse)
 def page_crosswalks(lang: str = "pt-BR", msg: str | None = None, s: Session = Depends(get_session)) -> str:
-    return H.layout(H.t(lang)["review_title"], H.review_page(_review_groups(s), lang, msg), lang)
+    body = H.review_page(_review_groups(s), lang, get_settings().admin_key_configured, msg)
+    return H.layout(H.t(lang)["review_title"], body, lang)
 
 
-@app.post("/crosswalks/{mapping_id}/review", response_class=HTMLResponse)
-async def page_review(mapping_id: int, request: Request, lang: str = "pt-BR", s: Session = Depends(get_session)):
+@app.post("/crosswalks/review", response_class=HTMLResponse)
+async def page_review(request: Request, lang: str = "pt-BR", s: Session = Depends(get_session)):
     form = await request.form()
-    key = get_settings().admin_api_key
-    status_code, message = 200, None
-    mp = s.get(M.OccupationSourceMapping, mapping_id)
+    settings = get_settings()
+    values = {k: str(form.get(k, "")) for k in ("mapping_id", "action", "reviewer", "justification")}
+    mp = s.get(M.OccupationSourceMapping, int(values["mapping_id"])) if values["mapping_id"].isdigit() else None
+    group = mp.source_occupation_id if mp else None
+    pt = lang != "en"
     if mp is None:
-        status_code, message = 404, "mapping not found"
-    elif key == "change-me":
-        status_code, message = 503, "admin endpoints disabled: set OBS_ADMIN_API_KEY"
-    elif form.get("api_key") != key:
-        status_code, message = 401, "chave administrativa inválida / invalid admin key"
+        status_code, message = 400, "Escolha uma ocupação candidata." if pt else "Choose a candidate occupation."
+    elif not settings.admin_key_configured:
+        status_code = 503
+        message = (
+            "Não há chave administrativa configurada: rode python -m observatory.cli admin-key."
+            if pt
+            else "No admin key configured: run python -m observatory.cli admin-key."
+        )
+    elif form.get("api_key") != settings.admin_api_key:
+        status_code = 401
+        message = (
+            "Chave administrativa incorreta. Use a chave exibida pelo comando admin-key."
+            if pt
+            else "Wrong admin key. Use the key printed by the admin-key command."
+        )
     else:
         try:
             apply_review(
                 s,
                 mp,
-                str(form.get("action", "")),
-                str(form.get("reviewer", "")),
-                str(form.get("justification", "")),
+                values["action"],
+                values["reviewer"],
+                values["justification"],
                 "admin:review-page",
                 None,
                 _mapping_dict(mp),
             )
             s.commit()
             q = "&lang=en" if lang == "en" else ""
-            return RedirectResponse(f"/crosswalks?msg=mapping+{mapping_id}+{mp.status}{q}#m{mapping_id}", 303)
+            done = "Decisão registrada" if pt else "Decision recorded"
+            target = mp.target_occupation.code
+            return RedirectResponse(f"/crosswalks?msg={done}:+{mp.status}+{target}{q}#g{group}", 303)
         except ReviewError as exc:
             s.rollback()
-            status_code, message = 400, str(exc)
-    body = H.review_page(_review_groups(s), lang, message, error=True)
+            status_code = 400
+            message = {
+                "reviewer name is required": "Informe seu nome." if pt else "Enter your name.",
+                "justification must have at least 10 characters": (
+                    "A justificativa precisa ter pelo menos 10 caracteres."
+                    if pt
+                    else "The justification needs at least 10 characters."
+                ),
+            }.get(str(exc), str(exc))
+    body = H.review_page(_review_groups(s), lang, settings.admin_key_configured, message, True, group, values)
     return HTMLResponse(H.layout(H.t(lang)["review_title"], body, lang), status_code=status_code)
 
 

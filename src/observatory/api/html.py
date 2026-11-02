@@ -29,7 +29,8 @@ vertical-align:top}th{background:var(--card)}.bar{height:8px;background:var(--li
 figure{margin:16px 0;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
 figure img{max-width:100%;height:auto;background:#fff}pre{white-space:pre-wrap;overflow-x:auto;background:var(--card);
 border:1px solid var(--line);padding:10px;border-radius:6px}.note{color:var(--muted);font-style:italic}
-form.inline{display:inline}form.review{display:grid;gap:6px;min-width:220px}
+form.inline{display:inline}form.review{display:grid;gap:8px;max-width:760px;margin:12px 0}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:8px 12px}
 form.review textarea{min-height:56px}.status-accepted{color:var(--good);font-weight:700}
 .status-rejected{color:#b3261e;font-weight:700}.msg{border-left:4px solid var(--accent);padding:8px 12px;
 background:var(--card);margin:12px 0}.msg.err{border-color:#b3261e}tr.decided-accepted{outline:2px solid var(--good)}
@@ -257,34 +258,168 @@ def about_page(about: dict, lang: str) -> str:
     )
 
 
-def _status(st: str) -> str:
-    return f'<span class="badge status-{e(st)}">{e(st)}</span>'
+REVIEW_TEXT = {
+    "pt-BR": {
+        "title": "Revisão humana dos crosswalks",
+        "intro": "Para cada ocupação da CBO e da ESCO, o sistema propõe ocupações equivalentes no O*NET. Nenhuma é "
+        "aceita automaticamente. Sua decisão define de qual ocupação O*NET vêm os dados de contexto de trabalho "
+        "(priors E6–E10) nas próximas execuções, e fica registrada com seu nome e justificativa.",
+        "key_ok": "Chave administrativa configurada. Digite-a no formulário para registrar a decisão.",
+        "key_missing": "A gravação está desativada porque não há chave administrativa configurada. Para gerar uma, "
+        "rode o comando abaixo no terminal, na pasta do projeto, e reinicie o servidor:",
+        "question": "Qual ocupação do O*NET é a equivalente de",
+        "suggestion": "Sugestão automática",
+        "suggestion_note": "É um cálculo do sistema para ajudar, não uma decisão. Confira os motivos e escolha.",
+        "why": "Por quê",
+        "decided": "Decisão registrada",
+        "by": "por",
+        "candidate": "1. Escolha a ocupação O*NET",
+        "decision": "2. Decisão",
+        "accept_opt": "É a equivalente (aceitar)",
+        "reject_opt": "Não é equivalente (rejeitar)",
+        "who": "3. Seu nome",
+        "justification": "4. Justificativa (mínimo de 10 caracteres)",
+        "justification_hint": "Ex.: As tarefas centrais e a qualificação são as mesmas; "
+        "as duas fontes oficiais confirmam.",
+        "key": "5. Chave administrativa",
+        "submit": "Registrar decisão",
+        "details": "Ver todos os candidatos e os detalhes técnicos",
+        "conf": "confiança",
+        "official_yes": "fontes oficiais confirmam",
+        "official_split": "fontes oficiais divergem",
+        "official_no": "fontes oficiais não confirmam",
+        "official_none": "sem fonte oficial aplicável",
+        "saved": "Decisão registrada",
+        "reason_both": "as fontes oficiais disponíveis confirmam a correspondência ({n})",
+        "reason_split": "as fontes oficiais divergem ({votes})",
+        "reason_title": "o título é equivalente",
+        "reason_qual": "o nível de qualificação é o mesmo",
+        "reason_qual_diff": "o nível de qualificação é diferente",
+        "reason_tasks": "as tarefas são {pct:.0f}% tão parecidas quanto as da ocupação mais parecida",
+        "reason_conf": "confiança composta {c:.3f} (a mais alta é {b:.3f})",
+        "ambiguous": "Os primeiros candidatos estão praticamente empatados (diferença de {m:.3f}); por isso a "
+        "escolha precisa de revisão humana.",
+        "cols": (
+            "Pos.",
+            "Candidato",
+            "Confiança",
+            "Título / tarefas / habilidades / hierarquia / qualificação",
+            "Fontes oficiais",
+            "Situação",
+            "Regras e histórico",
+        ),
+        "none": "Nenhum mapeamento proposto. Execute o pipeline.",
+        "unknown": "desconhecido",
+    },
+    "en": {
+        "title": "Human review of crosswalks",
+        "intro": "For each CBO and ESCO occupation the system proposes equivalent O*NET occupations. None is accepted "
+        "automatically. Your decision sets which O*NET occupation provides the work-context data (E6–E10 priors) "
+        "in later runs and is recorded with your name and justification.",
+        "key_ok": "Admin key configured. Type it in the form to record the decision.",
+        "key_missing": "Recording is disabled because no admin key is configured. To create one, run the command "
+        "below in a terminal, in the project folder, and restart the server:",
+        "question": "Which O*NET occupation is equivalent to",
+        "suggestion": "Automatic suggestion",
+        "suggestion_note": "A system calculation to help you, not a decision. Check the reasons and choose.",
+        "why": "Why",
+        "decided": "Recorded decision",
+        "by": "by",
+        "candidate": "1. Choose the O*NET occupation",
+        "decision": "2. Decision",
+        "accept_opt": "It is equivalent (accept)",
+        "reject_opt": "It is not equivalent (reject)",
+        "who": "3. Your name",
+        "justification": "4. Justification (at least 10 characters)",
+        "justification_hint": "E.g.: Core tasks and qualification match; both official sources confirm.",
+        "key": "5. Admin key",
+        "submit": "Record decision",
+        "details": "See all candidates and technical details",
+        "conf": "confidence",
+        "official_yes": "official sources confirm",
+        "official_split": "official sources disagree",
+        "official_no": "official sources do not confirm",
+        "official_none": "no applicable official source",
+        "saved": "Decision recorded",
+        "reason_both": "the available official sources confirm the correspondence ({n})",
+        "reason_split": "the official sources disagree ({votes})",
+        "reason_title": "the title is equivalent",
+        "reason_qual": "the qualification level is the same",
+        "reason_qual_diff": "the qualification level differs",
+        "reason_tasks": "its tasks are {pct:.0f}% as similar as the most similar occupation's",
+        "reason_conf": "composite confidence {c:.3f} (highest is {b:.3f})",
+        "ambiguous": "The top candidates are practically tied (difference {m:.3f}), so the choice needs human review.",
+        "cols": (
+            "Rank",
+            "Candidate",
+            "Confidence",
+            "Title / tasks / skills / hierarchy / qualification",
+            "Official sources",
+            "Status",
+            "Rules and history",
+        ),
+        "none": "No proposed mappings. Run the pipeline.",
+        "unknown": "unknown",
+    },
+}
 
 
-def _votes(official: dict, s: dict) -> str:
-    votes = official.get("votes") or {}
+def _rt(lang: str) -> dict:
+    return REVIEW_TEXT.get(lang, REVIEW_TEXT["pt-BR"])
+
+
+def official_label(m: dict, r: dict) -> str:
+    votes = (m.get("official") or {}).get("votes") or {}
     if not votes:
-        return f'<span class="muted">{s["unknown"]}</span>'
-    items = "".join(f"<li>{e(k)}: {v:.0f}</li>" for k, v in votes.items())
-    warn = f"<strong>{s['disagree']}</strong>" if official.get("disagreement") else ""
-    return f"<ul>{items}</ul>{warn}"
+        return r["official_none"]
+    vals = set(votes.values())
+    if vals == {1.0}:
+        return r["official_yes"]
+    if len(vals) > 1:
+        return r["official_split"]
+    return r["official_no"]
 
 
-def _review_form(mid: int, q: str, s: dict) -> str:
-    return (
-        f'<form class="review" method="post" action="/crosswalks/{mid}/review{q}">'
-        f'<label for="r{mid}">{s["reviewer"]}</label>'
-        f'<input id="r{mid}" name="reviewer" required minlength="2" autocomplete="name">'
-        f'<label for="j{mid}">{s["justification_label"]}</label>'
-        f'<textarea id="j{mid}" name="justification" required minlength="10"></textarea>'
-        f'<label for="k{mid}">{s["api_key"]}</label>'
-        f'<input id="k{mid}" name="api_key" type="password" required autocomplete="off">'
-        f'<div><button name="action" value="accept">{s["accept"]}</button> '
-        f'<button name="action" value="reject">{s["reject"]}</button></div></form>'
-    )
+SOURCE_NAMES = {
+    "pt-BR": {
+        "onet_esco_table": "tabela ESCO→O*NET publicada pelo O*NET",
+        "official_table_chain": "cadeia de tabelas oficiais (MTE/ILO/BLS/O*NET)",
+    },
+    "en": {
+        "onet_esco_table": "ESCO→O*NET table published by O*NET",
+        "official_table_chain": "chain of official tables (MTE/ILO/BLS/O*NET)",
+    },
+}
 
 
-def _review_row(i: int, m: dict, q: str, s: dict) -> str:
+def reasons(m: dict, best_conf: float, r: dict) -> list[str]:
+    out = []
+    names = SOURCE_NAMES["en" if r is REVIEW_TEXT["en"] else "pt-BR"]
+    votes = (m.get("official") or {}).get("votes") or {}
+    if votes and set(votes.values()) == {1.0}:
+        out.append(r["reason_both"].format(n="; ".join(names.get(k, k) for k in votes)))
+    elif len(set(votes.values())) > 1:
+        yes = "sim" if r is REVIEW_TEXT["pt-BR"] else "yes"
+        no = "não" if r is REVIEW_TEXT["pt-BR"] else "no"
+        out.append(
+            r["reason_split"].format(
+                votes="; ".join(f"{names.get(k, k)}: {yes if v else no}" for k, v in votes.items())
+            )
+        )
+    if (m.get("title_similarity") or 0) >= 0.9:
+        out.append(r["reason_title"])
+    q = m.get("qualification_consistency")
+    if q is not None:
+        out.append(r["reason_qual"] if q >= 0.99 else r["reason_qual_diff"])
+    rel = ((m.get("null") or {}).get("tasks") or {}).get("relative_to_best")
+    if rel is not None:
+        out.append(r["reason_tasks"].format(pct=100 * rel))
+    out.append(r["reason_conf"].format(c=m["mapping_confidence"], b=best_conf))
+    return out
+
+
+def _tech_table(g: dict, q: str, lang: str) -> str:
+    r = _rt(lang)
     keys = (
         "title_similarity",
         "task_similarity",
@@ -292,64 +427,117 @@ def _review_row(i: int, m: dict, q: str, s: dict) -> str:
         "hierarchy_consistency",
         "qualification_consistency",
     )
-    comps = " / ".join("?" if m[k] is None else f"{m[k]:.2f}" for k in keys)
-    title = e(m["other_title"])
-    tgt = f'<a href="/occupations/{m["target_id"]}{q}">{title}</a>' if m["target_assessed"] else title
-    hist = "".join(
-        f"<li>{e(h['at'][:19])} · {e(h['action'])} · {e(h['actor'])}"
-        + (f" — {e(h['justification'])}" if h["justification"] else "")
-        + "</li>"
-        for h in m["history"]
-    )
-    rules = "".join(f"<li>{e(r)}</li>" for r in m["rules"])
-    decided = ""
-    if m["status"] != "proposed":
-        decided = f'<p class="muted">{e(m["reviewer"] or "")}: {e(m["justification"] or "")}</p>'
+    rows = []
+    for i, m in enumerate(g["mappings"], 1):
+        comps = " / ".join("?" if m[k] is None else f"{m[k]:.2f}" for k in keys)
+        title = e(m["other_title"])
+        tgt = f'<a href="/occupations/{m["target_id"]}{q}">{title}</a>' if m["target_assessed"] else title
+        hist = "".join(
+            f"<li>{e(h['at'][:19])} · {e(h['action'])} · {e(h['actor'])}"
+            + (f" — {e(h['justification'])}" if h["justification"] else "")
+            + "</li>"
+            for h in m["history"]
+        )
+        rules = "".join(f"<li>{e(x)}</li>" for x in m["rules"])
+        rows.append(
+            f'<tr class="decided-{e(m["status"])}"><td>{i}</td><td><code>{e(m["other_code"])}</code><br>{tgt}</td>'
+            f'<td>{m["mapping_confidence"]:.3f}<br><span class="badge">{e(m["confidence_class"])}</span></td>'
+            f"<td>{comps}</td><td>{e(official_label(m, r))}</td>"
+            f'<td><span class="badge status-{e(m["status"])}">{e(m["status"])}</span></td>'
+            f"<td><details><summary>{r['cols'][6]}</summary><ul>{rules}</ul><ol>{hist}</ol></details></td></tr>"
+        )
+    head = "".join(f'<th scope="col">{h}</th>' for h in r["cols"])
+    return f'<div class="table-wrap"><table><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>'
+
+
+def _group_form(g: dict, q: str, lang: str, key_ok: bool, values: dict) -> str:
+    r = _rt(lang)
+    gid = g["source"]["id"]
+    chosen = str(values.get("mapping_id") or (g["recommended"]["id"] if g["recommended"] else ""))
+    opts = []
+    for m in g["candidates"]:
+        mid = str(m["id"])
+        checked = " checked" if mid == chosen else ""
+        opts.append(
+            f'<div><input type="radio" id="c{mid}" name="mapping_id" value="{mid}" required{checked}> '
+            f'<label for="c{mid}"><code>{e(m["other_code"])}</code> {e(m["other_title"])} — {r["conf"]} '
+            f"{m['mapping_confidence']:.3f} — {e(official_label(m, r))}</label></div>"
+        )
+    act = values.get("action", "accept")
+    dis = "" if key_ok else " disabled"
     return (
-        f'<tr id="m{m["id"]}" class="decided-{e(m["status"])}"><td>{i}</td>'
-        f"<td><code>{e(m['other_code'])}</code><br>{tgt}</td>"
-        f'<td>{m["mapping_confidence"]:.3f}<br><span class="badge">{e(m["confidence_class"])}</span></td>'
-        f"<td>{comps}</td><td>{_votes(m['official'], s)}</td><td>{_status(m['status'])}{decided}</td>"
-        f"<td><details><summary>{s['rules']}</summary><ul>{rules}</ul><ol>{hist}</ol></details></td>"
-        f"<td>{_review_form(m['id'], q, s)}</td></tr>"
+        f'<form class="review" method="post" action="/crosswalks/review{q}">'
+        f"<fieldset><legend>{r['candidate']}</legend>{''.join(opts)}</fieldset>"
+        f"<fieldset><legend>{r['decision']}</legend>"
+        f'<div><input type="radio" id="a{gid}" name="action" value="accept"{" checked" if act == "accept" else ""}> '
+        f'<label for="a{gid}">{r["accept_opt"]}</label></div>'
+        f'<div><input type="radio" id="x{gid}" name="action" value="reject"{" checked" if act == "reject" else ""}> '
+        f'<label for="x{gid}">{r["reject_opt"]}</label></div></fieldset>'
+        f'<label for="r{gid}">{r["who"]}</label>'
+        f'<input id="r{gid}" name="reviewer" required minlength="2" autocomplete="name" '
+        f'value="{e(values.get("reviewer", ""))}">'
+        f'<label for="j{gid}">{r["justification"]}</label>'
+        f'<textarea id="j{gid}" name="justification" required minlength="10" '
+        f'placeholder="{e(r["justification_hint"])}">{e(values.get("justification", ""))}</textarea>'
+        f'<label for="k{gid}">{r["key"]}</label>'
+        f'<input id="k{gid}" name="api_key" type="password" required autocomplete="off"{dis}>'
+        f'<div><button type="submit"{dis}>{r["submit"]}</button></div></form>'
     )
 
 
-def review_page(groups: list[dict], lang: str, message: str | None = None, error: bool = False) -> str:
-    s = t(lang)
-    msg = ""
-    if message:
-        cls = "msg err" if error else "msg"
-        msg = f'<p class="{cls}" role="status">{e(message)}</p>'
-    if not groups:
-        return f"<h1>{s['review_title']}</h1>{msg}<p>{s['no_mappings']}</p>"
+def review_page(
+    groups: list[dict],
+    lang: str,
+    key_ok: bool,
+    message: str | None = None,
+    error: bool = False,
+    error_group: int | None = None,
+    values: dict | None = None,
+) -> str:
+    r = _rt(lang)
     q = "?lang=en" if lang == "en" else ""
-    parts = [f"<h1>{s['review_title']}</h1>{msg}<p>{e(s['review_intro'])}</p>"]
+    parts = [f"<h1>{r['title']}</h1><p>{e(r['intro'])}</p>"]
+    if key_ok:
+        parts.append(f'<p class="msg" role="note">{r["key_ok"]}</p>')
+    else:
+        parts.append(
+            f'<div class="msg err" role="note"><p>{r["key_missing"]}</p>'
+            "<pre><code>python -m observatory.cli admin-key</code></pre></div>"
+        )
+    if message and error_group is None:
+        parts.append(f'<p class="msg{" err" if error else ""}" role="alert">{e(message)}</p>')
+    if not groups:
+        return "".join(parts) + f"<p>{r['none']}</p>"
     for g in groups:
         src = g["source"]
-        amb = ""
-        if g["margin"] is not None:
-            badge = f'<span class="badge">{s["ambiguous"]}</span> ' if g["ambiguous"] else ""
-            amb = f'<p>{badge}<span class="muted">{s["margin"]}: {g["margin"]:.3f}</span></p>'
-        rows = "".join(_review_row(i, m, q, s) for i, m in enumerate(g["mappings"], 1))
-        head = "".join(
-            f'<th scope="col">{h}</th>'
-            for h in (
-                s["rank"],
-                s["target"],
-                "mapping_confidence",
-                s["components"],
-                s["official_sources"],
-                s["status"],
-                s["rules"],
-                s["review"],
+        gid = src["id"]
+        best = g["candidates"][0]["mapping_confidence"] if g["candidates"] else 0.0
+        box = []
+        if g["decided"]:
+            d = g["decided"]
+            box.append(
+                f'<p class="msg" role="status"><strong>{r["decided"]}:</strong> {e(d["status"])} '
+                f"<code>{e(d['other_code'])}</code> {e(d['other_title'])} {r['by']} {e(d['reviewer'] or '')} — "
+                f"{e(d['justification'] or '')}</p>"
             )
-        )
+        if g["recommended"]:
+            rec = g["recommended"]
+            why = "".join(f"<li>{e(x)}</li>" for x in reasons(rec, best, r))
+            box.append(
+                f'<div class="card"><p><strong>{r["suggestion"]}:</strong> <code>{e(rec["other_code"])}</code> '
+                f"{e(rec['other_title'])}</p><p>{r['why']}:</p><ul>{why}</ul>"
+                f'<p class="muted">{r["suggestion_note"]}</p></div>'
+            )
+        if g["ambiguous"]:
+            box.append(f'<p class="muted">{r["ambiguous"].format(m=g["margin"])}</p>')
+        if message and error_group == gid:
+            box.append(f'<p class="msg err" role="alert">{e(message)}</p>')
+        vals = values if error_group == gid else {}
         parts.append(
-            f'<section aria-labelledby="g{src["id"]}"><h2 id="g{src["id"]}">{e(src["title"])} '
-            f'<span class="badge">{e(src["taxonomy"])}</span></h2>'
-            f'<p class="muted"><code>{e(src["code"])}</code></p>{amb}'
-            f'<div class="table-wrap"><table><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
-            "</section>"
+            f'<section aria-labelledby="g{gid}"><h2 id="g{gid}">{r["question"]} '
+            f'“{e(src["title"])}” <span class="badge">{e(src["taxonomy"])}</span>?</h2>'
+            f'<p class="muted"><code>{e(src["code"])}</code></p>{"".join(box)}'
+            f"{_group_form(g, q, lang, key_ok, vals)}"
+            f"<details><summary>{r['details']}</summary>{_tech_table(g, q, lang)}</details></section>"
         )
     return "".join(parts)

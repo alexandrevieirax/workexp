@@ -67,3 +67,24 @@ def test_model_comparison_records_rule_and_choice(tmp_path):
     assert report["chosen"] == "baseline" and r["eligible"] and r["reproducible"]
     assert 0 <= r["occupation_pairs"]["auc"] <= 1 and r["selection_score"] > 0
     assert "selection_rule" in report and (tmp_path / "comparison.md").exists()
+
+
+def test_constructed_occupation_pairs_have_official_label_basis():
+    _, items = load_benchmark(get_settings().validation_dir / "occupation_pairs_v0.2.0.jsonl")
+    assert len(items) >= 100
+    assert {i["label"] for i in items} == {0, 2}
+    assert all(i["annotator"].startswith("constructed:") and i["label_basis"] for i in items)
+    bases = {i["label_basis"] for i in items}
+    assert {"onet_alternate_title", "cbo_synonym", "esco_official_translation"} <= bases
+    # vertical-slice occupations are excluded from calibration pairs
+    assert not any("Software Developers" == i["left"] for i in items)
+
+
+def test_hard_negatives_share_a_word_but_differ():
+    import random
+
+    from observatory.benchmark.build_pairs import _content_words, _hard_negatives
+
+    items = [("1", "Petroleum Engineers"), ("2", "Petroleum Pump Operators"), ("3", "Nurses")]
+    pairs = _hard_negatives(items, 5, random.Random(0))
+    assert pairs and all(_content_words(a) & _content_words(b) for a, b in pairs)

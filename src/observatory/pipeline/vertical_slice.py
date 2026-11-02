@@ -20,6 +20,8 @@ from observatory.connectors.base import SourceUnavailableError
 from observatory.connectors.cbo import CboFiles
 from observatory.connectors.esco import EscoClient, parse_occupation, parse_skills, skills_as_tasks
 from observatory.connectors.onet import OnetArchive
+from observatory.crosswalk.candidates import CandidateSearch, OnetIndex
+from observatory.crosswalk.candidates import search as candidate_search
 from observatory.crosswalk.engine import CrosswalkSide, OfficialCodeCrosswalk, calibrate_pairs, propose
 from observatory.db import models as M
 from observatory.db.session import make_engine, session_factory, session_scope
@@ -54,6 +56,7 @@ class SliceReport:
     sources: dict[str, Any] = field(default_factory=dict)
     occupations: dict[str, Any] = field(default_factory=dict)
     crosswalks: list[dict] = field(default_factory=list)
+    crosswalk_candidates: dict[str, Any] = field(default_factory=dict)
     benchmark: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     methodology: dict[str, Any] = field(default_factory=dict)
@@ -193,18 +196,80 @@ def side(occ: M.Occupation, language: str, skills: list[str]) -> CrosswalkSide:
         skills=skills,
         group_code=occ.group_code,
         qualification_level=occ.qualification_level,
+        official_code=(occ.attributes or {}).get("esco_code") if occ.taxonomy == "ESCO" else occ.code,
     )
 
 
-def onet_null_sample(onet: OnetArchive, exclude: str, cw_cfg: dict) -> tuple[list[list[str]], list[list[str]]]:
-    """Task and DWA sets of randomly sampled O*NET occupations (excluding the target's SOC detailed group)."""
-    import random
+def persist_mapping(
+    s: Session, source: M.Occupation, target: M.Occupation, prop, model_key: str, version: str, run_id: str
+) -> M.OccupationSourceMapping:
+    mp = s.scalar(
+        select(M.OccupationSourceMapping).where(
+            M.OccupationSourceMapping.source_occupation_id == source.id,
+            M.OccupationSourceMapping.target_occupation_id == target.id,
+            M.OccupationSourceMapping.methodology_version == version,
+        )
+    )
+    if mp is not None:
+        return mp
+    mp = M.OccupationSourceMapping(
+        source_occupation_id=source.id,
+        target_occupation_id=target.id,
+        method="composite_candidates_v1",
+        title_similarity=prop.title_similarity,
+        task_similarity=prop.task_similarity,
+        skill_similarity=prop.skill_similarity,
+        hierarchy_consistency=prop.hierarchy_consistency,
+        qualification_consistency=prop.qualification_consistency,
+        mapping_confidence=prop.mapping_confidence,
+        confidence_class=prop.confidence_class,
+        status="proposed",
+        rules_applied={"rules": prop.rules_applied, **prop.details},
+        embedding_model=model_key,
+        methodology_version=version,
+    )
+    s.add(mp)
+    s.flush()
+    s.add(
+        M.CrosswalkChange(
+            mapping_id=mp.id,
+            action="create",
+            after=prop.to_dict(),
+            actor=f"pipeline:{run_id}",
+            justification="automatic proposal (not accepted)",
+        )
+    )
+    return mp
 
-    codes = sorted(c for c in onet.table("Task Statements.txt")["O*NET-SOC Code"].unique() if c[:7] != exclude[:7])
-    sample = random.Random(cw_cfg["null_seed"]).sample(codes, min(cw_cfg["null_sample_size"], len(codes)))
-    tasks = [[t.statement for t in onet.tasks(c)] for c in sample]
-    dwas = [sorted({n for lst in onet.dwas_for_tasks(c).values() for _, n in lst if n}) for c in sample]
-    return tasks, dwas
+
+def onet_priors_for(onet: OnetArchive, codes: list[str], cfg: dict) -> dict:
+    """Occupational priors of one O*NET occupation, or the mean of several (pooled for tied candidates)."""
+    per = []
+    for code in codes:
+        rows = onet.descriptors(code, "work_context") + onet.descriptors(code, "work_activity")
+        per.append(occupational_priors(rows, onet.scales, cfg))
+    if len(per) == 1:
+        return per[0]
+    out = {}
+    for dim in per[0]:
+        vals = [p[dim]["value"] for p in per if p[dim]["value"] is not None]
+        out[dim] = {
+            "value": sum(vals) / len(vals) if vals else None,
+            "pooled_from": codes,
+            "elements": [e for p in per for e in p[dim]["elements"]],
+            "skipped": [],
+        }
+    return out
+
+
+def mapping_status(s: Session, source: M.Occupation, prop) -> str | None:
+    code = prop.target.split(":", 1)[1]
+    return s.scalar(
+        select(M.OccupationSourceMapping.status)
+        .join(M.Occupation, M.Occupation.id == M.OccupationSourceMapping.target_occupation_id)
+        .where(M.OccupationSourceMapping.source_occupation_id == source.id, M.Occupation.code == code)
+        .order_by(M.OccupationSourceMapping.id.desc())
+    )
 
 
 def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> SliceReport:
@@ -259,15 +324,30 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
             sm["calibration"]["ceiling_quantile_related"],
             meta["version"],
         )
-        title_cal = calibrate_pairs(
-            embedder, [i for i in bench if i["item_type"] == "occupation_pair"], meta["version"]
-        )
-        if title_cal.ceiling - title_cal.floor < 0.05:
+        tcal = m.config["crosswalk"]["title_calibration"]
+        pair_items = [i for i in bench if i["item_type"] == "occupation_pair"]
+        for fname in tcal["extra_pair_files"]:
+            pair_items += load_benchmark(settings.validation_dir / fname)[1]
+        try:
+            title_cal = calibrate_pairs(
+                embedder,
+                pair_items,
+                meta["version"] + "+" + "+".join(tcal["extra_pair_files"]),
+                tcal["floor_percentile_nonequivalent"],
+                tcal["ceiling_quantile_equivalent"],
+            )
+        except ValueError as exc:
+            title_cal = None
             report.warnings.append(
-                f"Title calibration is nearly degenerate (floor {title_cal.floor:.3f}, "
-                f"ceiling {title_cal.ceiling:.3f}): "
-                "with only 10 occupation pairs a false friend scores almost like an equivalent, so title_similarity "
-                "behaves as a 0/1 step. Treat title components as weak evidence until the pair set is expanded."
+                f"Title calibration impossible for {embedder.provider.model_key}: {exc}. "
+                "title_similarity is treated as unknown in every crosswalk."
+            )
+        if title_cal is not None and title_cal.ceiling - title_cal.floor < 0.05:
+            report.warnings.append(
+                f"Title calibration is narrow (floor {title_cal.floor:.3f}, ceiling {title_cal.ceiling:.3f}, "
+                f"{title_cal.n_related}+{title_cal.n_unrelated} pairs): for this model, non-equivalent titles score "
+                "almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak "
+                "evidence (weight 0.20)."
             )
         bench_result = evaluate(index, cal, bench, sm["negative_penalty"])
         exp_dir = settings.experiments_dir / f"benchmark-{run_id}"
@@ -292,7 +372,7 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                 "by_language",
                 "caveat",
             )
-        } | {"artifact": str(exp_dir), "title_pair_calibration": title_cal.to_dict()}
+        } | {"artifact": str(exp_dir), "title_pair_calibration": title_cal.to_dict() if title_cal else None}
         if not embedder.provider.is_semantic:
             report.warnings.append(
                 "Embedding provider is the lexical baseline; install '.[ml]' and evaluate "
@@ -401,83 +481,86 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
 
         # ---------------------------------------------------------------- crosswalks
         official = OfficialCodeCrosswalk.from_dir(settings.raw_data_dir / "crosswalks")
-        null_tasks, null_skills = onet_null_sample(onet, cfg.onet_code, m.config["crosswalk"])
-        pairs = [("ESCO", "ONET", "en"), ("CBO", "ONET", None), ("CBO", "ESCO", "pt")]
-        best_to_onet: dict[str, M.OccupationSourceMapping] = {}
-        for a_tax, b_tax, lang in pairs:
-            if a_tax not in occs or b_tax not in occs:
+        cw_cfg = m.config["crosswalk"]
+        onet_index = OnetIndex(onet, embedder)
+        searches: dict[str, CandidateSearch] = {}
+        for tax, lang in (("ESCO", "en"), ("CBO", "pt")):
+            if tax not in occs:
                 continue
-            la = lang or "pt"
-            lb = lang or "en"
-            nt, ns = (null_tasks, null_skills) if b_tax == "ONET" else (None, None)
+            src = side(occs[tax], lang, skills_by[tax].get(lang, []))
+            found = candidate_search(src, onet_index, title_cal, m.config, official)
+            searches[tax] = found
+            report.crosswalk_candidates[tax] = found.to_dict()
+            for prop in found.ranked[: cw_cfg["candidates"]["persist_top"]]:
+                code = prop.target.split(":", 1)[1]
+                target = occ_onet if code == cfg.onet_code else ingest.occupation(s, sv_onet, onet.occupation(code))
+                mp = persist_mapping(s, occs[tax], target, prop, cal.model_key, m.version, run_id)
+                report.crosswalks.append(prop.to_dict() | {"mapping_id": mp.id, "status": mp.status})
+            if found.ambiguous:
+                report.warnings.append(
+                    f"{tax}: best O*NET candidates are ambiguous (margin {found.margin:.3f} < "
+                    f"{cw_cfg['candidates']['ambiguity_margin']}); human review should choose the mapping."
+                )
+        if "CBO" in occs and "ESCO" in occs:
+            # No CBO↔ISCO-08 official table and no ESCO null sample: tasks/skills stay unknown by design.
             prop = propose(
-                side(occs[a_tax], la, skills_by[a_tax].get(la, [])),
-                side(occs[b_tax], lb, skills_by[b_tax].get(lb, [])),
+                side(occs["CBO"], "pt", []),
+                side(occs["ESCO"], "pt", skills_by["ESCO"].get("pt", [])),
                 embedder,
                 title_cal,
                 m.config,
                 official,
-                nt,
-                ns,
             )
-            mp = s.scalar(
-                select(M.OccupationSourceMapping).where(
-                    M.OccupationSourceMapping.source_occupation_id == occs[a_tax].id,
-                    M.OccupationSourceMapping.target_occupation_id == occs[b_tax].id,
-                    M.OccupationSourceMapping.methodology_version == m.version,
-                )
-            )
-            if mp is None:
-                mp = M.OccupationSourceMapping(
-                    source_occupation_id=occs[a_tax].id,
-                    target_occupation_id=occs[b_tax].id,
-                    method="composite_v0",
-                    title_similarity=prop.title_similarity,
-                    task_similarity=prop.task_similarity,
-                    skill_similarity=prop.skill_similarity,
-                    hierarchy_consistency=prop.hierarchy_consistency,
-                    qualification_consistency=prop.qualification_consistency,
-                    mapping_confidence=prop.mapping_confidence,
-                    confidence_class=prop.confidence_class,
-                    status="proposed",
-                    rules_applied={"rules": prop.rules_applied, **prop.details},
-                    embedding_model=cal.model_key,
-                    methodology_version=m.version,
-                )
-                s.add(mp)
-                s.flush()
-                s.add(
-                    M.CrosswalkChange(
-                        mapping_id=mp.id,
-                        action="create",
-                        after=prop.to_dict(),
-                        actor=f"pipeline:{run_id}",
-                        justification="automatic proposal (not accepted)",
-                    )
-                )
+            mp = persist_mapping(s, occs["CBO"], occs["ESCO"], prop, cal.model_key, m.version, run_id)
             report.crosswalks.append(prop.to_dict() | {"mapping_id": mp.id, "status": mp.status})
-            if b_tax == "ONET":
-                best_to_onet[a_tax] = mp
 
         # ---------------------------------------------------------------- assessments
         eng = ExposureEngine(m, d, index, cal, onet.scales, aei)
         onet_priors = occupational_priors(desc_rows, onet.scales, m.config)
-        min_rank = CLASS_RANK[m.config["crosswalk"]["prior_transfer_min_class"]]
+        min_rank = CLASS_RANK[cw_cfg["prior_transfer_min_class"]]
         for tax, occ in occs.items():
             cw_quality = None
             if tax == "ONET":
                 ctx = PriorContext(onet_priors, "onet_direct")
             else:
-                mp = best_to_onet.get(tax)
-                cw_quality = mp.mapping_confidence if mp else None
-                if mp is not None and (mp.status == "accepted" or CLASS_RANK[mp.confidence_class] >= min_rank):
-                    ctx = PriorContext(onet_priors, "crosswalk_transfer", mp.mapping_confidence, p_onet.code)
+                found = searches.get(tax)
+                best = found.best if found else None
+                cw_quality = best.mapping_confidence if best else None
+                accepted = best is not None and mapping_status(s, occ, best) == "accepted"
+                strong = best is not None and CLASS_RANK[best.confidence_class] >= min_rank
+                unambiguous = found is not None and not (
+                    found.ambiguous and cw_cfg["candidates"]["require_unambiguous"]
+                )
+                tied = found.tied() if found is not None and found.ambiguous else []
+                pool = (
+                    cw_cfg["candidates"]["ambiguous_policy"] == "pool_within_margin"
+                    and tied
+                    and all(CLASS_RANK[p.confidence_class] >= min_rank for p in tied)
+                )
+                if best is not None and (accepted or (strong and unambiguous)):
+                    code = best.target.split(":", 1)[1]
+                    ctx = PriorContext(
+                        onet_priors_for(onet, [code], m.config), "crosswalk_transfer", best.mapping_confidence, code
+                    )
+                elif pool:
+                    codes = [p.target.split(":", 1)[1] for p in tied]
+                    ctx = PriorContext(
+                        onet_priors_for(onet, codes, m.config),
+                        "crosswalk_pooled",
+                        min(p.mapping_confidence for p in tied),
+                        ", ".join(codes),
+                    )
+                    report.warnings.append(
+                        f"{tax}: {len(codes)} O*NET candidates tied within the ambiguity margin; priors pooled "
+                        f"from {', '.join(codes)} (extra uncertainty). Human review should pick the equivalent."
+                    )
                 else:
                     ctx = PriorContext({}, "default")
-                    if mp is not None:
+                    if best is not None:
+                        why = "ambiguous candidates" if strong and not unambiguous else f"'{best.confidence_class}'"
                         report.warnings.append(
-                            f"{tax}: crosswalk to O*NET is '{mp.confidence_class}' "
-                            f"({mp.mapping_confidence:.2f}); O*NET priors NOT transferred, default prior used."
+                            f"{tax}: best O*NET candidate {best.target} is {why} ({best.mapping_confidence:.2f}); "
+                            "O*NET priors NOT transferred, default prior used."
                         )
             res = eng.assess(task_inputs(occ), ctx, cw_quality)
             a = persist_assessment(s, run_id, occ, res, m, d, cal, cap_pk, pv)

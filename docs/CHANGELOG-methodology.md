@@ -5,6 +5,30 @@ dicionário, regra de crosswalk ou método curricular exige uma nova seção aqu
 `config/methodology/registry.json`, atualização da área "Sobre" (`methodology_version` no cabeçalho dos
 arquivos de conteúdo) e das referências citadas. `tests/test_about_consistency.py` verifica isso.
 
+## [0.3.0] - 2026-11-02
+
+Status: **não calibrada**. Substitui a 0.2.0. Mudanças no crosswalk:
+
+- **Correspondência oficial:** a tabela do O*NET `ESCO_to_ONET-SOC.xlsx` alimenta o componente de hierarquia
+  de ESCO→O*NET. Como os códigos ESCO mudam entre versões, a busca exige código **e** título; na falta, título
+  dentro do mesmo grupo ISCO. O método usado fica registrado.
+- **Similaridade de tarefas e habilidades** passa de `(s − μ)/(1 − μ)` para
+  `Φ((s − μ)/σ) × clip((s − μ)/(s_melhor − μ))`, contra uma amostra nula de 150 ocupações O*NET (antes 40),
+  excluindo os candidatos. Só Φ(z) saturava perto de 1 para qualquer ocupação vizinha; uma primeira execução
+  classificou como "forte" o falso amigo 51-9162 (programador de máquinas CNC). O fator relativo ao melhor
+  candidato restaura a discriminação.
+- **Busca de candidatos:** em vez de comparar com um alvo fixo, cada ocupação ESCO/CBO é comparada com os alvos
+  da tabela oficial e com as 8 ocupações O*NET mais próximas por título e descrição. As 5 melhores são gravadas
+  para revisão. A transferência de priors de um único mapeamento exige classe ≥ forte **e** margem ≥ 0,03 sobre
+  o segundo candidato (ou aceitação humana). Se vários candidatos fortes empatam dentro da margem, usa-se a
+  média dos priors deles (`crosswalk_pooled`), com +0,25 de fragilidade no fator de incerteza.
+- **Calibração de títulos** usa 148 pares: os 10 originais mais 138 com rótulos de fontes oficiais (títulos
+  alternativos O*NET, sinônimos CBO, traduções oficiais ESCO, ocupações distintas com palavras em comum).
+  Piso = P90 dos não equivalentes; teto = mediana dos equivalentes.
+- **Fingerprint:** passa a usar caminhos relativos (antes `crosswalk/engine.py` e `exposure/engine.py`
+  colidiam pelo nome e mudanças no crosswalk não eram detectadas) e inclui os arquivos de benchmark e
+  `crosswalk/candidates.py`.
+
 ## [0.2.0] - 2026-11-02
 
 Status: **não calibrada**. Substitui a 0.1.0 (marcada `superseded`). Única mudança metodológica:

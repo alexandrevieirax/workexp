@@ -18,6 +18,7 @@ FORMULA_MODULES = [
     PROJECT_ROOT / "src" / "observatory" / "crosswalk" / "engine.py",
     PROJECT_ROOT / "src" / "observatory" / "exposure" / "engine.py",  # Monte Carlo, sensitivity, uncertainty flags
     PROJECT_ROOT / "src" / "observatory" / "exposure" / "dimensions.py",  # E1 matching, priors, lexical cues
+    PROJECT_ROOT / "src" / "observatory" / "crosswalk" / "candidates.py",  # candidate search, ambiguity
 ]
 
 
@@ -55,7 +56,11 @@ def compute_fingerprint(config_path: Path, capability_file: str) -> str:
             )
         ),
         "capabilities": sha256_text(_read_normalized(get_settings().capabilities_dir / capability_file)),
-        "formulas": {p.name: sha256_text(_read_normalized(p)) for p in FORMULA_MODULES},
+        "formulas": {p.relative_to(PROJECT_ROOT).as_posix(): sha256_text(_read_normalized(p)) for p in FORMULA_MODULES},
+        # benchmark files drive calibration, so changing them is a methodological change
+        "benchmarks": {
+            p.name: sha256_text(_read_normalized(p)) for p in sorted(get_settings().validation_dir.glob("*.jsonl"))
+        },
     }
     return sha256_json(parts)
 

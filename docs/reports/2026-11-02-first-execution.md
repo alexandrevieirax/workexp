@@ -194,3 +194,59 @@ tarefas seguem majoritariamente em "evidência insuficiente".
    percentil ou comparação com os N melhores candidatos) antes da calibração.
 2. Ampliar e anotar por humanos o benchmark (pares de ocupações, sobretudo).
 3. Revisão humana dos três crosswalks pela API, o que liberaria a transferência de priors.
+
+---
+
+## Adendo 3 — crosswalk revisado, metodologia 0.3.0 (run `20261102T200135Z-1fea10`)
+
+### O que mudou
+
+- **Tabela oficial:** o O*NET publica `ESCO_to_ONET-SOC.xlsx`, que agora alimenta o componente de hierarquia
+  ESCO→O*NET. Os códigos ESCO mudam entre versões: a API dá 2512.3 para "software developer", mas na tabela
+  2512.3 é "software architect". A busca exige código e título.
+- **Tabela BLS ISCO-08↔SOC:** não foi obtida. O site bloqueia acesso automatizado e o bloqueio não foi
+  contornado. Fica como download manual, com o novo comando `import-crosswalk`.
+- **Benchmark de pares de ocupações:** 148 pares (10 originais + 138 com rótulos de fontes oficiais).
+  Calibração de títulos: piso 0,776, teto 0,823. Antes era 0,812–0,813, ou seja, degenerada.
+- **Componente de tarefas e habilidades:** `Φ(z) × proximidade ao melhor candidato`, contra 150 ocupações
+  nulas. Uma versão intermediária só com Φ(z) saturava: classificou como "forte" o falso amigo 51-9162
+  (programador de máquinas CNC). Ela foi descartada antes da publicação, e os registros dessa rodada foram
+  removidos do banco com registro no log de auditoria.
+- **Busca de candidatos:** alvos da tabela oficial mais as 8 ocupações O*NET mais próximas. As 5 melhores são
+  gravadas para revisão. Quando há empate, os priors são combinados com penalidade de incerteza.
+- **Bug corrigido no fingerprint:** `crosswalk/engine.py` e `exposure/engine.py` colidiam pelo nome do arquivo.
+
+### Resultados
+
+| Fonte | Melhor candidato O*NET | Confiança | Situação | Priors E6–E10 |
+|---|---|---|---|---|
+| ESCO software developer | 15-1299.08 Computer Systems Engineers/Architects | 0,93 | não ambíguo (margem 0,05) | transferidos |
+| CBO 2124-05 | 15-1253.00 QA Analysts e 15-1299.08 (empate) | 0,80 / 0,79 | ambíguo (margem 0,005) | média dos dois |
+
+| Base | OAE | OAP | OAuP | OTP | E14 médio (0.2.0 → 0.3.0) |
+|---|---|---|---|---|---|
+| O*NET 15-1252.00 | 0,71 [0,67–0,75] | 0,07 | 0,43 | 0,30 | 0,25 → 0,25 |
+| ESCO | 0,79 [0,73–0,84] | 0,04 | 0,43 [0,36–0,51] | 0,31 | 0,79 → 0,56 |
+| CBO 2124-05 | 0,76 [0,72–0,80] | 0,05 | 0,40 [0,36–0,44] | 0,27 | 0,77 → 0,64 |
+
+As tarefas da ESCO e da CBO saíram de "evidência insuficiente" (cerca de 80–93% do peso) para "aumento de
+capacidade" (87–94%). As três bases agora concordam: aumento claramente acima da automação.
+
+### Limitação que o resultado expõe
+
+Distinguir **ocupações vizinhas da mesma família** continua frágil. O equivalente canônico de "software
+developer"/"Analista de desenvolvimento de sistemas" é 15-1252.00 (Software Developers), mas ele ficou em 3º
+nos dois casos. A margem da ESCO (0,05) passou o limiar de ambiguidade (0,03), então a escolha automática foi
+para 15-1299.08. Como as ocupações de computação têm descritores de contexto parecidos, o efeito nos priors é
+pequeno, mas o mapeamento deve ser **revisado por uma pessoa**, que pode aceitar 15-1252.00 pela API.
+Possíveis ajustes, a validar no conjunto ouro:
+
+- elevar a margem de ambiguidade;
+- comparar tarefas ESCO→O*NET pelas descrições das competências, e não só pelos títulos;
+- dar peso à multiplicidade da tabela oficial.
+
+### Pendências que dependem de você
+
+- Baixar manualmente a tabela BLS ISCO-08↔SOC e a tábua CBO↔CIUO (reCAPTCHA) e importar com
+  `python -m observatory.cli import-crosswalk`.
+- Revisar os mapeamentos propostos (`POST /api/crosswalks/{id}/review`).

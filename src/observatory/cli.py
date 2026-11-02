@@ -113,6 +113,34 @@ def cmd_benchmark_models(args) -> int:
     return 0
 
 
+def cmd_import_crosswalk(args) -> int:
+    """Convert a manually downloaded official correspondence table to the canonical CSV the crosswalk reads."""
+    import csv
+    from pathlib import Path
+
+    import pandas as pd
+
+    src = Path(args.file)
+    if src.suffix.lower() in (".xlsx", ".xls"):
+        df = pd.read_excel(src, header=args.header_row, dtype=str)
+    else:
+        df = pd.read_csv(src, header=args.header_row, dtype=str, sep=None, engine="python")
+    missing = [c for c in (args.from_col, args.to_col) if c not in df.columns]
+    if missing:
+        _print({"error": f"columns not found: {missing}", "available": list(df.columns)})
+        return 1
+    df = df.dropna(subset=[args.from_col, args.to_col])
+    out = get_settings().raw_data_dir / "crosswalks" / f"{args.from_system}_to_{args.to_system}.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["from_system", "from_code", "to_system", "to_code", "source"])
+        for a, b in zip(df[args.from_col], df[args.to_col], strict=True):
+            w.writerow([args.from_system, a.strip(), args.to_system, b.strip(), src.name])
+    _print({"written": str(out), "rows": len(df)})
+    return 0
+
+
 def cmd_serve(args) -> int:
     import uvicorn
 
@@ -155,6 +183,14 @@ def main(argv: list[str] | None = None) -> int:
         ],
     )
     bm.set_defaults(fn=cmd_benchmark_models)
+    ic = sub.add_parser("import-crosswalk", help="convert an official correspondence table to the canonical CSV")
+    ic.add_argument("--file", required=True)
+    ic.add_argument("--from-system", required=True, help="e.g. ISCO08, CBO2002, SOC2010")
+    ic.add_argument("--from-col", required=True)
+    ic.add_argument("--to-system", required=True, help="e.g. SOC2018, ISCO88")
+    ic.add_argument("--to-col", required=True)
+    ic.add_argument("--header-row", type=int, default=0)
+    ic.set_defaults(fn=cmd_import_crosswalk)
     sv = sub.add_parser("serve")
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)

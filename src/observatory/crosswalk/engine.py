@@ -1,11 +1,12 @@
 """Composite crosswalk between occupations of different taxonomies (methodology §9).
 
-Never auto-accepts in v0; a title match alone cannot reach the moderate class (title weight is 0.20).
+Never auto-accepts; a title match alone cannot reach the moderate class (title weight is 0.20).
 """
 
 from __future__ import annotations
 
 import csv
+import math
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -13,6 +14,7 @@ import numpy as np
 
 from observatory.embeddings.providers import Embedder
 from observatory.exposure.dimensions import Calibration
+from observatory.normalization.text import normalize_text
 
 
 @dataclass
@@ -25,6 +27,7 @@ class CrosswalkSide:
     skills: list[str]
     group_code: str | None
     qualification_level: float | None
+    official_code: str | None = None  # ESCO code (e.g. 2512.3) or O*NET-SOC code (e.g. 15-1252.00)
 
 
 @dataclass
@@ -47,25 +50,58 @@ class CrosswalkProposal:
 
 
 class OfficialCodeCrosswalk:
-    """Official correspondence tables (e.g. BLS ISCO-08↔SOC, CBO↔ISCO tábua de conversão) placed manually.
+    """Official correspondence tables.
 
-    CSV columns: from_system, from_code, to_system, to_code, source. Absent file → hierarchy is 'unknown'.
+    - Canonical CSVs in data/raw/crosswalks/*.csv (from_system, from_code, to_system, to_code, source), e.g. a
+      BLS ISCO-08/SOC table or the CBO/CIUO "tábua de conversão" converted with `import-crosswalk`.
+    - O*NET's ESCO_to_ONET-SOC.xlsx in data/raw/crosswalks/source/. ESCO codes are renumbered between ESCO
+      versions (the API's "software developer" is 2512.3; the table's 2512.3 is "software architect"), so a lookup
+      requires code AND title, falling back to a title match within the same ISCO unit group.
+    Absent tables → hierarchy is 'unknown'.
     """
 
-    def __init__(self, pairs: set[tuple[str, str, str, str]] | None = None, sources: list[str] | None = None):
+    def __init__(
+        self,
+        pairs: set[tuple[str, str, str, str]] | None = None,
+        sources: list[str] | None = None,
+        esco_onet: dict[tuple[str, str], set[str]] | None = None,
+    ):
         self.pairs = pairs or set()
         self.sources = sources or []
+        self.esco_onet = esco_onet or {}  # (esco_code, normalized title) -> O*NET-SOC codes
 
     @classmethod
     def from_dir(cls, directory: Path) -> OfficialCodeCrosswalk:
         pairs, sources = set(), []
+        esco_onet: dict[tuple[str, str], set[str]] = {}
         if directory.exists():
             for p in sorted(directory.glob("*.csv")):
                 with open(p, encoding="utf-8") as fh:
                     for r in csv.DictReader(fh):
                         pairs.add((r["from_system"], r["from_code"], r["to_system"], r["to_code"]))
                 sources.append(p.name)
-        return cls(pairs, sources)
+            xlsx = directory / "source" / "ESCO_to_ONET-SOC.xlsx"
+            if xlsx.exists():
+                import pandas as pd
+
+                df = pd.read_excel(xlsx, header=3, dtype=str).dropna(subset=["ESCO/ISCO Code", "O*NET-SOC 2019 Code"])
+                for code, title, onet in zip(
+                    df["ESCO/ISCO Code"], df["ESCO/ISCO Title"], df["O*NET-SOC 2019 Code"], strict=True
+                ):
+                    esco_onet.setdefault((code.strip(), normalize_text(str(title))), set()).add(onet.strip())
+                sources.append(xlsx.name)
+        return cls(pairs, sources, esco_onet)
+
+    def esco_targets(self, esco_code: str | None, title: str) -> tuple[set[str] | None, str]:
+        t = normalize_text(title)
+        if esco_code and (esco_code, t) in self.esco_onet:
+            return self.esco_onet[(esco_code, t)], "esco_code_and_title"
+        if esco_code:
+            group = esco_code.split(".")[0]
+            same = [k for k in self.esco_onet if k[1] == t and k[0].split(".")[0] == group]
+            if len(same) == 1:
+                return self.esco_onet[same[0]], f"esco_title_within_isco_group (table code {same[0][0]})"
+        return None, "no_official_entry"
 
     def systems(self) -> set[tuple[str, str]]:
         return {(a, c) for a, _, c, _ in self.pairs}
@@ -102,10 +138,13 @@ def propose(
     official: OfficialCodeCrosswalk | None = None,
     null_tasks: list[list[str]] | None = None,
     null_skills: list[list[str]] | None = None,
+    null_cache: dict | None = None,
+    reference_raw: dict[str, float] | None = None,
 ) -> CrosswalkProposal:
-    """Set similarities are rescaled against an empirical null: the same source compared with randomly sampled
-    occupations of the target taxonomy. 0 = no more similar than a random occupation, 1 = identical sets.
-    Without a null sample the component is unknown (a sentence-level calibration saturates at 1.0)."""
+    """Set similarities are standardized against an empirical null (the same source compared with randomly
+    sampled occupations of the target taxonomy): component = Phi((s - mean_null) / sd_null). 0.5 = as similar as
+    a typical random occupation; close to 1 = far more similar than random. Without a null sample the component
+    is unknown (a sentence-level calibration saturates at 1.0)."""
     cw = cfg["crosswalk"]
     rules: list[str] = []
     unknown = cw["unknown_component_value"]
@@ -113,8 +152,12 @@ def propose(
     ta = embedder.embed(a.titles, a.language, kind="query")
     tb = embedder.embed(b.titles, b.language, kind="query")
     raw_title = float((ta @ tb.T).max())
-    title = float(title_cal.apply(np.array([raw_title]))[0]) if title_cal else raw_title
-    rules.append("title: max cosine over preferred/alternative labels" + (", pair-calibrated" if title_cal else ""))
+    if title_cal is not None:
+        title: float | None = float(title_cal.apply(np.array([raw_title]))[0])
+        rules.append("title: max cosine over preferred/alternative labels, pair-calibrated")
+    else:
+        title = None
+        rules.append("title: no usable pair calibration for this model → unknown (raw cosine recorded)")
 
     null_stats: dict[str, dict] = {}
 
@@ -126,20 +169,47 @@ def propose(
         raw = _best_match_mean(ea, embedder.embed(xb, b.language, "query"))
         nulls = [n for n in (nulls or []) if n]
         if len(nulls) >= 5:
-            null = [_best_match_mean(ea, embedder.embed(n, b.language, "query")) for n in nulls]
-            mu = float(np.mean(null))
+            key = (name, a.occupation_ref, b.language, len(nulls))
+            if null_cache is not None and key in null_cache:
+                null = null_cache[key]
+            else:
+                null = [_best_match_mean(ea, embedder.embed(n, b.language, "query")) for n in nulls]
+                if null_cache is not None:
+                    null_cache[key] = null
+            mu, sd = float(np.mean(null)), float(np.std(null, ddof=1))
+            if sd <= 1e-9:  # degenerate null (identical draws) carries no scale: component unknown
+                null_stats[name] = {
+                    "raw": round(raw, 4),
+                    "null_mean": round(mu, 4),
+                    "null_sd": 0.0,
+                    "n_null": len(null),
+                }
+                rules.append(f"{name}: degenerate null sample (sd = 0) → component unknown")
+                return None
+            z = (raw - mu) / sd
             null_stats[name] = {
                 "raw": round(raw, 4),
                 "null_mean": round(mu, 4),
+                "null_sd": round(sd, 4),
                 "null_max": round(max(null), 4),
                 "n_null": len(null),
+                "z": round(z, 3),
                 "raw_rank_vs_null": round(float(np.mean([raw > x for x in null])), 4),
             }
+            above_random = 0.5 * (1 + math.erf(z / math.sqrt(2)))
+            ref = (reference_raw or {}).get(name)
+            if ref is not None and ref > mu:
+                relative = float(np.clip((raw - mu) / (ref - mu), 0, 1))
+                null_stats[name]["relative_to_best"] = round(relative, 4)
+                rules.append(
+                    f"{name}: Phi(z) vs empirical null (n={len(null)}) x closeness to the best candidate "
+                    "(s - mean_null) / (s_best - mean_null)"
+                )
+                return above_random * relative
             rules.append(
-                f"{name}: bidirectional best-match mean rescaled vs empirical null "
-                f"(n={len(null)}): (s - mean_null) / (1 - mean_null)"
+                f"{name}: bidirectional best-match mean standardized vs empirical null (n={len(null)}): Phi(z)"
             )
-            return float(np.clip((raw - mu) / (1 - mu), 0, 1)) if mu < 1 else 0.0
+            return above_random
         null_stats[name] = {"raw": round(raw, 4), "n_null": len(nulls)}
         rules.append(f"{name}: fewer than 5 null occupations → component unknown (raw {raw:.3f} recorded)")
         return None
@@ -148,14 +218,24 @@ def propose(
     skill = set_sim(a.skills, b.skills, "skills", null_skills)
 
     hier = None
-    if official and a.group_code and b.group_code:
+    official_info: dict = {}
+    if official and a.taxonomy == "ESCO" and b.taxonomy == "ONET" and official.esco_onet:
+        targets, how = official.esco_targets(a.official_code, a.titles[0])
+        if targets is not None:
+            hier = 1.0 if b.official_code in targets else 0.0
+            official_info = {"method": how, "official_targets": sorted(targets)}
+            rules.append(
+                f"hierarchy: O*NET official ESCO→O*NET-SOC table ({how}); target "
+                f"{'in' if hier else 'not in'} the {len(targets)} mapped occupations"
+            )
+    if hier is None and official and a.group_code and b.group_code:
         hier = official.consistent(
             HIERARCHY_SYSTEM[a.taxonomy], a.group_code, HIERARCHY_SYSTEM[b.taxonomy], b.group_code
         )
+        if hier is not None:
+            rules.append(f"hierarchy: official table ({', '.join(official.sources)})")
     if hier is None:
-        rules.append("hierarchy: no official correspondence table loaded → unknown")
-    else:
-        rules.append(f"hierarchy: official table ({', '.join(official.sources)})")  # type: ignore[union-attr]
+        rules.append("hierarchy: no applicable official correspondence → unknown")
 
     qual = None
     if a.qualification_level is not None and b.qualification_level is not None:
@@ -187,6 +267,7 @@ def propose(
             "raw_title_cosine": round(raw_title, 4),
             "unknown_components": unknown_keys,
             "null": null_stats,
+            "official": official_info,
             "languages": [a.language, b.language],
             "auto_accept": cw["auto_accept"],
         },
@@ -194,16 +275,16 @@ def propose(
     )
 
 
-def calibrate_pairs(embedder: Embedder, items: list[dict], benchmark_version: str) -> Calibration:
+def calibrate_pairs(
+    embedder: Embedder, items: list[dict], benchmark_version: str, floor_pct: float = 90, ceil_q: float = 0.5
+) -> Calibration:
     pos, neg = [], []
     for it in items:
         left = embedder.embed([it["left"]], it["left_lang"], "query")[0]
         right = embedder.embed([it["right"]], it["right_lang"], "query")[0]
         s = float(left @ right)
         (pos if it["label"] == 2 else neg if it["label"] == 0 else []).append(s)
-    floor, ceiling = float(np.max(neg)), float(np.median(pos))
-    if ceiling <= floor:
-        floor = float(np.mean(neg))
+    floor, ceiling = float(np.percentile(neg, floor_pct)), float(np.quantile(pos, ceil_q))
     if ceiling <= floor:
         raise ValueError("embedding model cannot separate equivalent/non-equivalent occupation pairs")
     return Calibration(
@@ -213,5 +294,5 @@ def calibrate_pairs(embedder: Embedder, items: list[dict], benchmark_version: st
         benchmark_version,
         len(pos),
         len(neg),
-        method="floor=max(non-equivalent) [fallback mean], ceiling=median(equivalent)",
+        method=f"floor=p{floor_pct:g}(non-equivalent), ceiling=q{ceil_q:g}(equivalent)",
     )

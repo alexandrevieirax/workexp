@@ -62,6 +62,9 @@ def test_every_result_is_traceable(client, slice_run):
         src = full["source"]
         assert src["version"] and src["retrieval_date"] and src["retrieval_method"] and src["license"]
         a = full["assessment"]
+        if a is None:  # O*NET candidates are stored only as crosswalk targets, not assessed
+            assert full["taxonomy"] == "ONET" and full["crosswalks"]
+            continue
         assert a["methodology_version"] == report.methodology["version"]
         assert len(a["methodology_fingerprint"]) == 64
         assert a["pipeline_version"]["source_tree_sha256"]
@@ -82,9 +85,18 @@ def test_report_records_sources_and_warnings(slice_run):
 def test_esco_without_strong_crosswalk_does_not_inherit_priors(slice_run):
     _, report = slice_run
     esco = report.occupations["ESCO"]["quality"]
-    cw = next(c for c in report.crosswalks if c["source"].startswith("ESCO") and c["target"].startswith("ONET"))
-    if cw["confidence_class"] in ("strong", "very_strong"):
+    search = report.crosswalk_candidates["ESCO"]
+    best = search["candidates"][0]
+    assert [c["mapping_confidence"] for c in search["candidates"]] == sorted(
+        (c["mapping_confidence"] for c in search["candidates"]), reverse=True
+    )
+    strong = {"strong", "very_strong"}
+    tied = [c for c in search["candidates"] if c["target"] in search["tied"]]
+    if best["confidence_class"] in strong and not search["ambiguous"]:
         assert esco["prior_source"] == "crosswalk_transfer"
+        assert esco["prior_from_occupation"] == best["target"].split(":", 1)[1]
+    elif tied and all(c["confidence_class"] in strong for c in tied):
+        assert esco["prior_source"] == "crosswalk_pooled"
     else:
         assert esco["prior_source"] == "default"
 

@@ -71,6 +71,27 @@ Descrição sumária, formação/experiência e condições gerais de exercício
 e na publicação "CBO 2002 — Livro". O conector registra esses campos como
 `not_available_in_source_file`.
 
+## Tabelas oficiais de correspondência (crosswalks)
+
+| Tabela | Publicador | Status | Uso |
+|---|---|---|---|
+| `ESCO_to_ONET-SOC.xlsx` | O*NET Resource Center | ✅ baixada (2026-11-02), `data/raw/crosswalks/source/` | hierarquia ESCO→O*NET e candidatos |
+| `2010_to_2019_Crosswalk.csv` | O*NET Resource Center | ✅ baixada; ainda não usada | ponte SOC 2010→2018 (ex.: ligar o AEI por ID de tarefa) |
+| ISCO-08↔SOC 2010 | BLS | ⏳ **download manual** (o site bloqueia acesso automatizado) | hierarquia genérica |
+| Tábua de conversão CBO 2002↔CIUO-88 | MTE | ⏳ **download manual** (reCAPTCHA) | hierarquia CBO→ISCO |
+
+A tabela ESCO→O*NET mapeia uma ocupação ESCO a várias ocupações O*NET (ex.: "software developer" → 8).
+Os códigos ESCO mudam entre versões da ESCO: o conector exige código **e** título.
+
+Para tabelas baixadas manualmente:
+
+```bash
+python -m observatory.cli import-crosswalk --file <arquivo> --from-system ISCO08 --from-col "<coluna>" --to-system SOC2010 --to-col "<coluna>"
+```
+
+O comando grava `data/raw/crosswalks/<de>_to_<para>.csv` no formato canônico
+(`from_system, from_code, to_system, to_code, source`).
+
 ## Anthropic Economic Index
 
 - `task_pct_v2.csv`: participação percentual de cada tarefa O*NET (texto em

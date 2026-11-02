@@ -209,7 +209,7 @@ def blocks(lang: str) -> dict[str, str]:
     )
     if rep and rep.get("benchmark"):
         b = rep["benchmark"]
-        cal = b.get("title_pair_calibration", {})
+        cal = b.get("title_pair_calibration") or {}
         tc = b.get("calibration", {})
         out["embedding_summary"] = (
             f"<p>Modelo da última execução: <code>{html.escape(b['model'])}</code>. "

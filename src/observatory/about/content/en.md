@@ -1,5 +1,5 @@
 ---
-methodology_version: 0.2.0
+methodology_version: 0.3.0
 language: en
 ---
 

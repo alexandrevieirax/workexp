@@ -1,5 +1,5 @@
 ---
-methodology_version: 0.2.0
+methodology_version: 0.3.0
 language: pt-BR
 ---
 
@@ -56,8 +56,11 @@ registros. Procedimento em `docs/data-sources.md`.
 ## 7. Processo de harmonização {#harmonizacao}
 
 O crosswalk CBO–ESCO–O*NET combina cinco componentes com pesos configuráveis. Nenhuma correspondência é
-aceita automaticamente na versão atual; todas nascem como `proposed` e exigem revisão humana com justificativa
-e histórico. Títulos semelhantes não bastam: o título pesa apenas 20%.
+aceita automaticamente; todas nascem como `proposed` e exigem revisão humana com justificativa e histórico.
+Títulos semelhantes não bastam: o título pesa apenas 20%. Cada ocupação ESCO/CBO é comparada com vários
+candidatos do O*NET: os da tabela oficial ESCO→O*NET-SOC publicada pelo O*NET e os mais próximos por título e
+descrição. Quando os melhores empatam, o mapeamento é marcado como ambíguo e a escolha fica para revisão
+humana.
 
 {{crosswalk_weights}}
 

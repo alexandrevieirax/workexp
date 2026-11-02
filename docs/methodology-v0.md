@@ -141,7 +141,17 @@ na distribuição nula também é registrada. Sem amostra nula (< 5 ocupações;
 v0) o componente é **desconhecido** (valor neutro, sinalizado) e a similaridade bruta é apenas
 registrada. Antes, usava-se a calibração tarefa–capacidade, que saturava em 1,0 e chegou a
 classificar CBO→ESCO como "forte" (0,83) sem base — por isso foi removida.
-Hierarquia: consistência de grupos ISCO/SOC quando há código oficial;
+**Desde a 0.3.0** a similaridade de conjuntos é
+`Φ((s − média_nula)/dp_nula) × clip((s − média_nula)/(s_melhor − média_nula))`, contra 150 ocupações O*NET
+aleatórias (excluídos os candidatos). O primeiro fator mede se o candidato é mais parecido que o acaso; o
+segundo mede o quão perto está do melhor candidato. Só o primeiro saturava para qualquer ocupação vizinha. Cada ocupação ESCO/CBO é comparada com vários **candidatos**: os alvos da
+tabela oficial ESCO→O*NET-SOC e as 8 ocupações O*NET mais próximas por título e descrição. Os candidatos são
+ranqueados pela confiança composta; se o segundo estiver a menos de 0,03 do primeiro, o mapeamento é
+**ambíguo**: se todos os empatados forem fortes, os priors são a média deles (`crosswalk_pooled`, com
+fragilidade extra); caso contrário não há transferência sem revisão humana. A calibração de títulos usa 148 pares com
+rótulos de fontes oficiais (`data/validation/occupation_pairs_v0.2.0.jsonl`).
+Hierarquia: para ESCO→O*NET, pertencimento à tabela oficial do O*NET (código **e** título, pois os códigos ESCO
+mudam entre versões); nos demais pares, consistência de grupos ISCO/SOC quando houver tabela oficial;
 desconhecido = 0,5 (neutro), sinalizado. Correspondências < 0,60 nunca são
 aceitas automaticamente; nenhuma é aceita automaticamente na v0 — todas nascem
 `proposed` e exigem revisão humana.

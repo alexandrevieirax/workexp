@@ -190,6 +190,8 @@ class ExposureEngine:
             prior_flag = {
                 "onet_direct": 0.0,
                 "crosswalk_transfer": 1 - (prior_ctx.mapping_confidence or 0.0),
+                # pooled over tied candidates: extra fragility because the exact equivalent is undetermined
+                "crosswalk_pooled": min(1.0, 1 - (prior_ctx.mapping_confidence or 0.0) + 0.25),
                 "default": 1.0,
             }[prior_ctx.source]
             flags = {
@@ -408,6 +410,11 @@ class ExposureEngine:
             )
         if self.dictionary.review_status == "unreviewed":
             lim.append("Priors do dicionário de capacidades de IA não foram revisados por especialistas.")
+        if prior_ctx.source == "crosswalk_pooled":
+            lim.append(
+                f"Priors E6–E10 são a média de ocupações O*NET empatadas no crosswalk ({prior_ctx.from_occupation}); "
+                "a equivalência exata depende de revisão humana."
+            )
         if prior_ctx.source == "crosswalk_transfer":
             lim.append(
                 f"Priors E6–E10 transferidos de {prior_ctx.from_occupation} via crosswalk "

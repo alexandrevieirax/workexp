@@ -1,0 +1,22 @@
+flowchart LR
+    src["Fontes oficiais<br/>CBO · ESCO · O*NET · AEI"]
+    ingest["Ingestão + proveniência<br/>(versão, hash, data)"]
+    norm["Normalização<br/>texto e escalas"]
+    cw["Crosswalk composto<br/>(revisão humana)"]
+    emb["Embeddings<br/>+ calibração no benchmark"]
+    cap["Dicionário de capacidades<br/>de IA versionado"]
+    dims["Dimensões E1–E14<br/>por tarefa"]
+    out["Exposição · Automação<br/>Aumento · Transformação"]
+    agg["Agregação ponderada<br/>+ Monte Carlo + sensibilidade"]
+    ui["API · Página da ocupação<br/>Área Sobre"]
+    src --> ingest
+    ingest --> norm
+    norm --> cw
+    cw --> dims
+    dims --> out
+    out --> agg
+    agg --> ui
+    norm --> emb
+    cap --> emb
+    emb --> dims
+    cw -. priors .-> dims

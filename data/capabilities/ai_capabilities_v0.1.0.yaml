@@ -1,0 +1,252 @@
+# AI capability dictionary v0.1.0
+# Numeric priors (0-1) are PROVISIONAL EXPERT PRIORS drafted for the vertical slice; every entry has
+# review_status: unreviewed until a human panel validates it (risk R03, R09).
+#   technical_capability : how reliably current systems perform the capability on typical inputs
+#   maturity             : technology readiness / deployment maturity (cf. TRL)
+#   data_infrastructure  : how commonly the required data and tooling are available in organizations
+#   supervision_need     : how much human oversight outputs typically need
+#   augmentation_affinity: tendency to be used to augment (vs replace) the human step
+#   automation_affinity  : tendency to be used to automate the step end-to-end
+version: "0.1.0"
+released_at: "2026-11-02"
+valid_until: "2027-05-02"
+status: draft
+review_status: unreviewed
+families:
+  A:
+    name: Linguagem e comunicação
+    defaults:
+      modality: [text]
+      input_requirements: "Texto digital ou documentos convertíveis em texto"
+      output_type: text
+      autonomy_levels: [assistive, supervised_autonomous]
+      technologies: [large language models, transformers, retrieval]
+      limitations: ["Alucinações e erros factuais", "Sensibilidade a instruções", "Desempenho menor em domínios e idiomas pouco representados"]
+      risks: ["Desinformação", "Vazamento de dados", "Viés"]
+      references: [eloundou2024gpts, noy2023experimental, handa2025which, maslej2025aiindex]
+      priors: {technical_capability: 0.75, maturity: 0.75, data_infrastructure: 0.75, supervision_need: 0.55, augmentation_affinity: 0.70, automation_affinity: 0.50}
+    capabilities:
+      - {id: A.01, name: Geração de texto, definition: "Produzir textos originais (relatórios, correspondências, propostas) a partir de instruções e insumos.",
+         examples: ["Draft status reports from meeting notes", "Write memos and letters", "Redigir relatórios e correspondências", "Draft proposals"],
+         negative_examples: ["Deliver a speech in person to an audience", "Operate a printing press"], priors: {technical_capability: 0.80, maturity: 0.80}}
+      - {id: A.02, name: Resumo, definition: "Condensar documentos ou conversas preservando informação essencial.",
+         examples: ["Summarize meeting notes", "Prepare summaries of technical documents", "Resumir documentos técnicos"], negative_examples: ["Physically file documents in cabinets"]}
+      - {id: A.03, name: Tradução, definition: "Traduzir texto entre idiomas mantendo sentido e registro.",
+         examples: ["Translate documents from one language to another", "Traduzir manuais técnicos"], negative_examples: ["Interpret in person at a live negotiation"], priors: {technical_capability: 0.80, automation_affinity: 0.60}}
+      - {id: A.04, name: Revisão textual, definition: "Revisar gramática, estilo, consistência e adequação de textos.",
+         examples: ["Edit and proofread written materials", "Review documents for accuracy and clarity", "Revisar textos e documentos"], negative_examples: ["Inspect physical products for defects"]}
+      - {id: A.05, name: Classificação textual, definition: "Atribuir categorias a textos (temas, prioridade, sentimento, conformidade).",
+         examples: ["Classify incoming requests by type", "Categorize customer complaints", "Classificar solicitações por prioridade"], negative_examples: ["Sort physical mail by hand"], priors: {automation_affinity: 0.65}}
+      - {id: A.06, name: Extração de informações, definition: "Identificar e estruturar entidades, campos e relações em documentos.",
+         examples: ["Extract data from forms and invoices", "Compile information from records", "Extrair dados de documentos"], negative_examples: ["Collect physical samples in the field"], priors: {automation_affinity: 0.65}}
+      - {id: A.07, name: Resposta a perguntas, definition: "Responder perguntas factuais ou procedimentais com base em conhecimento ou documentos fornecidos.",
+         examples: ["Answer questions from customers about products or services", "Respond to inquiries", "Responder dúvidas de usuários"], negative_examples: ["Provide emotional support to grieving families"]}
+      - {id: A.08, name: Recuperação semântica, definition: "Encontrar documentos ou trechos relevantes por significado, não apenas palavras-chave.",
+         examples: ["Search databases and archives for relevant information", "Locate regulations applicable to a case", "Pesquisar normas aplicáveis"], negative_examples: ["Search a building for missing persons"], priors: {technical_capability: 0.80, augmentation_affinity: 0.80}}
+      - {id: A.09, name: Geração aumentada por recuperação (RAG), definition: "Gerar respostas fundamentadas em fontes recuperadas, com citação.",
+         examples: ["Answer technical questions citing internal documentation", "Responder com base em manuais da empresa"], negative_examples: ["Repair a machine using a manual"], references: [lewis2020rag], priors: {maturity: 0.65}}
+      - {id: A.10, name: Análise documental, definition: "Analisar contratos, normas, prontuários ou especificações para identificar requisitos, riscos e inconsistências.",
+         examples: ["Review contracts for compliance", "Analyze specifications and requirements documents", "Analisar contratos e especificações"], negative_examples: ["Inspect construction sites"], priors: {technical_capability: 0.65, supervision_need: 0.70, augmentation_affinity: 0.80}}
+      - {id: A.11, name: Comunicação multimodal, definition: "Interagir combinando texto, imagem e voz em diálogos com pessoas.",
+         examples: ["Assist customers via chat with screenshots", "Atender clientes por chat"], negative_examples: ["Comfort a patient at the bedside"], modality: [text, image, audio], priors: {technical_capability: 0.60, maturity: 0.60}}
+  B:
+    name: Software e computação
+    defaults:
+      modality: [text, code]
+      input_requirements: "Repositórios de código, especificações, ambientes de execução"
+      output_type: code
+      autonomy_levels: [assistive, supervised_autonomous, agentic]
+      technologies: [code LLMs, coding agents, static analysis]
+      limitations: ["Erros sutis em código gerado", "Contexto limitado de bases grandes", "Segurança do código gerado"]
+      risks: ["Vulnerabilidades", "Dependência de ferramentas", "Licenciamento de código"]
+      references: [jimenez2024swebench, peng2023impact, handa2025which, maslej2025aiindex]
+      priors: {technical_capability: 0.70, maturity: 0.70, data_infrastructure: 0.80, supervision_need: 0.60, augmentation_affinity: 0.70, automation_affinity: 0.55}
+    capabilities:
+      - {id: B.01, name: Geração de código, definition: "Escrever código-fonte a partir de especificações em linguagem natural ou exemplos.",
+         examples: ["Implement a feature from a written specification", "Generate boilerplate code for a web application", "Desenvolver e codificar programas"], negative_examples: ["Install network cables in buildings"], priors: {technical_capability: 0.75}}
+      - {id: B.02, name: Depuração, definition: "Localizar e corrigir defeitos em software.",
+         examples: ["Fix bugs reported by users", "Trace the cause of a failing build", "Corrigir erros de software"], negative_examples: ["Repair mechanical equipment"], priors: {technical_capability: 0.70}}
+      - {id: B.03, name: Testes de software, definition: "Gerar e executar testes, procedimentos de verificação e validação.",
+         examples: ["Create automated test suites", "Write unit tests", "Elaborar testes de sistemas"], negative_examples: ["Test soil samples in a laboratory"]}
+      - {id: B.04, name: Migração e modernização, definition: "Adaptar código a novas plataformas, versões, hardware ou interfaces.",
+         examples: ["Port applications to a new operating system", "Migrate legacy systems", "Migrar sistemas legados"], negative_examples: ["Relocate office furniture"], priors: {technical_capability: 0.60}}
+      - {id: B.05, name: Documentação técnica, definition: "Produzir documentação de código, APIs e sistemas.",
+         examples: ["Prepare technical documentation for software", "Document programs", "Documentar sistemas"], negative_examples: ["Photograph equipment for insurance"], priors: {technical_capability: 0.80, automation_affinity: 0.60}}
+      - {id: B.06, name: Análise de requisitos, definition: "Elicitar, estruturar e verificar requisitos de software junto a partes interessadas.",
+         examples: ["Gather and structure user requirements for an application", "Estimate effort and feasibility of planned features", "Analisar requisitos de usuários"], negative_examples: ["Measure building dimensions on site"], priors: {technical_capability: 0.55, supervision_need: 0.70, augmentation_affinity: 0.85, automation_affinity: 0.25}}
+      - {id: B.07, name: Operação de agentes de software, definition: "Agentes que planejam e executam sequências de ações em ambientes de software com ferramentas.",
+         examples: ["Automate multi-step workflows across applications", "Run scripted deployments across servers", "Executar rotinas automatizadas"], negative_examples: ["Drive a delivery truck"], priors: {technical_capability: 0.50, maturity: 0.45, supervision_need: 0.80}}
+      - {id: B.08, name: Integração com ferramentas, definition: "Conectar sistemas por APIs, scripts e conectores.",
+         examples: ["Integrate systems through APIs", "Develop interfaces between applications", "Integrar sistemas"], negative_examples: ["Connect plumbing pipes"]}
+  C:
+    name: Dados e raciocínio analítico
+    defaults:
+      modality: [tabular, text]
+      input_requirements: "Dados estruturados acessíveis e documentados"
+      output_type: analysis
+      autonomy_levels: [assistive, supervised_autonomous]
+      technologies: [machine learning, statistical models, LLM data agents, optimization solvers]
+      limitations: ["Qualidade e viés dos dados", "Causalidade não identificável por correlação", "Mudança de distribuição"]
+      risks: ["Decisões automatizadas injustas", "Falsa precisão"]
+      references: [brynjolfsson2018what, maslej2025aiindex]
+      priors: {technical_capability: 0.65, maturity: 0.70, data_infrastructure: 0.60, supervision_need: 0.65, augmentation_affinity: 0.75, automation_affinity: 0.45}
+    capabilities:
+      - {id: C.01, name: Análise de dados, definition: "Explorar, limpar e analisar dados para responder perguntas.",
+         examples: ["Analyze data to identify trends", "Clean and transform datasets for analysis", "Analisar dados e indicadores"], negative_examples: ["Collect water samples from rivers"]}
+      - {id: C.02, name: Geração de consultas, definition: "Gerar consultas SQL e similares a partir de linguagem natural.",
+         examples: ["Write database queries", "Retrieve data from databases", "Consultar bancos de dados"], negative_examples: ["Interview witnesses"], priors: {technical_capability: 0.75, automation_affinity: 0.55}}
+      - {id: C.03, name: Reconhecimento de padrões, definition: "Detectar padrões, anomalias e agrupamentos em dados.",
+         examples: ["Detect fraud or anomalies in transactions", "Identificar padrões e anomalias"], negative_examples: ["Recognize a colleague's mood in a meeting"]}
+      - {id: C.04, name: Previsão, definition: "Estimar valores futuros ou probabilidades a partir de dados históricos.",
+         examples: ["Forecast demand or sales", "Prever demanda"], negative_examples: ["Predict a patient's preferences without data"]}
+      - {id: C.05, name: Otimização, definition: "Encontrar soluções ótimas sob restrições (rotas, escalas, alocação).",
+         examples: ["Optimize schedules and routes", "Otimizar escalas e rotas"], negative_examples: ["Negotiate a union agreement"], technologies: [operations research, solvers], priors: {technical_capability: 0.75, maturity: 0.80}}
+      - {id: C.06, name: Simulação, definition: "Modelar sistemas para prever comportamento sob cenários.",
+         examples: ["Run what-if models of system behavior", "Simular cenários"], negative_examples: ["Rehearse a theatre play"]}
+      - {id: C.07, name: Apoio à decisão, definition: "Organizar evidências e alternativas para apoiar decisões humanas.",
+         examples: ["Compare options and recommend a course of action", "Summarize trade-offs for a decision maker", "Recomendar alternativas"], negative_examples: ["Sign off legally on a structural design"], priors: {technical_capability: 0.55, supervision_need: 0.80, augmentation_affinity: 0.90, automation_affinity: 0.20}}
+      - {id: C.08, name: Geração e interpretação de gráficos, definition: "Criar e interpretar visualizações de dados.",
+         examples: ["Prepare charts and graphs for reports", "Elaborar gráficos"], negative_examples: ["Paint a mural"], priors: {technical_capability: 0.70}}
+  D:
+    name: Visão computacional
+    defaults:
+      modality: [image, video]
+      input_requirements: "Imagens/vídeos com qualidade e enquadramento adequados; dados rotulados para domínio"
+      output_type: labels_or_regions
+      autonomy_levels: [assistive, supervised_autonomous]
+      technologies: [CNN, vision transformers, multimodal models]
+      limitations: ["Mudança de iluminação/ambiente", "Casos raros", "Necessidade de dados rotulados"]
+      risks: ["Vigilância", "Erros em populações sub-representadas"]
+      references: [kirillov2023segment, maslej2025aiindex]
+      priors: {technical_capability: 0.65, maturity: 0.65, data_infrastructure: 0.50, supervision_need: 0.60, augmentation_affinity: 0.60, automation_affinity: 0.55}
+    capabilities:
+      - {id: D.01, name: Classificação de imagens, definition: "Atribuir categorias a imagens.", examples: ["Classify product images", "Classificar imagens"], negative_examples: ["Classify legal documents by topic"]}
+      - {id: D.02, name: Detecção de objetos, definition: "Localizar objetos em imagens ou vídeo.", examples: ["Detect objects in surveillance video", "Detectar objetos em vídeo"], negative_examples: ["Find a misplaced file in a database"]}
+      - {id: D.03, name: Segmentação, definition: "Delimitar regiões de interesse em imagens.", examples: ["Segment regions in medical images", "Segmentar imagens"], negative_examples: ["Segment customers by revenue"]}
+      - {id: D.04, name: Inspeção visual, definition: "Detectar defeitos ou não conformidades por imagem.", examples: ["Inspect products for defects using cameras", "Inspecionar defeitos visuais"], negative_examples: ["Inspect financial records"], priors: {technical_capability: 0.70, automation_affinity: 0.65}}
+      - {id: D.05, name: OCR, definition: "Converter texto em imagem em texto digital.", examples: ["Digitize printed forms", "Digitalizar formulários"], negative_examples: ["Write a novel"], priors: {technical_capability: 0.85, maturity: 0.90, automation_affinity: 0.80, supervision_need: 0.35}}
+      - {id: D.06, name: Análise de documentos visuais, definition: "Entender layout, tabelas e campos de documentos digitalizados.", examples: ["Process scanned invoices", "Processar notas fiscais digitalizadas"], negative_examples: ["Analyze a person's handwriting to judge character"], priors: {technical_capability: 0.75}}
+      - {id: D.07, name: Interpretação de imagens técnicas, definition: "Interpretar desenhos técnicos, plantas, radiografias ou imagens de satélite.", examples: ["Interpret blueprints or technical drawings", "Interpretar plantas e desenhos técnicos"], negative_examples: ["Draw blueprints by hand"], priors: {technical_capability: 0.50, supervision_need: 0.80, augmentation_affinity: 0.80, automation_affinity: 0.30}}
+  E:
+    name: Áudio e fala
+    defaults:
+      modality: [audio]
+      input_requirements: "Áudio com qualidade razoável; vocabulário de domínio"
+      output_type: text_or_audio
+      autonomy_levels: [assistive, supervised_autonomous]
+      technologies: [ASR, TTS, audio classifiers]
+      limitations: ["Ruído, sotaques e jargão", "Sobreposição de falantes"]
+      risks: ["Clonagem de voz", "Privacidade de conversas"]
+      references: [radford2023whisper, maslej2025aiindex]
+      priors: {technical_capability: 0.75, maturity: 0.75, data_infrastructure: 0.70, supervision_need: 0.45, augmentation_affinity: 0.55, automation_affinity: 0.65}
+    capabilities:
+      - {id: E.01, name: Transcrição, definition: "Converter fala em texto.", examples: ["Transcribe recorded dictation", "Transcrever gravações"], negative_examples: ["Transcribe music by ear onto sheet music"], priors: {technical_capability: 0.85}}
+      - {id: E.02, name: Síntese de voz, definition: "Gerar fala a partir de texto.", examples: ["Produce voice-over narration", "Gerar narração"], negative_examples: ["Sing at a live concert"]}
+      - {id: E.03, name: Identificação de eventos sonoros, definition: "Detectar e classificar eventos sonoros.", examples: ["Detect machine faults from sound", "Detectar falhas por som"], negative_examples: ["Tune a piano"], priors: {technical_capability: 0.60, maturity: 0.55}}
+      - {id: E.04, name: Tradução de fala, definition: "Traduzir fala entre idiomas.", examples: ["Translate spoken conversations", "Traduzir conversas"], negative_examples: ["Mediate a family conflict"], priors: {technical_capability: 0.65}}
+      - {id: E.05, name: Análise de chamadas, definition: "Analisar chamadas para qualidade, conformidade e sentimento.", examples: ["Monitor call center calls for quality", "Monitorar chamadas de atendimento"], negative_examples: ["Answer emergency calls and dispatch help"]}
+  F:
+    name: Criação multimídia
+    defaults:
+      modality: [image, video, audio, text]
+      input_requirements: "Instruções e referências; direitos sobre insumos"
+      output_type: media
+      autonomy_levels: [assistive, supervised_autonomous]
+      technologies: [diffusion models, generative video, LLMs]
+      limitations: ["Controle fino limitado", "Consistência entre peças", "Direitos autorais"]
+      risks: ["Deepfakes", "Violação de direitos autorais"]
+      references: [maslej2025aiindex, eloundou2024gpts]
+      priors: {technical_capability: 0.65, maturity: 0.60, data_infrastructure: 0.70, supervision_need: 0.60, augmentation_affinity: 0.75, automation_affinity: 0.45}
+    capabilities:
+      - {id: F.01, name: Geração de imagens, definition: "Gerar imagens a partir de descrições.", examples: ["Create illustrations for publications", "Criar ilustrações"], negative_examples: ["Photograph a wedding"]}
+      - {id: F.02, name: Edição de imagens, definition: "Editar e retocar imagens.", examples: ["Retouch photographs", "Editar fotografias"], negative_examples: ["Develop film in a darkroom"], priors: {technical_capability: 0.75}}
+      - {id: F.03, name: Geração de vídeo, definition: "Gerar ou editar vídeo.", examples: ["Produce short promotional videos", "Produzir vídeos"], negative_examples: ["Operate a camera crane on set"], priors: {technical_capability: 0.50, maturity: 0.45}}
+      - {id: F.04, name: Geração de áudio, definition: "Gerar música, efeitos ou trilhas.", examples: ["Compose background music", "Compor trilhas"], negative_examples: ["Perform music live"], priors: {technical_capability: 0.55}}
+      - {id: F.05, name: Criação de apresentações, definition: "Montar apresentações a partir de conteúdo.", examples: ["Prepare presentation slides", "Preparar apresentações"], negative_examples: ["Present to a board in person"]}
+      - {id: F.06, name: Geração de material instrucional, definition: "Produzir materiais didáticos, exercícios e avaliações.", examples: ["Develop instructional materials", "Prepare lesson plans", "Elaborar material didático"], negative_examples: ["Supervise students in a laboratory"], priors: {technical_capability: 0.70}}
+  G:
+    name: Robótica e sistemas autônomos
+    defaults:
+      modality: [sensor, physical]
+      input_requirements: "Ambiente instrumentado, hardware, integração física e segurança"
+      output_type: physical_action
+      autonomy_levels: [teleoperated, assistive, supervised_autonomous]
+      technologies: [industrial robots, mobile robots, motion planning, predictive maintenance models]
+      limitations: ["Ambientes não estruturados", "Custo de hardware", "Destreza fina", "Segurança"]
+      risks: ["Acidentes", "Responsabilidade civil"]
+      references: [maslej2025aiindex, brynjolfsson2018what]
+      priors: {technical_capability: 0.40, maturity: 0.45, data_infrastructure: 0.30, supervision_need: 0.75, augmentation_affinity: 0.50, automation_affinity: 0.55}
+    capabilities:
+      - {id: G.01, name: Percepção robótica, definition: "Perceber o ambiente físico por sensores.", examples: ["Monitor surroundings with sensors", "Monitorar ambiente com sensores"], negative_examples: ["Perceive customer dissatisfaction from tone"]}
+      - {id: G.02, name: Planejamento de movimento, definition: "Planejar trajetórias e sequências de ações físicas.", examples: ["Plan robot motion in a warehouse"], negative_examples: ["Plan a marketing campaign"]}
+      - {id: G.03, name: Navegação autônoma, definition: "Deslocar veículos ou robôs de forma autônoma.", examples: ["Drive vehicles autonomously", "Conduzir veículos"], negative_examples: ["Navigate a website"], priors: {technical_capability: 0.45}}
+      - {id: G.04, name: Controle de processos, definition: "Controlar máquinas e processos industriais em malha fechada.", examples: ["Control machines and processes", "Operar e controlar máquinas"], negative_examples: ["Control a project budget"], priors: {technical_capability: 0.60, maturity: 0.70, data_infrastructure: 0.45}}
+      - {id: G.05, name: Manipulação, definition: "Pegar, mover e montar objetos.", examples: ["Assemble components", "Load and unload materials", "Montar componentes"], negative_examples: ["Manipulate data in spreadsheets"], priors: {technical_capability: 0.35}}
+      - {id: G.06, name: Interação humano-robô, definition: "Colaboração física segura entre pessoas e robôs.", examples: ["Work alongside collaborative robots"], negative_examples: ["Collaborate with colleagues by email"], priors: {technical_capability: 0.35, maturity: 0.40}}
+      - {id: G.07, name: Manutenção preditiva, definition: "Prever falhas de equipamentos a partir de dados de sensores.", examples: ["Detect early signs of equipment degradation", "Predict equipment failures", "Monitorar equipamentos"], negative_examples: ["Repair the equipment by hand"], technologies: [time-series models, IoT], priors: {technical_capability: 0.60, maturity: 0.60, data_infrastructure: 0.40, augmentation_affinity: 0.70}}
+      - {id: G.08, name: Operação assistida, definition: "Sistemas que assistem operadores humanos na operação de equipamentos.", examples: ["Operate equipment with driver-assistance systems", "Operar equipamentos com assistência"], negative_examples: ["Operate a software application"], priors: {augmentation_affinity: 0.75}}
+  H:
+    name: Pesquisa e ciência
+    defaults:
+      modality: [text, data]
+      input_requirements: "Literatura, bases científicas, dados experimentais"
+      output_type: analysis
+      autonomy_levels: [assistive]
+      technologies: [LLMs, scientific ML, literature search]
+      limitations: ["Referências inventadas", "Validade experimental exige laboratório"]
+      risks: ["Má conduta científica", "Erros propagados"]
+      references: [maslej2025aiindex, dellacqua2023navigating]
+      priors: {technical_capability: 0.55, maturity: 0.55, data_infrastructure: 0.55, supervision_need: 0.80, augmentation_affinity: 0.85, automation_affinity: 0.25}
+    capabilities:
+      - {id: H.01, name: Busca bibliográfica, definition: "Localizar literatura relevante.", examples: ["Search scientific literature", "Pesquisar literatura científica"], negative_examples: ["Organize a physical library"], priors: {technical_capability: 0.70}}
+      - {id: H.02, name: Síntese de evidências, definition: "Sintetizar resultados de múltiplos estudos.", examples: ["Synthesize findings from studies", "Sintetizar evidências"], negative_examples: ["Run a clinical trial"]}
+      - {id: H.03, name: Geração de hipóteses, definition: "Propor hipóteses testáveis.", examples: ["Formulate research hypotheses", "Formular hipóteses"], negative_examples: ["Test hypotheses at the bench"], priors: {technical_capability: 0.40}}
+      - {id: H.04, name: Desenho experimental, definition: "Planejar experimentos e protocolos.", examples: ["Design experiments", "Planejar experimentos"], negative_examples: ["Conduct experiments in the lab"], priors: {technical_capability: 0.45}}
+      - {id: H.05, name: Modelagem científica, definition: "Construir modelos matemáticos e computacionais de fenômenos.", examples: ["Develop mathematical models", "Desenvolver modelos matemáticos"], negative_examples: ["Build a physical scale model"]}
+      - {id: H.06, name: Simulação científica, definition: "Executar simulações computacionais.", examples: ["Run computational simulations", "Executar simulações"], negative_examples: ["Simulate an emergency drill with people"], priors: {technical_capability: 0.65, maturity: 0.70}}
+      - {id: H.07, name: Descoberta de materiais, definition: "Propor materiais/moléculas candidatos por ML.", examples: ["Screen candidate materials computationally"], negative_examples: ["Synthesize compounds in the lab"], priors: {technical_capability: 0.45, maturity: 0.40}}
+      - {id: H.08, name: Análise científica, definition: "Analisar dados experimentais.", examples: ["Analyze experimental data", "Analisar dados experimentais"], negative_examples: ["Collect field samples"]}
+  I:
+    name: Gestão e processos
+    defaults:
+      modality: [text, tabular, workflow]
+      input_requirements: "Processos documentados, sistemas integrados"
+      output_type: workflow_action
+      autonomy_levels: [assistive, supervised_autonomous, agentic]
+      technologies: [RPA, workflow engines, LLM agents, recommender systems]
+      limitations: ["Exceções não previstas", "Dependência de integração", "Contexto organizacional tácito"]
+      risks: ["Erros em escala", "Opacidade de decisões"]
+      references: [brynjolfsson2025generative, oecd2023employment]
+      priors: {technical_capability: 0.60, maturity: 0.65, data_infrastructure: 0.60, supervision_need: 0.65, augmentation_affinity: 0.60, automation_affinity: 0.55}
+    capabilities:
+      - {id: I.01, name: Automação de fluxos, definition: "Automatizar fluxos administrativos repetitivos.", examples: ["Process routine forms and records", "Automatizar rotinas administrativas", "Enter data into systems"], negative_examples: ["Lead a team through organizational change"], priors: {technical_capability: 0.70, automation_affinity: 0.75}}
+      - {id: I.02, name: Triagem, definition: "Priorizar e encaminhar casos.", examples: ["Route requests to appropriate staff", "Triar solicitações"], negative_examples: ["Triage patients physically in an emergency room"]}
+      - {id: I.03, name: Planejamento operacional, definition: "Planejar atividades, cronogramas e recursos.", examples: ["Plan and schedule project activities", "Planejar cronogramas"], negative_examples: ["Plan a family vacation together"], priors: {augmentation_affinity: 0.80, automation_affinity: 0.35}}
+      - {id: I.04, name: Monitoramento, definition: "Acompanhar indicadores e alertar desvios.", examples: ["Monitor project status and performance", "Monitorar indicadores"], negative_examples: ["Monitor children at a playground"]}
+      - {id: I.05, name: Conformidade, definition: "Verificar aderência a normas e políticas.", examples: ["Check documents against regulatory checklists", "Flag deviations from internal policies", "Verificar conformidade"], negative_examples: ["Enforce rules in person as a police officer"], priors: {supervision_need: 0.80, augmentation_affinity: 0.75}}
+      - {id: I.06, name: Gestão do conhecimento, definition: "Organizar, manter e disponibilizar conhecimento organizacional.", examples: ["Maintain knowledge bases", "Organizar base de conhecimento"], negative_examples: ["Mentor a new employee over lunch"]}
+      - {id: I.07, name: Atendimento, definition: "Atender clientes por canais digitais.", examples: ["Handle customer support tickets", "Respond to customer inquiries", "Atender clientes"], negative_examples: ["Serve food to restaurant customers"], references: [brynjolfsson2025generative], priors: {technical_capability: 0.65, augmentation_affinity: 0.70}}
+      - {id: I.08, name: Personalização, definition: "Adaptar conteúdos, ofertas ou trilhas a perfis.", examples: ["Personalize learning paths", "Personalizar ofertas"], negative_examples: ["Tailor a suit"]}
+  J:
+    name: Capacidades sociotécnicas
+    defaults:
+      modality: [human_ai_system]
+      input_requirements: "Pessoas capacitadas, processos de governança"
+      output_type: oversight
+      autonomy_levels: [human_led]
+      technologies: [evaluation tooling, guardrails, audit logs]
+      limitations: ["Dependem de competências humanas e de organização"]
+      risks: ["Supervisão apenas formal (automation bias)"]
+      references: [dellacqua2023navigating, mitchell2019model, oecd2023employment]
+      priors: {technical_capability: 0.30, maturity: 0.40, data_infrastructure: 0.50, supervision_need: 0.90, augmentation_affinity: 0.95, automation_affinity: 0.05}
+      note: "Família J descreve competências humanas e organizacionais necessárias para usar IA; entra na correspondência para sinalizar demanda de supervisão, não para elevar automação."
+    capabilities:
+      - {id: J.01, name: Colaboração humano-IA, definition: "Dividir trabalho entre pessoas e IA de forma eficaz.", examples: ["Use AI assistants to draft and refine work", "Colaborar com assistentes de IA"], negative_examples: []}
+      - {id: J.02, name: Supervisão de agentes, definition: "Supervisionar agentes de IA que executam ações.", examples: ["Supervise automated systems", "Monitor and correct actions taken by AI agents", "Supervisionar sistemas automatizados"], negative_examples: []}
+      - {id: J.03, name: Avaliação crítica, definition: "Avaliar criticamente saídas de IA.", examples: ["Evaluate outputs for accuracy", "Avaliar resultados criticamente"], negative_examples: []}
+      - {id: J.04, name: Validação de resultados, definition: "Verificar e validar resultados antes do uso.", examples: ["Validate results against specifications", "Validar resultados"], negative_examples: []}
+      - {id: J.05, name: Governança de IA, definition: "Definir políticas, papéis e controles para uso de IA.", examples: ["Establish policies for technology use", "Definir políticas de uso de IA"], negative_examples: []}
+      - {id: J.06, name: Segurança de IA, definition: "Proteger sistemas de IA contra uso indevido e falhas.", examples: ["Assess security risks of systems", "Avaliar riscos de segurança"], negative_examples: []}
+      - {id: J.07, name: Ética em IA, definition: "Identificar e mitigar impactos éticos.", examples: ["Assess ethical implications of decisions", "Avaliar implicações éticas"], negative_examples: []}
+      - {id: J.08, name: Explicabilidade, definition: "Explicar decisões e resultados de modelos.", examples: ["Explain model results to stakeholders", "Explicar resultados de modelos"], negative_examples: []}
+      - {id: J.09, name: Proteção de dados, definition: "Garantir privacidade e conformidade com leis de proteção de dados (ex.: LGPD).", examples: ["Ensure data privacy compliance", "Garantir conformidade com a LGPD"], negative_examples: []}

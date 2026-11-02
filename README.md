@@ -1,0 +1,110 @@
+# AI Occupational and Curriculum Exposure Observatory
+
+Sistema auditável para estimar a **exposição das tarefas** de ocupações (CBO, ESCO, O*NET) a capacidades de
+inteligência artificial, separando **exposição potencial, uso observado, automação, aumento de capacidade e
+transformação**, com incerteza explícita e rastreabilidade até fonte, versão, modelo e commit.
+
+> Exposição à IA **não** significa substituição de trabalhadores, desaparecimento da profissão, automação
+> integral, risco de desemprego nem obsolescência de competências. A metodologia 0.1.0 **não está calibrada**.
+
+Estado: **fase 0–1 + fatia vertical** (ver [relatório da primeira execução](docs/reports/2026-11-02-first-execution.md)).
+
+## Início rápido (sem Docker, SQLite)
+
+```bash
+pip install -e ".[dev]"
+```
+
+```bash
+python -m observatory.cli download-onet --version 31.0
+```
+
+```bash
+python -m observatory.cli download-aei --release release_2025_03_27
+```
+
+```bash
+python -m observatory.cli slice
+```
+
+```bash
+python -m observatory.cli serve
+```
+
+Abra http://127.0.0.1:8000 (ocupações), `/occupations/{id}` (página da ocupação) e `/about` (área "Sobre").
+A CBO exige download manual (reCAPTCHA) — veja [docs/data-sources.md](docs/data-sources.md).
+
+## Configuração padrão (PostgreSQL + pgvector)
+
+```bash
+docker compose up -d db
+```
+
+```bash
+alembic upgrade head
+```
+
+Defina `OBS_DATABASE_URL` (ver `.env.example`). O tipo `VectorType` usa `pgvector` no PostgreSQL e JSON no SQLite.
+
+## Modelos de embeddings
+
+O padrão é uma **linha de base lexical offline** (`baseline/char-ngram-hashing@v1-d2048`), escolhida para o MVP
+rodar sem downloads nem API paga — **não é um modelo semântico**. Para avaliar modelos multilíngues:
+
+```bash
+pip install -e ".[ml]"
+```
+
+```bash
+python -m observatory.cli slice --provider sentence-transformers:intfloat/multilingual-e5-large
+```
+
+## Governança metodológica
+
+Pesos, limiares e listas de elementos ficam em [`config/methodology/`](config/methodology/). Qualquer mudança
+em fórmulas, pesos, léxico ou dicionário de capacidades altera o *fingerprint*; o pipeline se recusa a rodar e
+`tests/test_about_consistency.py` falha até que versão, changelog, área "Sobre" e referências sejam atualizados.
+
+```bash
+python -m observatory.cli methodology-status
+```
+
+## Estrutura do repositório
+
+```
+config/methodology/      YAML da metodologia, léxico, registro de versões (fingerprint)
+data/capabilities/       Dicionário versionado de capacidades de IA
+data/validation/         Benchmark do domínio (rótulos rascunho, não ouro)
+data/raw/                Fontes oficiais baixadas (não versionadas)
+docs/                    Fundamentos, metodologia, fontes, riscos, ADRs, model/data cards, changelog, referências
+migrations/              Alembic
+src/observatory/
+  connectors/            O*NET, ESCO (API), CBO (arquivo), Anthropic Economic Index
+  db/                    Modelo SQLAlchemy com proveniência, dicionário de dados gerado
+  normalization/         Texto e escalas (uma escala por vez, nunca somadas brutas)
+  embeddings/            Provedores (linha de base, Sentence Transformers, API externa) + cache
+  capabilities/          Carga/validação do dicionário + detecção de vazamento
+  crosswalk/             Crosswalk composto com nulo empírico; sem aceitação automática
+  exposure/              Dimensões E1–E14, fórmulas, pesos, Monte Carlo, sensibilidade
+  benchmark/             Métricas (P@k, R@k, MAP, nDCG, Spearman, FPR/FNR)
+  methodology/           Registro e fingerprint
+  about/                 Conteúdo "Sobre" (pt-BR, en), renderização dinâmica, figuras, consistência
+  api/                   FastAPI (JSON + HTML acessível)
+  pipeline/              Ingestão e fatia vertical
+tests/                   pytest (fixtures sintéticas marcadas)
+frontend/                Next.js (fase 7) — ver frontend/README.md
+```
+
+Planejamento das próximas fases: [docs/repository-structure.md](docs/repository-structure.md).
+
+## Documentação
+
+[Fundamentos](docs/research-foundations.md) · [Metodologia v0](docs/methodology-v0.md) ·
+[Fontes](docs/data-sources.md) · [Dicionário de dados](docs/data-dictionary.md) ·
+[Riscos](docs/risk-register.md) · [ADR 0001](docs/adr/0001-system-architecture.md) ·
+[Model card](docs/model-card.md) · [Data cards](docs/data-cards.md) ·
+[Changelog metodológico](docs/CHANGELOG-methodology.md) · [Contribuição](CONTRIBUTING.md)
+
+## Licença
+
+Código: Apache-2.0. Dados: licença de cada fonte (ver área "Sobre" → Licenças).

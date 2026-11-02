@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "observatory-api",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "observatory.api.app:app", "--app-dir", "src", "--port", "8000"],
+      "port": 8000
+    }
+  ]
+}

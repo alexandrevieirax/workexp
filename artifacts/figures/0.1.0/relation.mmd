@@ -1,0 +1,8 @@
+flowchart TB
+    O["Ocupação<br/>(CBO / ESCO / O*NET)"] -->|"possui (peso w)"| T["Tarefa / atividade / competência"]
+    T -->|"similaridade calibrada (E1)"| K["Capacidade de IA<br/>(dicionário versionado)"]
+    K -->|"priors E2, E11, E12, E13"| D["Dimensões da tarefa"]
+    U["Uso observado (AEI)"] -->|E3| D
+    W["Work Context / Activities O*NET"] -->|"priors E6–E10"| D
+    D --> R["Exposição · Automação · Aumento · Transformação · Classe"]
+    R -->|"Σ w·x"| I["Índices ocupacionais OAE / OAP / OAuP / OTP"]

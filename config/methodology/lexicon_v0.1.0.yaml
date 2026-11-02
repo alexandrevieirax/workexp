@@ -1,0 +1,27 @@
+# Task-level lexical cues (stems, accent-folded, lowercase). Matching is on word starts.
+# pos: increases the dimension; neg: decreases it. Bilingual (en / pt).
+physical_requirement:
+  pos: [install, repair, assembl, lift, operat, drive, weld, clean, load, cut, paint, examin patient,
+        instal, repar, mont, levant, dirig, sold, limp, carreg, cort, pint, manuse]
+  neg: [write, document, analyz, program, report, review, plan, schedul,
+        escrev, document, analis, program, relat, revis, planej, agend]
+social_requirement:
+  pos: [confer, consult, negotiat, counsel, teach, train, interview, persuad, meet with, advis, supervis, coordinat,
+        confer, consult, negoci, aconselh, ensin, trein, entrevist, persuad, reun, orient, supervis, coorden, atend]
+  neg: [code, compil, calculat, store, retriev, test, debug, modif, codific, compil, calcul, armazen, test, depur]
+accountability_requirement:
+  pos: [approv, certif, sign, ensure complian, safety, legal, authoriz, prescrib, diagnos, supervis, audit,
+        aprov, certific, assin, garant, seguranc, legal, autoriz, prescrev, diagnost, supervis, audit, laud]
+  neg: []
+human_judgment_requirement:
+  pos: [determin, evaluat, decid, design, plan, recommend, assess, judg, prioritiz, develop strateg,
+        determin, avali, decid, projet, planej, recomend, julg, prioriz, estrateg, defin]
+  neg: [record, enter data, file, copy, transcrib, regist, digit, arquiv, copi, transcrev]
+organizational_context:
+  pos: [confer with, coordinat, project, organization, department, stakeholder, customer, client,
+        coorden, projet, organiz, departament, client, setor, equip]
+  neg: []
+process_standardization:
+  pos: [record, enter, compil, updat, maintain record, process, verif, check, test, store, retriev, monitor,
+        regist, digit, compil, atualiz, process, verific, confer, test, armazen, monitor]
+  neg: [design, creat, develop new, innovat, research, negotiat, projet, cri, desenvolv nov, inov, pesquis, negoci]

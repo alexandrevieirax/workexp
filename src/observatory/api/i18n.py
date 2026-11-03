@@ -48,6 +48,7 @@ STRINGS = {
         "about": "Sobre o sistema",
         "warnings": "Alertas metodológicos",
         "nav_crosswalks": "Revisão de crosswalks",
+        "nav_annotation": "Anotação do benchmark",
         "review_title": "Revisão humana dos crosswalks",
         "review_intro": "Nenhum mapeamento é aceito automaticamente. Escolha o equivalente de cada ocupação: a decisão "
         "fica registrada (revisor, justificativa, histórico, auditoria), é herdada pelas próximas execuções e, "
@@ -113,6 +114,7 @@ STRINGS = {
         "about": "About the system",
         "warnings": "Methodological alerts",
         "nav_crosswalks": "Crosswalk review",
+        "nav_annotation": "Benchmark annotation",
         "review_title": "Human review of crosswalks",
         "review_intro": "No mapping is accepted automatically. Choose each occupation's equivalent: the decision is "
         "recorded (reviewer, justification, history, audit), carried into later runs and, when accepted, sets which "

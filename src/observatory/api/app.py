@@ -437,6 +437,94 @@ async def page_review(request: Request, lang: str = "pt-BR", s: Session = Depend
     return HTMLResponse(H.layout(H.t(lang)["review_title"], body, lang), status_code=status_code)
 
 
+def _annotation_context():
+    from observatory.validation.annotation import load_tasks
+
+    path = get_settings().validation_dir / "annotation_tasks_v0.1.0.json"
+    if not path.exists():
+        raise HTTPException(503, "annotation tasks not prepared: python -m observatory.cli prepare-annotation")
+    m = load_methodology()
+    d = load_dictionary(get_settings().capabilities_dir / m.capability_dictionary_file)
+    caps = {
+        c.capability_id: {"name": c.name, "definition": c.definition, "examples": c.examples} for c in d.capabilities
+    }
+    return load_tasks(path), caps
+
+
+@app.get("/annotations", response_class=HTMLResponse)
+def page_annotations(
+    annotator: str | None = None,
+    lang: str = "pt-BR",
+    msg: str | None = None,
+    skip: str | None = None,
+    s: Session = Depends(get_session),
+):
+    from observatory.validation.annotation import AnnotationError, progress, validate_annotator
+
+    tasks, caps = _annotation_context()
+    title = H._at(lang)["title"]
+    if not annotator:
+        return H.layout(title, H.annotation_page(lang, None, None, 0, len(tasks["tasks"]), caps, msg), lang)
+    try:
+        annotator = validate_annotator(annotator)
+    except AnnotationError:
+        body = H.annotation_page(
+            lang,
+            None,
+            None,
+            0,
+            len(tasks["tasks"]),
+            caps,
+            "Nome inválido (2 a 64 caracteres)." if lang != "en" else "Invalid name.",
+            True,
+        )
+        return HTMLResponse(H.layout(title, body, lang), status_code=400)
+    done, nxt = progress(s, annotator, tasks)
+    if skip:  # move a skipped item to the end of this session's queue
+        pending = [t for t in tasks["tasks"] if t["item_id"] not in done]
+        nxt = next((t for t in pending if t["item_id"] != skip), nxt)
+    body = H.annotation_page(lang, annotator, nxt, len(done), len(tasks["tasks"]), caps, msg)
+    return H.layout(title, body, lang)
+
+
+@app.post("/annotations", response_class=HTMLResponse)
+async def save_annotations(request: Request, lang: str = "pt-BR", s: Session = Depends(get_session)):
+    from urllib.parse import quote
+
+    from observatory.validation.annotation import AnnotationError, progress, save_annotation
+
+    tasks, caps = _annotation_context()
+    form = await request.form()
+    annotator, item_id = str(form.get("annotator", "")), str(form.get("item_id", ""))
+    task = next((t for t in tasks["tasks"] if t["item_id"] == item_id), None)
+    labels = {}
+    for cap in (task or {}).get("pairs", []):
+        v = form.get(f"label_{cap}")
+        labels[cap] = None if v in (None, "", "na") else int(v)
+    try:
+        if task is None:
+            raise AnnotationError("unknown item")
+        save_annotation(s, annotator, task, labels, str(form.get("comment", "")))
+        s.commit()
+    except (AnnotationError, ValueError) as exc:
+        s.rollback()
+        done, _ = progress(s, annotator, tasks) if annotator else (set(), None)
+        msg = {"label at least one pair": "Responda pelo menos um par (ou pule a tarefa)."}.get(str(exc), str(exc))
+        body = H.annotation_page(lang, annotator or None, task, len(done), len(tasks["tasks"]), caps, msg, True)
+        return HTMLResponse(H.layout(H._at(lang)["title"], body, lang), status_code=400)
+    q = "&lang=en" if lang == "en" else ""
+    saved = H._at(lang)["saved"]
+    return RedirectResponse(f"/annotations?annotator={quote(annotator)}&msg={quote(saved)}{q}", 303)
+
+
+@app.get("/annotations/agreement", response_class=HTMLResponse)
+def page_agreement(lang: str = "pt-BR", s: Session = Depends(get_session)):
+    from observatory.validation.annotation import agreement
+
+    tasks, _ = _annotation_context()
+    return H.layout(H._at(lang)["agreement"], H.agreement_page(agreement(s, tasks), lang), lang)
+
+
 @app.get("/about", response_class=HTMLResponse)
 def page_about(lang: str = "pt-BR") -> str:
     return H.layout(H.t(lang)["about"], H.about_page(render_about(lang), lang), lang, mermaid=True)

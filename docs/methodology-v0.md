@@ -164,7 +164,15 @@ desconhecido = 0,5 (neutro), sinalizado. Correspondências < 0,60 nunca são
 aceitas automaticamente; nenhuma é aceita automaticamente na v0 — todas nascem
 `proposed` e exigem revisão humana.
 
-## 10. O que muda a versão metodológica
+## 10. Validação semântica (anotação humana)
+
+O conjunto ouro do benchmark nasce da anotação cega em `/annotations` por pelo menos duas pessoas. Cada par
+recebe 2 (relacionada), 1 (parcialmente), 0 (não relacionada) ou "não sei" (não gravado). O rótulo ouro é a
+mediana das pessoas. A concordância é publicada (κ ponderado por par; α de Krippendorff do grupo) e, se
+α < 0,667, o conjunto não deve ser usado como ouro sem revisar os critérios. Substituir o rascunho da IA pelo
+conjunto ouro na calibração é uma mudança de metodologia (nova versão).
+
+## 11. O que muda a versão metodológica
 
 Qualquer alteração no YAML da metodologia, no módulo de fórmulas
 (`src/observatory/exposure/formulas.py`) ou no dicionário de capacidades altera

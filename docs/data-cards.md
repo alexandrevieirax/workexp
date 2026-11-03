@@ -46,7 +46,11 @@ Formato inspirado em Gebru et al. (2021). Hash e data de cada arquivo usados fic
 
 - **Conteúdo:** 36 pares tarefa–capacidade (28 en, 8 pt) e 10 pares de ocupações (incluindo falsos amigos).
 - **Rótulos:** rascunho gerado por IA (`annotator: ai_draft`, `is_gold: false`). **Não usar como ouro.**
-  Próximo passo: anotação por ≥ 2 especialistas, κ de Cohen / α de Krippendorff.
+- **Anotação humana:** a página `/annotations` coleta rótulos cegos (sem a sugestão do sistema, ordem
+  embaralhada) para 265 pares. Eles incluem 66 pares sugeridos pelo modelo que não estavam no rascunho, para
+  detectar relações esquecidas. Os rótulos ficam em `validation_sample` (um por anotador e par, com data e
+  comentário). A concordância é medida pelo κ de Cohen ponderado (quadrático) e pelo α de Krippendorff
+  (intervalar), com os limiares de Krippendorff: ≥ 0,80 confiável; 0,667–0,80 apenas conclusões provisórias.
 - **Exclusão deliberada:** a ocupação avaliada na fatia (15-1252.00) não está no benchmark.
 
 ## Dados sintéticos

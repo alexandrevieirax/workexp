@@ -14,6 +14,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -466,9 +467,13 @@ class CurriculumExposureAssessment(Base):
 
 # --------------------------------------------------------------------------- validation / governance
 class ValidationSample(Base):
+    """One label for one benchmark pair by one annotator (human annotations are never mixed with AI drafts)."""
+
     __tablename__ = "validation_sample"
+    __table_args__ = (Index("ix_validation_sample_item", "sample_set", "item_id", "right_ref", "annotator"),)
     id: Mapped[int] = mapped_column(primary_key=True)
     sample_set: Mapped[str] = mapped_column(String(64))
+    item_id: Mapped[str | None] = mapped_column(String(64), comment="Benchmark item id (e.g. tc-001)")
     item_type: Mapped[str] = mapped_column(String(32), comment="task_capability | occupation_pair")
     left_text: Mapped[str] = mapped_column(Text)
     right_ref: Mapped[str] = mapped_column(String(255))
@@ -478,6 +483,8 @@ class ValidationSample(Base):
     annotator: Mapped[str] = mapped_column(String(64))
     is_gold: Mapped[bool] = mapped_column(Boolean, default=False)
     is_synthetic: Mapped[bool] = mapped_column(Boolean, default=False)
+    comment: Mapped[str | None] = mapped_column(Text, comment="Annotator's free-text note")
+    created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class ExpertReview(Base):

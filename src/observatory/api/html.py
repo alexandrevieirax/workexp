@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from html import escape as e
 from typing import Any
+from urllib.parse import quote
 
 from observatory.api.i18n import t
 from observatory.exposure.formulas import TASK_CLASSES
@@ -34,6 +35,7 @@ fieldset{border:1px solid var(--line);border-radius:6px;padding:8px 12px}
 form.review textarea{min-height:56px}.status-accepted{color:var(--good);font-weight:700}
 .status-rejected{color:#b3261e;font-weight:700}.msg{border-left:4px solid var(--accent);padding:8px 12px;
 background:var(--card);margin:12px 0}.msg.err{border-color:#b3261e}tr.decided-accepted{outline:2px solid var(--good)}
+label.grade{margin-right:14px;white-space:nowrap}
 input,button,select{font:inherit;padding:6px 8px}h1{font-size:1.6rem}h2{margin-top:2rem}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 """
@@ -54,6 +56,7 @@ def layout(title: str, body: str, lang: str = "pt-BR", mermaid: bool = False) ->
 <style>{CSS}</style></head><body><a class="skip" href="#main">{s["skip"]}</a>
 <header class="top"><div class="in"><span class="brand">{e(s["app_name"])}</span><nav aria-label="principal">
 <a href="/{q}">{s["nav_home"]}</a><a href="/crosswalks{q}">{s["nav_crosswalks"]}</a>
+<a href="/annotations{q}">{s["nav_annotation"]}</a>
 <a href="/about{q}">{s["nav_about"]}</a>
 <a href="?lang={other[0]}" lang="{other[0]}">{other[1]}</a></nav></div></header>
 <main id="main"><p class="disclaimer" role="note">{e(s["disclaimer"])}</p>{body}</main>
@@ -541,3 +544,202 @@ def review_page(
             f"<details><summary>{r['details']}</summary>{_tech_table(g, q, lang)}</details></section>"
         )
     return "".join(parts)
+
+
+ANNOT_TEXT = {
+    "pt-BR": {
+        "title": "Anotação do benchmark",
+        "intro": "Você vai julgar se uma capacidade de IA é capaz de realizar ou apoiar diretamente uma tarefa de "
+        "trabalho. São 36 tarefas, cada uma com cerca de 7 capacidades. Suas respostas formam o conjunto de "
+        "referência (padrão-ouro) usado para medir e calibrar o sistema.",
+        "blind": "Para não influenciar sua resposta, a sugestão do sistema não é mostrada e a ordem é embaralhada.",
+        "how": "Como julgar: Relacionada = a capacidade realiza ou apoia diretamente uma parte central da tarefa. "
+        "Parcialmente = ajuda numa parte secundária ou sob condições. Não relacionada = não ajuda na tarefa. "
+        "Use “Não sei” quando não tiver segurança: a resposta não é gravada.",
+        "name": "Seu nome (o mesmo em todas as sessões)",
+        "start": "Começar",
+        "progress": "Progresso",
+        "task": "Tarefa",
+        "lang": "idioma",
+        "examples": "Exemplos",
+        "g2": "Relacionada",
+        "g1": "Parcialmente",
+        "g0": "Não relacionada",
+        "na": "Não sei",
+        "comment": "Comentário (opcional)",
+        "save": "Salvar e ir para a próxima",
+        "skip": "Pular esta tarefa",
+        "done": "Você anotou todas as tarefas. Obrigado!",
+        "saved": "Anotação salva.",
+        "agreement": "Concordância entre anotadores",
+        "see_agreement": "Ver concordância",
+        "annotators": "Anotadores",
+        "items": "Tarefas anotadas (por alguém)",
+        "pairs2": "Pares com 2 ou mais anotações",
+        "alpha": "Alfa de Krippendorff (intervalar)",
+        "pairwise": "Kappa de Cohen ponderado (quadrático) entre pares de anotadores",
+        "vs_draft": "Cada anotador comparado ao rascunho da IA",
+        "missing": "pares marcados como relacionados que não estavam no rascunho",
+        "interp": {
+            "reliable": "confiável (≥ 0,80)",
+            "tentative": "só para conclusões provisórias (0,667–0,80)",
+            "unreliable": "insuficiente (< 0,667): revisar critérios antes de usar como ouro",
+            "insufficient": "dados insuficientes: são necessários pelo menos 2 anotadores nos mesmos pares",
+        },
+        "gold_hint": "Quando houver concordância suficiente, exporte o conjunto ouro com:",
+        "n": "pares em comum",
+    },
+    "en": {
+        "title": "Benchmark annotation",
+        "intro": "You will judge whether an AI capability can perform or directly support a work task. There are "
+        "36 tasks, each with about 7 capabilities. Your answers form the reference (gold) set used to measure and "
+        "calibrate the system.",
+        "blind": "To avoid influencing you, the system's suggestion is hidden and the order is shuffled.",
+        "how": "How to judge: Related = performs or directly supports a central part of the task. Partially = helps "
+        "with a secondary part or under conditions. Unrelated = does not help. Use “Don't know” when unsure: "
+        "it is not recorded.",
+        "name": "Your name (the same in every session)",
+        "start": "Start",
+        "progress": "Progress",
+        "task": "Task",
+        "lang": "language",
+        "examples": "Examples",
+        "g2": "Related",
+        "g1": "Partially",
+        "g0": "Unrelated",
+        "na": "Don't know",
+        "comment": "Comment (optional)",
+        "save": "Save and go to the next",
+        "skip": "Skip this task",
+        "done": "You have annotated every task. Thank you!",
+        "saved": "Annotation saved.",
+        "agreement": "Inter-annotator agreement",
+        "see_agreement": "See agreement",
+        "annotators": "Annotators",
+        "items": "Tasks annotated (by anyone)",
+        "pairs2": "Pairs with 2+ annotations",
+        "alpha": "Krippendorff's alpha (interval)",
+        "pairwise": "Quadratic-weighted Cohen's kappa per annotator pair",
+        "vs_draft": "Each annotator compared with the AI draft",
+        "missing": "pairs marked related that were not in the draft",
+        "interp": {
+            "reliable": "reliable (≥ 0.80)",
+            "tentative": "tentative conclusions only (0.667–0.80)",
+            "unreliable": "insufficient (< 0.667): revise criteria before using as gold",
+            "insufficient": "not enough data: at least 2 annotators on the same pairs are needed",
+        },
+        "gold_hint": "When agreement is sufficient, export the gold set with:",
+        "n": "common pairs",
+    },
+}
+
+
+def _at(lang: str) -> dict:
+    return ANNOT_TEXT.get(lang, ANNOT_TEXT["pt-BR"])
+
+
+def annotation_page(
+    lang: str,
+    annotator: str | None,
+    task: dict | None,
+    done: int,
+    total: int,
+    caps: dict,
+    message: str | None = None,
+    error: bool = False,
+) -> str:
+    a = _at(lang)
+    q = "&lang=en" if lang == "en" else ""
+    parts = [f"<h1>{a['title']}</h1>"]
+    if message:
+        parts.append(
+            f'<p class="msg{" err" if error else ""}" role="{"alert" if error else "status"}">{e(message)}</p>'
+        )
+    if not annotator:
+        parts.append(
+            f"<p>{e(a['intro'])}</p><p>{e(a['blind'])}</p><p>{e(a['how'])}</p>"
+            f'<form class="review" method="get" action="/annotations">'
+            f'<label for="ann">{a["name"]}</label><input id="ann" name="annotator" required minlength="2" '
+            f'maxlength="64" autocomplete="name">'
+            + ('<input type="hidden" name="lang" value="en">' if lang == "en" else "")
+            + f'<div><button type="submit">{a["start"]}</button></div></form>'
+            f'<p><a href="/annotations/agreement{q.replace("&", "?")}">{a["see_agreement"]}</a></p>'
+        )
+        return "".join(parts)
+    pct = 100 * done / total if total else 0
+    parts.append(
+        f'<p>{a["progress"]}: {done}/{total} <span class="bar" role="img" aria-label="{pct:.0f}%" '
+        f'style="display:inline-block;width:200px;vertical-align:middle"><span style="width:{pct:.0f}%"></span>'
+        f"</span> · {e(annotator)}</p><details><summary>{a['how'][:40]}…</summary><p>{e(a['how'])}</p>"
+        f"<p>{e(a['blind'])}</p></details>"
+    )
+    if task is None:
+        parts.append(
+            f'<p class="msg" role="status">{a["done"]}</p>'
+            f'<p><a href="/annotations/agreement{q.replace("&", "?")}">{a["see_agreement"]}</a></p>'
+        )
+        return "".join(parts)
+    rows = []
+    for cap_id in task["pairs"]:
+        c = caps[cap_id]
+        ex = "; ".join(c["examples"][:2])
+        radios = "".join(
+            f'<label class="grade"><input type="radio" name="label_{cap_id}" value="{v}" required> {a[k]}</label> '
+            for v, k in (("2", "g2"), ("1", "g1"), ("0", "g0"), ("na", "na"))
+        )
+        rows.append(
+            f"<fieldset><legend><strong>{e(c['name'])}</strong></legend><p>{e(c['definition'])}</p>"
+            f'<p class="muted">{a["examples"]}: {e(ex)}</p><div role="radiogroup">{radios}</div></fieldset>'
+        )
+    parts.append(
+        f'<section aria-labelledby="task"><h2 id="task">{a["task"]}</h2>'
+        f'<p class="card" lang="{e(task["language"])}"><strong>{e(task["text"])}</strong></p>'
+        f'<p class="muted">{a["lang"]}: {e(task["language"])} · {e(task["item_id"])}</p>'
+        f'<form class="review" method="post" action="/annotations{q.replace("&", "?")}">'
+        f'<input type="hidden" name="annotator" value="{e(annotator)}">'
+        f'<input type="hidden" name="item_id" value="{e(task["item_id"])}">{"".join(rows)}'
+        f'<label for="cm">{a["comment"]}</label><textarea id="cm" name="comment"></textarea>'
+        f'<div><button type="submit">{a["save"]}</button></div></form>'
+        f'<p><a href="/annotations?annotator={quote(annotator)}&skip={quote(task["item_id"])}{q}">{a["skip"]}</a></p>'
+        "</section>"
+    )
+    return "".join(parts)
+
+
+def agreement_page(stats: dict, lang: str) -> str:
+    a = _at(lang)
+
+    def num(x: float | None) -> str:
+        return "—" if x is None else f"{x:.3f}"
+
+    pair_rows = (
+        "".join(
+            f"<tr><td>{e(p['a'])} × {e(p['b'])}</td><td>{p['n']}</td><td>{num(p['kappa'])}</td></tr>"
+            for p in stats["pairwise"]
+        )
+        or '<tr><td colspan="3">—</td></tr>'
+    )
+    draft_rows = (
+        "".join(
+            f"<tr><td>{e(d['annotator'])}</td><td>{d['n']}</td><td>{num(d['kappa'])}</td>"
+            f"<td>{d['related_pairs_missing_from_draft']}</td></tr>"
+            for d in stats["vs_ai_draft"]
+        )
+        or '<tr><td colspan="4">—</td></tr>'
+    )
+    return (
+        f"<h1>{a['agreement']}</h1>"
+        f'<div class="table-wrap"><table><tbody>'
+        f'<tr><th scope="row">{a["annotators"]}</th><td>{e(", ".join(stats["annotators"]) or "—")}</td></tr>'
+        f'<tr><th scope="row">{a["items"]}</th><td>{stats["items_annotated"]}/{stats["total_items"]}</td></tr>'
+        f'<tr><th scope="row">{a["pairs2"]}</th><td>{stats["pairs_with_2plus"]}</td></tr>'
+        f'<tr><th scope="row">{a["alpha"]}</th><td>{num(stats["krippendorff_alpha"])} — '
+        f"{e(a['interp'][stats['interpretation']])}</td></tr></tbody></table></div>"
+        f'<h2>{a["pairwise"]}</h2><div class="table-wrap"><table><thead><tr><th scope="col">'
+        f'{a["annotators"]}</th><th scope="col">{a["n"]}</th><th scope="col">kappa</th></tr></thead>'
+        f"<tbody>{pair_rows}</tbody></table></div>"
+        f'<h2>{a["vs_draft"]}</h2><div class="table-wrap"><table><thead><tr><th scope="col">'
+        f'{a["annotators"]}</th><th scope="col">{a["n"]}</th><th scope="col">kappa</th>'
+        f'<th scope="col">{a["missing"]}</th></tr></thead><tbody>{draft_rows}</tbody></table></div>'
+        f"<p>{a['gold_hint']}</p><pre><code>python -m observatory.cli build-gold</code></pre>"
+    )

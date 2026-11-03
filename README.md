@@ -87,6 +87,30 @@ python -m observatory.cli admin-key
 Não use `echo ... >> .env` no PowerShell: ele grava o arquivo em UTF-16. O sistema agora lê esse formato, mas
 o comando acima é o caminho recomendado. Valores de exemplo ou chaves com menos de 16 caracteres são recusados.
 
+## Anotação humana do benchmark
+
+A página `/annotations` permite que especialistas rotulem os 265 pares tarefa ↔ capacidade de IA do
+benchmark: são 36 tarefas, uma por tela. Os pares incluem os do rascunho e as 3 capacidades que o modelo
+considera mais próximas. A anotação é **cega** (sem a sugestão do sistema, ordem embaralhada) e usa só o nome
+de quem anota. Para gerar as tarefas, ver a concordância e exportar o conjunto ouro:
+
+```bash
+python -m observatory.cli prepare-annotation
+```
+
+```bash
+python -m observatory.cli annotation-agreement
+```
+
+```bash
+python -m observatory.cli build-gold
+```
+
+`/annotations/agreement` mostra o kappa de Cohen ponderado por par de anotadores, o alfa de Krippendorff do grupo
+e a comparação de cada pessoa com o rascunho da IA. O conjunto ouro (mediana de pelo menos 2 anotadores) vai
+para `data/validation/gold/`, fora do fingerprint: usá-lo na calibração é uma mudança metodológica deliberada,
+que exige nova versão.
+
 ## Governança metodológica
 
 Pesos, limiares e listas de elementos ficam em [`config/methodology/`](config/methodology/). Qualquer mudança

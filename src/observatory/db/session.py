@@ -35,8 +35,29 @@ def make_engine(url: str | None = None) -> Engine:
 
 
 def create_schema(engine: Engine) -> None:
-    """Test/dev helper. Production schema is managed by Alembic."""
-    Base.metadata.create_all(engine)
+    """Bring a database to the latest schema. In-memory SQLite (unit tests) uses the models directly; any file or
+    server database goes through the Alembic migrations, so development and production share one path."""
+    if engine.url.database in (None, "", ":memory:"):
+        Base.metadata.create_all(engine)
+        return
+    migrate(str(engine.url.render_as_string(hide_password=False)))
+
+
+def migrate(url: str) -> None:
+    from alembic import command
+    from alembic.config import Config
+    from sqlalchemy import create_engine, inspect
+
+    from observatory.config import PROJECT_ROOT
+
+    cfg = Config(str(PROJECT_ROOT / "alembic.ini"))
+    cfg.set_main_option("script_location", str(PROJECT_ROOT / "migrations"))
+    cfg.set_main_option("sqlalchemy.url", url)
+    tables = set(inspect(create_engine(url)).get_table_names())
+    if tables and "alembic_version" not in tables:
+        # databases created before migrations were wired in (via create_all) match revision 0001
+        command.stamp(cfg, "0001")
+    command.upgrade(cfg, "head")
 
 
 def session_factory(engine: Engine) -> sessionmaker[Session]:

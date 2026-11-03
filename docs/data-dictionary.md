@@ -498,6 +498,7 @@
 |---|---|---|---|---|
 | `id` | INTEGER | no | PK |  |
 | `sample_set` | VARCHAR(64) | no |  |  |
+| `item_id` | VARCHAR(64) | yes |  | Benchmark item id (e.g. tc-001) |
 | `item_type` | VARCHAR(32) | no |  | task_capability \| occupation_pair |
 | `left_text` | TEXT | no |  |  |
 | `right_ref` | VARCHAR(255) | no |  |  |
@@ -507,3 +508,5 @@
 | `annotator` | VARCHAR(64) | no |  |  |
 | `is_gold` | BOOLEAN | no |  |  |
 | `is_synthetic` | BOOLEAN | no |  |  |
+| `comment` | TEXT | yes |  | Annotator's free-text note |
+| `created_at` | DATETIME | yes |  |  |

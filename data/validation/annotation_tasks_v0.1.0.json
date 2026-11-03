@@ -1,0 +1,1160 @@
+{
+ "sample_set": "benchmark_v0.1.0",
+ "created_at": "2026-11-03T13:38:04.424044+00:00",
+ "model": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
+ "seed": 20261103,
+ "tasks": [
+  {
+   "item_id": "tc-001",
+   "text": "Locate and correct data entry errors, or report them to supervisors.",
+   "language": "en",
+   "source_ref": "ONET:43-9021.00:11405",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "B.02",
+    "A.06",
+    "I.04",
+    "I.01",
+    "J.04",
+    "G.05",
+    "A.01",
+    "F.03",
+    "C.03",
+    "E.02"
+   ],
+   "model_top": [
+    "B.02",
+    "I.04",
+    "A.01"
+   ],
+   "draft": {
+    "A.06": 2,
+    "I.01": 2,
+    "J.04": 1,
+    "C.03": 1,
+    "G.05": 0,
+    "F.03": 0,
+    "E.02": 0
+   }
+  },
+  {
+   "item_id": "tc-002",
+   "text": "Compile, sort, and verify the accuracy of data before it is entered.",
+   "language": "en",
+   "source_ref": "ONET:43-9021.00:11402",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "F.01",
+    "C.01",
+    "J.04",
+    "G.03",
+    "A.04",
+    "I.01",
+    "H.07",
+    "A.06",
+    "J.03"
+   ],
+   "model_top": [
+    "J.03",
+    "J.04",
+    "A.04"
+   ],
+   "draft": {
+    "I.01": 2,
+    "A.06": 2,
+    "C.01": 1,
+    "J.04": 1,
+    "G.03": 0,
+    "F.01": 0,
+    "H.07": 0
+   }
+  },
+  {
+   "item_id": "tc-003",
+   "text": "Place conduit, pipes, or tubing, inside designated partitions, walls, or other concealed areas, and pull insulated wires or cables through the conduit to complete circuits between boxes.",
+   "language": "en",
+   "source_ref": "ONET:47-2111.00:2888",
+   "tags": [
+    "manual",
+    "physical_presence"
+   ],
+   "pairs": [
+    "A.03",
+    "G.04",
+    "C.02",
+    "B.01",
+    "G.05",
+    "F.04",
+    "A.01"
+   ],
+   "model_top": [
+    "G.04",
+    "F.04",
+    "G.05"
+   ],
+   "draft": {
+    "G.05": 1,
+    "A.01": 0,
+    "B.01": 0,
+    "C.02": 0,
+    "A.03": 0
+   }
+  },
+  {
+   "item_id": "tc-004",
+   "text": "Prepare sketches or follow blueprints to determine the location of wiring or equipment and to ensure conformance to building and safety codes.",
+   "language": "en",
+   "source_ref": "ONET:47-2111.00:2882",
+   "tags": [
+    "hybrid",
+    "regulated",
+    "physical_presence"
+   ],
+   "pairs": [
+    "G.07",
+    "E.02",
+    "F.04",
+    "A.03",
+    "A.10",
+    "I.05",
+    "D.07"
+   ],
+   "model_top": [
+    "D.07",
+    "A.10",
+    "G.07"
+   ],
+   "draft": {
+    "D.07": 2,
+    "I.05": 1,
+    "E.02": 0,
+    "F.04": 0,
+    "A.03": 0
+   }
+  },
+  {
+   "item_id": "tc-005",
+   "text": "Record patients' medical information and vital signs.",
+   "language": "en",
+   "source_ref": "ONET:29-1141.00:1841",
+   "tags": [
+    "hybrid",
+    "high_risk",
+    "physical_presence"
+   ],
+   "pairs": [
+    "I.04",
+    "F.01",
+    "H.07",
+    "B.01",
+    "I.01",
+    "E.01",
+    "A.02",
+    "A.06"
+   ],
+   "model_top": [
+    "I.04",
+    "A.02",
+    "A.06"
+   ],
+   "draft": {
+    "I.01": 1,
+    "E.01": 1,
+    "A.06": 1,
+    "F.01": 0,
+    "B.01": 0,
+    "H.07": 0
+   }
+  },
+  {
+   "item_id": "tc-006",
+   "text": "Administer medications to patients and monitor patients for reactions or side effects.",
+   "language": "en",
+   "source_ref": "ONET:29-1141.00:20413",
+   "tags": [
+    "manual",
+    "high_risk",
+    "regulated",
+    "physical_presence"
+   ],
+   "pairs": [
+    "B.04",
+    "I.04",
+    "C.02",
+    "F.05",
+    "J.04",
+    "A.03",
+    "H.08"
+   ],
+   "model_top": [
+    "H.08",
+    "I.04",
+    "J.04"
+   ],
+   "draft": {
+    "I.04": 1,
+    "A.03": 0,
+    "F.05": 0,
+    "B.04": 0,
+    "C.02": 0
+   }
+  },
+  {
+   "item_id": "tc-007",
+   "text": "Interpret laws, rulings and regulations for individuals and businesses.",
+   "language": "en",
+   "source_ref": "ONET:23-1011.00:3774",
+   "tags": [
+    "cognitive",
+    "regulated",
+    "high_risk"
+   ],
+   "pairs": [
+    "A.10",
+    "G.05",
+    "E.03",
+    "A.09",
+    "A.08",
+    "I.05",
+    "A.07",
+    "D.04"
+   ],
+   "model_top": [
+    "A.08",
+    "A.09",
+    "I.05"
+   ],
+   "draft": {
+    "A.10": 2,
+    "A.08": 2,
+    "A.09": 2,
+    "A.07": 1,
+    "I.05": 1,
+    "G.05": 0,
+    "D.04": 0,
+    "E.03": 0
+   }
+  },
+  {
+   "item_id": "tc-008",
+   "text": "Represent clients in court or before government agencies.",
+   "language": "en",
+   "source_ref": "ONET:23-1011.00:3779",
+   "tags": [
+    "social",
+    "regulated",
+    "physical_presence",
+    "high_risk"
+   ],
+   "pairs": [
+    "I.07",
+    "B.01",
+    "G.03",
+    "D.05",
+    "C.05",
+    "A.07",
+    "I.02"
+   ],
+   "model_top": [
+    "I.02",
+    "I.07",
+    "A.07"
+   ],
+   "draft": {
+    "B.01": 0,
+    "D.05": 0,
+    "G.03": 0,
+    "C.05": 0
+   }
+  },
+  {
+   "item_id": "tc-009",
+   "text": "Translate messages simultaneously or consecutively into specified languages, orally or by using hand signs, maintaining message content, context, and style as much as possible.",
+   "language": "en",
+   "source_ref": "ONET:27-3091.00:9328",
+   "tags": [
+    "cognitive",
+    "social"
+   ],
+   "pairs": [
+    "A.03",
+    "E.01",
+    "G.05",
+    "C.05",
+    "D.04",
+    "E.04",
+    "A.11"
+   ],
+   "model_top": [
+    "A.03",
+    "E.04",
+    "A.11"
+   ],
+   "draft": {
+    "A.03": 2,
+    "E.04": 2,
+    "E.01": 1,
+    "G.05": 0,
+    "C.05": 0,
+    "D.04": 0
+   }
+  },
+  {
+   "item_id": "tc-010",
+   "text": "Compile terminology and information to be used in translations, including technical terms such as those for legal or medical material.",
+   "language": "en",
+   "source_ref": "ONET:27-3091.00:9333",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "G.03",
+    "A.02",
+    "A.03",
+    "F.04",
+    "I.06",
+    "A.06",
+    "A.08"
+   ],
+   "model_top": [
+    "A.03",
+    "A.08",
+    "A.02"
+   ],
+   "draft": {
+    "A.03": 2,
+    "A.06": 2,
+    "I.06": 1,
+    "A.08": 1,
+    "G.03": 0,
+    "F.04": 0
+   }
+  },
+  {
+   "item_id": "tc-011",
+   "text": "Confer with customers by telephone or in person to provide information about products or services, take or enter orders, cancel accounts, or obtain details of complaints.",
+   "language": "en",
+   "source_ref": "ONET:43-4051.00:18565",
+   "tags": [
+    "social",
+    "hybrid"
+   ],
+   "pairs": [
+    "H.07",
+    "I.02",
+    "E.05",
+    "G.05",
+    "A.11",
+    "A.07",
+    "A.05",
+    "I.07",
+    "D.03"
+   ],
+   "model_top": [
+    "I.07",
+    "A.11",
+    "A.05"
+   ],
+   "draft": {
+    "I.07": 2,
+    "A.07": 2,
+    "E.05": 1,
+    "A.11": 1,
+    "I.02": 1,
+    "G.05": 0,
+    "H.07": 0,
+    "D.03": 0
+   }
+  },
+  {
+   "item_id": "tc-012",
+   "text": "Keep records of customer interactions or transactions, recording details of inquiries, complaints, or comments, as well as actions taken.",
+   "language": "en",
+   "source_ref": "ONET:43-4051.00:2578",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "F.03",
+    "A.06",
+    "A.02",
+    "G.03",
+    "E.01",
+    "I.01"
+   ],
+   "model_top": [
+    "A.02",
+    "A.06",
+    "I.01"
+   ],
+   "draft": {
+    "A.02": 2,
+    "I.01": 2,
+    "A.06": 1,
+    "E.01": 1,
+    "G.03": 0,
+    "F.03": 0
+   }
+  },
+  {
+   "item_id": "tc-013",
+   "text": "Analyze, manipulate, or process large sets of data using statistical software.",
+   "language": "en",
+   "source_ref": "ONET:15-2051.00:21823",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "F.04",
+    "C.01",
+    "C.02",
+    "C.03",
+    "H.05",
+    "G.05",
+    "H.08",
+    "E.02"
+   ],
+   "model_top": [
+    "C.01",
+    "H.08",
+    "H.05"
+   ],
+   "draft": {
+    "C.01": 2,
+    "C.02": 1,
+    "C.03": 1,
+    "G.05": 0,
+    "E.02": 0,
+    "F.04": 0
+   }
+  },
+  {
+   "item_id": "tc-014",
+   "text": "Create graphs, charts, or other visualizations to convey the results of data analysis using specialized software.",
+   "language": "en",
+   "source_ref": "ONET:15-2051.00:21828",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "C.01",
+    "F.05",
+    "E.03",
+    "D.07",
+    "G.03",
+    "D.06",
+    "C.08"
+   ],
+   "model_top": [
+    "C.08",
+    "D.06",
+    "D.07"
+   ],
+   "draft": {
+    "C.08": 2,
+    "C.01": 1,
+    "F.05": 1,
+    "G.03": 0,
+    "E.03": 0
+   }
+  },
+  {
+   "item_id": "tc-015",
+   "text": "Test, validate, and reformulate models to ensure accurate prediction of outcomes of interest.",
+   "language": "en",
+   "source_ref": "ONET:15-2051.00:21837",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "H.05",
+    "B.03",
+    "H.08",
+    "F.02",
+    "G.05",
+    "C.04",
+    "J.04",
+    "J.08",
+    "H.02"
+   ],
+   "model_top": [
+    "J.08",
+    "H.02",
+    "H.08"
+   ],
+   "draft": {
+    "C.04": 2,
+    "J.04": 2,
+    "H.05": 1,
+    "B.03": 1,
+    "G.05": 0,
+    "F.02": 0
+   }
+  },
+  {
+   "item_id": "tc-016",
+   "text": "Measure dimensions of products to verify conformance to specifications, using measuring instruments, such as rulers, calipers, gauges, or micrometers.",
+   "language": "en",
+   "source_ref": "ONET:51-9061.00:12480",
+   "tags": [
+    "manual",
+    "physical_presence"
+   ],
+   "pairs": [
+    "A.01",
+    "G.01",
+    "J.04",
+    "A.03",
+    "D.04",
+    "C.02",
+    "A.10",
+    "G.07"
+   ],
+   "model_top": [
+    "J.04",
+    "A.10",
+    "G.07"
+   ],
+   "draft": {
+    "D.04": 1,
+    "G.01": 1,
+    "A.03": 0,
+    "A.01": 0,
+    "C.02": 0
+   }
+  },
+  {
+   "item_id": "tc-017",
+   "text": "Discard or reject products, materials, or equipment not meeting specifications.",
+   "language": "en",
+   "source_ref": "ONET:51-9061.00:12472",
+   "tags": [
+    "hybrid",
+    "physical_presence"
+   ],
+   "pairs": [
+    "G.07",
+    "A.03",
+    "E.02",
+    "I.05",
+    "D.04",
+    "G.05"
+   ],
+   "model_top": [
+    "G.07",
+    "G.05",
+    "D.04"
+   ],
+   "draft": {
+    "D.04": 2,
+    "G.05": 1,
+    "I.05": 1,
+    "A.03": 0,
+    "E.02": 0
+   }
+  },
+  {
+   "item_id": "tc-018",
+   "text": "Crank trailer landing gear up or down to safely secure vehicles.",
+   "language": "en",
+   "source_ref": "ONET:53-3032.00:10651",
+   "tags": [
+    "manual",
+    "physical_presence"
+   ],
+   "pairs": [
+    "C.01",
+    "A.03",
+    "G.03",
+    "G.02",
+    "A.01",
+    "G.08",
+    "B.01"
+   ],
+   "model_top": [
+    "G.08",
+    "G.03",
+    "G.02"
+   ],
+   "draft": {
+    "A.01": 0,
+    "B.01": 0,
+    "C.01": 0,
+    "A.03": 0
+   }
+  },
+  {
+   "item_id": "tc-019",
+   "text": "Check all load-related documentation for completeness and accuracy.",
+   "language": "en",
+   "source_ref": "ONET:53-3032.00:20693",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "A.10",
+    "A.04",
+    "I.05",
+    "F.04",
+    "G.05",
+    "D.06",
+    "J.04"
+   ],
+   "model_top": [
+    "A.04",
+    "A.10",
+    "J.04"
+   ],
+   "draft": {
+    "A.10": 2,
+    "D.06": 1,
+    "I.05": 1,
+    "J.04": 1,
+    "G.05": 0,
+    "F.04": 0
+   }
+  },
+  {
+   "item_id": "tc-020",
+   "text": "Adapt teaching methods and instructional materials to meet students' varying needs and interests.",
+   "language": "en",
+   "source_ref": "ONET:25-2021.00:6538",
+   "tags": [
+    "hybrid",
+    "social"
+   ],
+   "pairs": [
+    "A.01",
+    "F.06",
+    "G.03",
+    "J.01",
+    "D.05",
+    "I.08",
+    "C.05"
+   ],
+   "model_top": [
+    "F.06",
+    "I.08",
+    "A.01"
+   ],
+   "draft": {
+    "F.06": 2,
+    "I.08": 2,
+    "J.01": 1,
+    "G.03": 0,
+    "D.05": 0,
+    "C.05": 0
+   }
+  },
+  {
+   "item_id": "tc-021",
+   "text": "Establish and enforce rules for behavior and procedures for maintaining order among the students.",
+   "language": "en",
+   "source_ref": "ONET:25-2021.00:6535",
+   "tags": [
+    "social",
+    "physical_presence"
+   ],
+   "pairs": [
+    "C.02",
+    "D.05",
+    "J.02",
+    "I.05",
+    "A.08",
+    "B.01"
+   ],
+   "model_top": [
+    "I.05",
+    "A.08",
+    "J.02"
+   ],
+   "draft": {
+    "B.01": 0,
+    "D.05": 0,
+    "C.02": 0
+   }
+  },
+  {
+   "item_id": "tc-022",
+   "text": "Process invoices for payment.",
+   "language": "en",
+   "source_ref": "ONET:13-2011.00:21533",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "F.03",
+    "G.05",
+    "I.01",
+    "A.06",
+    "D.06"
+   ],
+   "model_top": [
+    "D.06",
+    "A.06",
+    "I.01"
+   ],
+   "draft": {
+    "I.01": 2,
+    "D.06": 2,
+    "A.06": 2,
+    "G.05": 0,
+    "F.03": 0
+   }
+  },
+  {
+   "item_id": "tc-023",
+   "text": "Review accounts for discrepancies and reconcile differences.",
+   "language": "en",
+   "source_ref": "ONET:13-2011.00:21516",
+   "tags": [
+    "cognitive",
+    "regulated"
+   ],
+   "pairs": [
+    "I.05",
+    "A.04",
+    "C.03",
+    "G.03",
+    "C.01",
+    "J.03",
+    "C.07",
+    "E.02",
+    "J.04"
+   ],
+   "model_top": [
+    "J.03",
+    "A.04",
+    "C.07"
+   ],
+   "draft": {
+    "C.03": 2,
+    "C.01": 1,
+    "I.05": 1,
+    "J.04": 1,
+    "G.03": 0,
+    "E.02": 0
+   }
+  },
+  {
+   "item_id": "tc-024",
+   "text": "Lubricate, clean, or repair machinery, equipment, or tools.",
+   "language": "en",
+   "source_ref": "ONET:47-2061.00:11465",
+   "tags": [
+    "manual",
+    "physical_presence"
+   ],
+   "pairs": [
+    "G.04",
+    "C.02",
+    "G.07",
+    "A.01",
+    "A.03",
+    "G.08",
+    "G.05"
+   ],
+   "model_top": [
+    "G.08",
+    "G.04",
+    "G.05"
+   ],
+   "draft": {
+    "G.07": 1,
+    "A.01": 0,
+    "A.03": 0,
+    "C.02": 0
+   }
+  },
+  {
+   "item_id": "tc-025",
+   "text": "Order or interpret the results of tests such as laboratory tests and radiographs (x-rays).",
+   "language": "en",
+   "source_ref": "ONET:29-1229.02:17103",
+   "tags": [
+    "cognitive",
+    "high_risk",
+    "regulated"
+   ],
+   "pairs": [
+    "J.03",
+    "G.03",
+    "D.07",
+    "H.08",
+    "D.03",
+    "C.07",
+    "F.04"
+   ],
+   "model_top": [
+    "H.08",
+    "D.07",
+    "J.03"
+   ],
+   "draft": {
+    "D.07": 2,
+    "C.07": 1,
+    "D.03": 1,
+    "F.04": 0,
+    "G.03": 0
+   }
+  },
+  {
+   "item_id": "tc-026",
+   "text": "Rescue survivors from burning buildings, accident sites, and water hazards.",
+   "language": "en",
+   "source_ref": "ONET:33-2011.00:22961",
+   "tags": [
+    "manual",
+    "high_risk",
+    "physical_presence"
+   ],
+   "pairs": [
+    "A.01",
+    "C.01",
+    "B.01",
+    "I.03",
+    "F.01",
+    "J.06",
+    "G.08"
+   ],
+   "model_top": [
+    "J.06",
+    "G.08",
+    "I.03"
+   ],
+   "draft": {
+    "A.01": 0,
+    "B.01": 0,
+    "C.01": 0,
+    "F.01": 0
+   }
+  },
+  {
+   "item_id": "tc-027",
+   "text": "Document software defects, using a bug tracking system, and report defects to software developers.",
+   "language": "en",
+   "source_ref": "ONET:15-1253.00:14641",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "B.06",
+    "G.05",
+    "B.03",
+    "B.05",
+    "B.02",
+    "E.03",
+    "A.01"
+   ],
+   "model_top": [
+    "B.02",
+    "B.05",
+    "B.06"
+   ],
+   "draft": {
+    "B.03": 2,
+    "B.05": 1,
+    "A.01": 1,
+    "B.02": 1,
+    "G.05": 0,
+    "E.03": 0
+   }
+  },
+  {
+   "item_id": "tc-028",
+   "text": "Design test plans, scenarios, scripts, or procedures.",
+   "language": "en",
+   "source_ref": "ONET:15-1253.00:14638",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "F.04",
+    "G.03",
+    "B.01",
+    "A.10",
+    "H.04",
+    "B.03"
+   ],
+   "model_top": [
+    "H.04",
+    "B.03",
+    "A.10"
+   ],
+   "draft": {
+    "B.03": 2,
+    "B.01": 1,
+    "G.03": 0,
+    "F.04": 0
+   }
+  },
+  {
+   "item_id": "tc-101",
+   "text": "Localizar e corrigir erros de digitação de dados ou relatá-los aos supervisores.",
+   "language": "pt",
+   "source_ref": "ONET:43-9021.00:11405",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "E.02",
+    "B.02",
+    "F.03",
+    "I.01",
+    "J.04",
+    "C.03",
+    "A.06",
+    "I.04",
+    "G.05",
+    "A.01"
+   ],
+   "model_top": [
+    "B.02",
+    "I.04",
+    "A.01"
+   ],
+   "draft": {
+    "A.06": 2,
+    "I.01": 2,
+    "J.04": 1,
+    "C.03": 1,
+    "G.05": 0,
+    "F.03": 0,
+    "E.02": 0
+   }
+  },
+  {
+   "item_id": "tc-102",
+   "text": "Instalar eletrodutos e tubulações em paredes e divisórias e passar fios e cabos isolados para completar circuitos.",
+   "language": "pt",
+   "source_ref": "ONET:47-2111.00:2888",
+   "tags": [
+    "manual",
+    "physical_presence"
+   ],
+   "pairs": [
+    "G.08",
+    "G.05",
+    "H.04",
+    "A.03",
+    "C.02",
+    "B.01",
+    "A.01"
+   ],
+   "model_top": [
+    "G.05",
+    "G.08",
+    "H.04"
+   ],
+   "draft": {
+    "G.05": 1,
+    "A.01": 0,
+    "B.01": 0,
+    "C.02": 0,
+    "A.03": 0
+   }
+  },
+  {
+   "item_id": "tc-103",
+   "text": "Interpretar leis, decisões e regulamentos para pessoas e empresas.",
+   "language": "pt",
+   "source_ref": "ONET:23-1011.00:3774",
+   "tags": [
+    "cognitive",
+    "regulated",
+    "high_risk"
+   ],
+   "pairs": [
+    "A.07",
+    "D.04",
+    "G.05",
+    "A.08",
+    "I.05",
+    "A.10",
+    "A.09",
+    "E.03"
+   ],
+   "model_top": [
+    "A.08",
+    "A.09",
+    "I.05"
+   ],
+   "draft": {
+    "A.10": 2,
+    "A.08": 2,
+    "A.09": 2,
+    "A.07": 1,
+    "I.05": 1,
+    "G.05": 0,
+    "D.04": 0,
+    "E.03": 0
+   }
+  },
+  {
+   "item_id": "tc-104",
+   "text": "Traduzir mensagens de forma simultânea ou consecutiva para outros idiomas, oralmente ou em língua de sinais, mantendo conteúdo, contexto e estilo.",
+   "language": "pt",
+   "source_ref": "ONET:27-3091.00:9328",
+   "tags": [
+    "cognitive",
+    "social"
+   ],
+   "pairs": [
+    "C.05",
+    "E.01",
+    "G.05",
+    "A.03",
+    "D.04",
+    "E.04"
+   ],
+   "model_top": [
+    "A.03",
+    "E.04",
+    "E.01"
+   ],
+   "draft": {
+    "A.03": 2,
+    "E.04": 2,
+    "E.01": 1,
+    "G.05": 0,
+    "C.05": 0,
+    "D.04": 0
+   }
+  },
+  {
+   "item_id": "tc-105",
+   "text": "Manter registros das interações com clientes, anotando detalhes de dúvidas, reclamações e providências tomadas.",
+   "language": "pt",
+   "source_ref": "ONET:43-4051.00:2578",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "E.01",
+    "A.02",
+    "A.07",
+    "A.06",
+    "G.03",
+    "F.03",
+    "I.01",
+    "A.10"
+   ],
+   "model_top": [
+    "A.02",
+    "A.07",
+    "A.10"
+   ],
+   "draft": {
+    "A.02": 2,
+    "I.01": 2,
+    "A.06": 1,
+    "E.01": 1,
+    "G.03": 0,
+    "F.03": 0
+   }
+  },
+  {
+   "item_id": "tc-106",
+   "text": "Criar gráficos e outras visualizações para comunicar resultados de análises de dados com software especializado.",
+   "language": "pt",
+   "source_ref": "ONET:15-2051.00:21828",
+   "tags": [
+    "cognitive"
+   ],
+   "pairs": [
+    "E.03",
+    "D.07",
+    "C.01",
+    "F.05",
+    "C.08",
+    "G.03",
+    "D.06"
+   ],
+   "model_top": [
+    "C.08",
+    "D.06",
+    "D.07"
+   ],
+   "draft": {
+    "C.08": 2,
+    "C.01": 1,
+    "F.05": 1,
+    "G.03": 0,
+    "E.03": 0
+   }
+  },
+  {
+   "item_id": "tc-107",
+   "text": "Processar faturas para pagamento.",
+   "language": "pt",
+   "source_ref": "ONET:13-2011.00:21533",
+   "tags": [
+    "cognitive",
+    "routine"
+   ],
+   "pairs": [
+    "A.06",
+    "I.01",
+    "I.07",
+    "D.06",
+    "D.05",
+    "G.05",
+    "F.03"
+   ],
+   "model_top": [
+    "D.06",
+    "I.07",
+    "D.05"
+   ],
+   "draft": {
+    "I.01": 2,
+    "D.06": 2,
+    "A.06": 2,
+    "G.05": 0,
+    "F.03": 0
+   }
+  },
+  {
+   "item_id": "tc-108",
+   "text": "Resgatar sobreviventes de prédios em chamas, locais de acidentes e áreas alagadas.",
+   "language": "pt",
+   "source_ref": "ONET:33-2011.00:22961",
+   "tags": [
+    "manual",
+    "high_risk",
+    "physical_presence"
+   ],
+   "pairs": [
+    "B.01",
+    "F.01",
+    "G.08",
+    "C.01",
+    "A.01",
+    "I.03",
+    "J.06"
+   ],
+   "model_top": [
+    "J.06",
+    "G.08",
+    "I.03"
+   ],
+   "draft": {
+    "A.01": 0,
+    "B.01": 0,
+    "C.01": 0,
+    "F.01": 0
+   }
+  }
+ ]
+}

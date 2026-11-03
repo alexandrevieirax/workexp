@@ -45,6 +45,61 @@ def cmd_coverage(args) -> int:
     return 0
 
 
+def _annotation_tasks_path():
+    return get_settings().validation_dir / "annotation_tasks_v0.1.0.json"
+
+
+def cmd_prepare_annotation(args) -> int:
+    """Blinded annotation tasks: draft pairs + the methodology model's top-k, shuffled, draft labels hidden."""
+    import json
+
+    from observatory.benchmark.metrics import load_benchmark
+    from observatory.capabilities.dictionary import load_dictionary
+    from observatory.embeddings.providers import Embedder, get_provider
+    from observatory.exposure.dimensions import CapabilityIndex
+    from observatory.methodology import load_methodology
+    from observatory.validation.annotation import prepare_tasks
+
+    s = get_settings()
+    m = load_methodology()
+    emb_cfg = m.config.get("embedding", {})
+    embedder = Embedder(get_provider(args.provider or emb_cfg.get("provider", "baseline"), emb_cfg.get("revision")))
+    index = CapabilityIndex(load_dictionary(s.capabilities_dir / m.capability_dictionary_file), embedder)
+    _, items = load_benchmark(s.validation_dir / "benchmark_v0.1.0.jsonl")
+    tasks = prepare_tasks(index, items, m.config["semantic_match"]["negative_penalty"], args.top_k)
+    _annotation_tasks_path().write_text(json.dumps(tasks, indent=1, ensure_ascii=False), encoding="utf-8")
+    _print(
+        {
+            "tasks": len(tasks["tasks"]),
+            "pairs": sum(len(t["pairs"]) for t in tasks["tasks"]),
+            "path": str(_annotation_tasks_path()),
+        }
+    )
+    return 0
+
+
+def cmd_annotation_agreement(args) -> int:
+    from observatory.db.session import make_engine, session_factory
+    from observatory.validation.annotation import agreement, load_tasks
+
+    s = session_factory(make_engine(get_settings().database_url))()
+    _print(agreement(s, load_tasks(_annotation_tasks_path())))
+    return 0
+
+
+def cmd_build_gold(args) -> int:
+    """Gold labels go to data/validation/gold/ (outside the fingerprinted *.jsonl set): using them for calibration
+    is a deliberate methodological change that requires a new methodology_version."""
+    from observatory.db.session import make_engine, session_factory
+    from observatory.validation.annotation import build_gold, load_tasks
+
+    s = session_factory(make_engine(get_settings().database_url))()
+    out = get_settings().validation_dir / "gold"
+    out.mkdir(exist_ok=True)
+    _print(build_gold(s, load_tasks(_annotation_tasks_path()), out / "benchmark_gold.jsonl", args.min_annotators))
+    return 0
+
+
 def cmd_methodology_status(args) -> int:
     from observatory.about.consistency import check_consistency
 
@@ -247,6 +302,14 @@ def main(argv: list[str] | None = None) -> int:
     cv.add_argument("--provider", default=None)
     cv.add_argument("--offline", action="store_true")
     cv.set_defaults(fn=cmd_coverage)
+    pa = sub.add_parser("prepare-annotation", help="build blinded annotation tasks for the benchmark")
+    pa.add_argument("--provider", default=None)
+    pa.add_argument("--top-k", type=int, default=3)
+    pa.set_defaults(fn=cmd_prepare_annotation)
+    sub.add_parser("annotation-agreement", help="inter-annotator agreement").set_defaults(fn=cmd_annotation_agreement)
+    bg = sub.add_parser("build-gold", help="export human consensus labels")
+    bg.add_argument("--min-annotators", type=int, default=2)
+    bg.set_defaults(fn=cmd_build_gold)
     sub.add_parser("methodology-status").set_defaults(fn=cmd_methodology_status)
     sub.add_parser("methodology-release").set_defaults(fn=cmd_methodology_release)
     sub.add_parser("data-dictionary").set_defaults(fn=cmd_data_dictionary)

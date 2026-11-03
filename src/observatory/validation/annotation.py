@@ -259,3 +259,53 @@ def build_gold(s: Session, tasks: dict, path: Path, min_annotators: int = 2) -> 
         )
     path.write_text("\n".join(json.dumps(x, ensure_ascii=False) for x in out) + "\n", encoding="utf-8")
     return {"items": len(out) - 1, "path": str(path), **{k: meta[k] for k in ("krippendorff_alpha", "interpretation")}}
+
+
+# ------------------------------------------------------------------ claude.ai page (remote annotation)
+PAGE_TEMPLATE = Path(__file__).with_name("annotation_page.html")
+# Each expert writes only annotations/<own id>; only the artifact owner reads everyone's (blind, independent).
+PAGE_DB_RULES = [
+    {"path": "annotations", "read": "owner", "write": "self"},
+    {"path": "annotations/{self}", "read": "interact", "write": "interact"},
+]
+
+
+def render_page(tasks: dict, caps: dict) -> str:
+    """Self-contained annotation page for claude.ai. Carries NO draft labels (blinding)."""
+    payload = {
+        "sample_set": tasks["sample_set"],
+        "tasks": [
+            {"item_id": t["item_id"], "text": t["text"], "language": t["language"], "pairs": t["pairs"]}
+            for t in tasks["tasks"]
+        ],
+        "caps": {
+            c: {"name": v["name"], "definition": v["definition"], "examples": v["examples"][:2]}
+            for c, v in caps.items()
+            if any(c in t["pairs"] for t in tasks["tasks"])
+        },
+    }
+    data = json.dumps(payload, ensure_ascii=False).replace("</", r"<\/")
+    return PAGE_TEMPLATE.read_text(encoding="utf-8").replace("/*__DATA__*/", data)
+
+
+def import_remote(s: Session, tasks: dict, docs: dict[str, dict]) -> dict:
+    """Load annotations exported from the claude.ai page ({opaque user id: {"items": {...}}}).
+
+    Annotators are labelled "claude.ai anotador N" by sorted id, the same order the page's owner panel uses.
+    -1 ("não sei") is not stored. Re-importing replaces each annotator's answers per item.
+    """
+    by_id = {t["item_id"]: t for t in tasks["tasks"]}
+    summary = {}
+    for n, uid in enumerate(sorted(docs), 1):
+        name = f"claude.ai anotador {n}"
+        items = (docs[uid] or {}).get("items") or {}
+        saved = 0
+        for item_id, entry in items.items():
+            task = by_id.get(item_id)
+            labels = {c: (None if v == -1 else v) for c, v in (entry.get("labels") or {}).items()}
+            if task is None or not any(v is not None for v in labels.values()):
+                continue
+            save_annotation(s, name, task, labels, entry.get("comment") or "")
+            saved += 1
+        summary[name] = saved
+    return summary

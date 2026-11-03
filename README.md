@@ -106,6 +106,28 @@ python -m observatory.cli annotation-agreement
 python -m observatory.cli build-gold
 ```
 
+**Anotação remota (claude.ai).** Para especialistas fora da sua máquina, a mesma anotação existe como uma
+página do claude.ai, sem servidor:
+
+```bash
+python -m observatory.cli build-annotation-page --out anotacao-benchmark.html
+```
+
+A página publicada tem as seguintes regras:
+
+- cada especialista grava só as próprias respostas (`annotations/<id>`), e ninguém, nem o dono, pode alterá-las;
+- só o dono lê todas as respostas;
+- o rascunho da IA não vai para a página.
+
+Os especialistas precisam de conta no claude.ai e de um convite **por e-mail como Editor**, e a página não pode
+estar compartilhada por link público. Depois, exporte os documentos de `annotations` para um JSON
+`{id: {"items": ...}}` e importe-os com o comando abaixo. Cada pessoa vira "claude.ai anotador N", na mesma
+ordem do painel do dono.
+
+```bash
+python -m observatory.cli import-annotations --file respostas.json
+```
+
 `/annotations/agreement` mostra o kappa de Cohen ponderado por par de anotadores, o alfa de Krippendorff do grupo
 e a comparação de cada pessoa com o rascunho da IA. O conjunto ouro (mediana de pelo menos 2 anotadores) vai
 para `data/validation/gold/`, fora do fingerprint: usá-lo na calibração é uma mudança metodológica deliberada,

@@ -100,6 +100,41 @@ def cmd_build_gold(args) -> int:
     return 0
 
 
+def cmd_build_annotation_page(args) -> int:
+    """Write the self-contained claude.ai annotation page (no draft labels) to --out."""
+    from pathlib import Path
+
+    from observatory.capabilities.dictionary import load_dictionary
+    from observatory.methodology import load_methodology
+    from observatory.validation.annotation import load_tasks, render_page
+
+    s = get_settings()
+    m = load_methodology()
+    d = load_dictionary(s.capabilities_dir / m.capability_dictionary_file)
+    caps = {
+        c.capability_id: {"name": c.name, "definition": c.definition, "examples": c.examples} for c in d.capabilities
+    }
+    out = Path(args.out)
+    out.write_text(render_page(load_tasks(_annotation_tasks_path()), caps), encoding="utf-8")
+    print(out)
+    return 0
+
+
+def cmd_import_annotations(args) -> int:
+    """Import annotations exported from the claude.ai page (JSON: {user id: {"items": {...}}})."""
+    import json
+    from pathlib import Path
+
+    from observatory.db.session import make_engine, session_factory
+    from observatory.validation.annotation import import_remote, load_tasks
+
+    s = session_factory(make_engine(get_settings().database_url))()
+    summary = import_remote(s, load_tasks(_annotation_tasks_path()), json.loads(Path(args.file).read_text("utf-8")))
+    s.commit()
+    _print(summary)
+    return 0
+
+
 def cmd_methodology_status(args) -> int:
     from observatory.about.consistency import check_consistency
 
@@ -310,6 +345,12 @@ def main(argv: list[str] | None = None) -> int:
     bg = sub.add_parser("build-gold", help="export human consensus labels")
     bg.add_argument("--min-annotators", type=int, default=2)
     bg.set_defaults(fn=cmd_build_gold)
+    bp = sub.add_parser("build-annotation-page", help="write the claude.ai annotation page")
+    bp.add_argument("--out", required=True)
+    bp.set_defaults(fn=cmd_build_annotation_page)
+    ia = sub.add_parser("import-annotations", help="import annotations exported from the claude.ai page")
+    ia.add_argument("--file", required=True)
+    ia.set_defaults(fn=cmd_import_annotations)
     sub.add_parser("methodology-status").set_defaults(fn=cmd_methodology_status)
     sub.add_parser("methodology-release").set_defaults(fn=cmd_methodology_release)
     sub.add_parser("data-dictionary").set_defaults(fn=cmd_data_dictionary)

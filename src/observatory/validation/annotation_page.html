@@ -1,0 +1,225 @@
+<title>Anotação do Benchmark de IA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500&display=swap">
+<style>
+/* Layout: one task at a time in a reading column; a compact grid of the 36 tasks for navigation. */
+:root{
+  --bg:#f6f7f4; --surface:#ffffff; --fg:#1d2420; --muted:#5b6660; --line:#d8ddd6;
+  --accent:#1f6f5b; --accent-ink:#ffffff; --accent-soft:#e1efe9;
+  --g2:#1f6f5b; --g1:#9a6b12; --g0:#7a4a4a; --danger:#a3352b;
+  --font-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-task:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --surface:#1c2320; --fg:#e7ece9; --muted:#9aa7a0; --line:#2f3934;
+  --accent:#5cc2a2; --accent-ink:#0d1512; --accent-soft:#1f3a31;
+  --g2:#5cc2a2; --g1:#e0b25a; --g0:#d99a9a; --danger:#ef8a7f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --surface:#1c2320; --fg:#e7ece9; --muted:#9aa7a0; --line:#2f3934;
+  --accent:#5cc2a2; --accent-ink:#0d1512; --accent-soft:#1f3a31;
+  --g2:#5cc2a2; --g1:#e0b25a; --g0:#d99a9a; --danger:#ef8a7f; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-ui);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+main{max-width:760px;margin:0 auto;display:grid;gap:20px}
+h1{font-size:1.45rem;margin:0;text-wrap:balance}
+h2{font-size:1.05rem;margin:0}
+p{margin:0}
+.muted{color:var(--muted)}
+.intro{display:grid;gap:8px}
+.notice{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--surface);padding:12px 14px;border-radius:6px}
+.notice.err{border-left-color:var(--danger)}
+.progress{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.meter{flex:1 1 200px;height:8px;background:var(--line);border-radius:4px;overflow:hidden;min-width:120px}
+.meter>span{display:block;height:100%;background:var(--accent);width:0}
+.count{font-variant-numeric:tabular-nums;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.chip{font:inherit;font-size:.8rem;font-variant-numeric:tabular-nums;border:1px solid var(--line);background:var(--surface);
+  color:var(--fg);border-radius:5px;padding:5px 0;cursor:pointer}
+.chip.done{background:var(--accent-soft);border-color:var(--accent)}
+.chip.current{outline:2px solid var(--accent);outline-offset:1px}
+.task{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:grid;gap:6px}
+.task blockquote{margin:0;font-family:var(--font-task);font-size:1.15rem;line-height:1.5}
+.pairs{display:grid;gap:12px}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:0;display:grid;gap:6px;background:var(--surface);min-width:0}
+legend{font-weight:600;padding:0 4px}
+.ex{font-size:.88rem}
+.grades{display:flex;flex-wrap:wrap;gap:8px}
+.grades label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 12px;cursor:pointer}
+.grades input{accent-color:var(--accent)}
+.grades label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+textarea{font:inherit;width:100%;min-height:64px;box-sizing:border-box;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--fg);padding:8px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button.primary{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:10px 18px;cursor:pointer}
+button.secondary{font:inherit;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:9px 14px;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.owner{display:grid;gap:8px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td.num{font-variant-numeric:tabular-nums}
+details summary{cursor:pointer;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<main>
+  <header class="intro">
+    <h1>Anotação do benchmark: tarefas × capacidades de IA</h1>
+    <p>Para cada tarefa de trabalho, julgue se cada capacidade de IA é capaz de realizar ou apoiar diretamente essa tarefa. São 36 tarefas, com cerca de 7 capacidades cada. Suas respostas formam o conjunto de referência usado para medir e calibrar o Observatório.</p>
+    <details><summary>Como julgar</summary>
+      <p><strong>Relacionada</strong>: a capacidade realiza ou apoia diretamente uma parte central da tarefa. <strong>Parcialmente</strong>: ajuda numa parte secundária ou só sob certas condições. <strong>Não relacionada</strong>: não ajuda na tarefa. Use <strong>Não sei</strong> quando não tiver segurança.</p>
+      <p class="muted">A sugestão do sistema não é mostrada e a ordem é embaralhada, para não influenciar você. Cada pessoa vê e altera só as próprias respostas.</p>
+    </details>
+  </header>
+
+  <p id="status" class="notice" role="status">Conectando ao armazenamento de respostas…</p>
+
+  <section id="work" class="intro" hidden aria-labelledby="progress-title">
+    <div class="progress"><h2 id="progress-title">Seu progresso</h2>
+      <div class="meter" role="img" id="meter-label" aria-label="0 de 36"><span id="meter"></span></div>
+      <span class="count" id="count">0/36</span></div>
+    <div class="grid" id="grid" aria-label="Tarefas"></div>
+  </section>
+
+  <form id="form" class="intro" hidden>
+    <article class="task" aria-labelledby="task-label">
+      <span class="muted" id="task-label">Tarefa</span>
+      <blockquote id="task-text"></blockquote>
+      <span class="muted" id="task-meta"></span>
+    </article>
+    <div class="pairs" id="pairs"></div>
+    <label for="comment">Comentário sobre esta tarefa (opcional)</label>
+    <textarea id="comment"></textarea>
+    <p id="form-error" class="notice err" role="alert" hidden></p>
+    <div class="actions">
+      <button class="primary" id="save" type="submit">Salvar e ir para a próxima</button>
+      <button class="secondary" id="skip" type="button">Pular</button>
+    </div>
+  </form>
+
+  <section id="owner" class="owner" hidden aria-labelledby="owner-title">
+    <h2 id="owner-title">Painel do responsável</h2>
+    <p class="muted">Só você vê esta seção. Os especialistas não veem as respostas uns dos outros.</p>
+    <div class="table-wrap"><table><thead><tr><th scope="col">Anotador</th><th scope="col">Tarefas concluídas</th><th scope="col">Última resposta</th></tr></thead><tbody id="owner-rows"></tbody></table></div>
+  </section>
+</main>
+
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const TASKS = DATA.tasks;
+const CAPS = DATA.caps;
+const GRADES = [[2,"Relacionada"],[1,"Parcialmente"],[0,"Não relacionada"],[-1,"Não sei"]];
+const $ = (id) => document.getElementById(id);
+const state = { db:null, user:null, uid:null, mine:{}, current:null, saving:false, readOnly:false };
+
+function status(text, err){ const el=$("status"); el.hidden=!text; el.textContent=text||""; el.classList.toggle("err",!!err); }
+
+function doneIds(){ return new Set(Object.keys(state.mine)); }
+function nextTask(after){
+  const done=doneIds(); const start=after?TASKS.findIndex(t=>t.item_id===after)+1:0;
+  for(let k=0;k<TASKS.length;k++){ const t=TASKS[(start+k)%TASKS.length]; if(!done.has(t.item_id)) return t.item_id; }
+  return null;
+}
+
+function renderProgress(){
+  const n=doneIds().size, total=TASKS.length;
+  $("count").textContent=n+"/"+total; $("meter").style.width=(100*n/total)+"%";
+  $("meter-label").setAttribute("aria-label",n+" de "+total);
+  const grid=$("grid"); grid.textContent="";
+  TASKS.forEach((t,i)=>{ const b=document.createElement("button"); b.type="button"; b.className="chip";
+    b.textContent=String(i+1); b.title=t.text;
+    if(state.mine[t.item_id]) b.classList.add("done");
+    if(t.item_id===state.current) b.classList.add("current");
+    b.setAttribute("aria-label","Tarefa "+(i+1)+(state.mine[t.item_id]?", respondida":""));
+    b.addEventListener("click",()=>{ state.current=t.item_id; renderTask(); renderProgress(); });
+    grid.appendChild(b); });
+}
+
+function renderTask(){
+  const form=$("form");
+  if(!state.current){ form.hidden=true; status("Você respondeu todas as tarefas. Obrigado! Pode revisar qualquer uma pela grade acima."); return; }
+  const t=TASKS.find(x=>x.item_id===state.current); const saved=state.mine[t.item_id]||{};
+  form.hidden=false; $("form-error").hidden=true;
+  $("task-label").textContent="Tarefa "+(TASKS.indexOf(t)+1)+" de "+TASKS.length;
+  $("task-text").textContent=t.text; $("task-text").lang=t.language;
+  $("task-meta").textContent=(t.language==="pt"?"Em português":"Em inglês")+" · "+t.item_id;
+  const pairs=$("pairs"); pairs.textContent="";
+  t.pairs.forEach(cap=>{ const c=CAPS[cap]; const fs=document.createElement("fieldset");
+    const lg=document.createElement("legend"); lg.textContent=c.name; fs.appendChild(lg);
+    const d=document.createElement("p"); d.textContent=c.definition; fs.appendChild(d);
+    const ex=document.createElement("p"); ex.className="ex muted"; ex.textContent="Exemplos: "+c.examples.slice(0,2).join("; "); fs.appendChild(ex);
+    const g=document.createElement("div"); g.className="grades"; g.setAttribute("role","radiogroup"); g.setAttribute("aria-label",c.name);
+    GRADES.forEach(([v,label])=>{ const id="g_"+cap+"_"+v; const l=document.createElement("label"); l.htmlFor=id;
+      const r=document.createElement("input"); r.type="radio"; r.name="cap_"+cap; r.value=String(v); r.id=id; r.required=true;
+      if(saved.labels && saved.labels[cap]===v) r.checked=true;
+      l.appendChild(r); l.appendChild(document.createTextNode(label)); g.appendChild(l); });
+    fs.appendChild(g); pairs.appendChild(fs); });
+  $("comment").value=saved.comment||"";
+  $("save").disabled=state.readOnly;
+}
+
+async function save(ev){
+  ev.preventDefault(); if(state.saving||state.readOnly) return;
+  const t=TASKS.find(x=>x.item_id===state.current); const labels={};
+  for(const cap of t.pairs){ const r=document.querySelector('input[name="cap_'+cap+'"]:checked');
+    if(!r){ showError("Responda todas as capacidades desta tarefa (use “Não sei” quando não tiver segurança)."); return; }
+    labels[cap]=Number(r.value); }
+  if(Object.values(labels).every(v=>v===-1)){ showError("Marque pelo menos uma capacidade com uma resposta diferente de “Não sei”, ou pule a tarefa."); return; }
+  const entry={labels, comment:$("comment").value.trim().slice(0,2000), at:new Date().toISOString()};
+  state.saving=true; $("save").disabled=true;
+  try{
+    const ref=state.db.doc("annotations/"+state.uid);
+    if(Object.keys(state.mine).length===0){ const snap=await ref.get();
+      if(snap.exists) await ref.update({items:{[t.item_id]:entry}}); else await ref.set({items:{[t.item_id]:entry}}); }
+    else await ref.update({items:{[t.item_id]:entry}});
+    state.mine={...state.mine,[t.item_id]:entry};
+    state.current=nextTask(t.item_id); renderProgress(); renderTask(); window.scrollTo({top:0});
+  }catch(e){
+    if(e && e.code==="invalid_argument"){ state.readOnly=true;
+      showError("Sua conta não tem permissão para gravar respostas nesta página. Peça ao responsável um convite por e-mail como Editor."); }
+    else if(e && e.code==="quota_exceeded"){ showError("O armazenamento da página está cheio. Avise o responsável."); }
+    else { showError("Não foi possível salvar agora. Verifique a conexão e tente salvar de novo."); }
+  }finally{ state.saving=false; $("save").disabled=state.readOnly; }
+}
+function showError(msg){ const el=$("form-error"); el.textContent=msg; el.hidden=false; }
+
+async function renderOwner(snap){
+  const docs=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,items:(d.data().items)||{}}));
+  docs.sort((a,b)=>a.id<b.id?-1:1);
+  let names={}; try{ names=await state.user.profiles(docs.map(d=>d.id)); }catch(_){}
+  const body=$("owner-rows"); body.textContent="";
+  if(!docs.length){ const tr=document.createElement("tr"); const td=document.createElement("td"); td.colSpan=3;
+    td.textContent="Nenhuma resposta ainda. Convide os especialistas por e-mail como Editor no menu de compartilhamento."; tr.appendChild(td); body.appendChild(tr); return; }
+  docs.forEach((d,i)=>{ const tr=document.createElement("tr"); const items=Object.values(d.items);
+    const last=items.map(x=>x.at).filter(Boolean).sort().pop();
+    const who=(names[d.id]&&names[d.id].name)||"Anotador "+(i+1);
+    [ "Anotador "+(i+1)+" — "+who, items.length+"/"+TASKS.length, last?new Date(last).toLocaleString():"—" ].forEach((txt,k)=>{
+      const td=document.createElement("td"); td.textContent=txt; if(k===1) td.className="num"; tr.appendChild(td); });
+    body.appendChild(tr); });
+}
+
+async function start(){
+  const claudeRT=window.claude; if(!claudeRT||!claudeRT.use){ status("Abra esta página no claude.ai com a conta para a qual o convite foi enviado.",true); return; }
+  const [db,user]=await Promise.all([claudeRT.use("db"),claudeRT.use("user")]);
+  state.db=db; state.user=user;
+  const uid=user?await user.id():null;
+  if(!db||!uid){ status("Entre no claude.ai com a conta convidada para anotar. Sem login não é possível gravar respostas.",true); return; }
+  state.uid=uid;
+  $("form").addEventListener("submit",save);
+  $("skip").addEventListener("click",()=>{ state.current=nextTask(state.current); renderProgress(); renderTask(); });
+  const timer=setTimeout(()=>status("As respostas ainda não carregaram. Verifique a conexão; a página continua tentando.",true),10000);
+  let first=true;
+  db.doc("annotations/"+uid).onSnapshot((snap)=>{
+    state.mine=(snap.exists&&snap.data().items)||{};
+    if(!snap.metadata.fromCache){ clearTimeout(timer); }
+    if(first){ first=false; state.current=nextTask(null); status(""); $("work").hidden=false; renderTask(); }
+    renderProgress();
+  },(e)=>{ clearTimeout(timer); status("Não foi possível acessar o armazenamento de respostas ("+(e&&e.code||"erro")+").",true); });
+  if(await user.isOwner()){
+    $("owner").hidden=false;
+    db.collection("annotations").onSnapshot(renderOwner,()=>{});
+  }
+}
+start();
+</script>

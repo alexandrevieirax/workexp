@@ -107,3 +107,36 @@ def test_annotation_pages(client):
     assert "Ana Teste" in agree and "Krippendorff" in agree
     skipped = client.get(f"/annotations?annotator=Ana Teste&skip={tasks['tasks'][1]['item_id']}").text
     assert tasks["tasks"][2]["text"] in skipped
+
+
+def test_claude_page_is_blind_and_self_contained(tasks):
+    caps = {
+        c.capability_id: {"name": c.name, "definition": c.definition, "examples": c.examples}
+        for c in load_dictionary().capabilities
+    }
+    html = A.render_page(tasks, caps)
+    assert "/*__DATA__*/" not in html and "<title>" in html
+    data = json.loads(html.split('<script id="data" type="application/json">')[1].split("</script>")[0])
+    assert len(data["tasks"]) == 36
+    assert all(set(t) == {"item_id", "text", "language", "pairs"} for t in data["tasks"])  # no draft, no model_top
+    assert {r["path"] for r in A.PAGE_DB_RULES} == {"annotations", "annotations/{self}"}
+    assert next(r for r in A.PAGE_DB_RULES if r["path"] == "annotations")["write"] == "self"
+
+
+def test_import_remote_annotations(session, tasks):
+    t1, t2 = tasks["tasks"][:2]
+    docs = {
+        "u_bbb": {"items": {t1["item_id"]: {"labels": {c: 2 for c in t1["pairs"]}, "comment": "ok"}}},
+        "u_aaa": {
+            "items": {
+                t1["item_id"]: {"labels": {c: -1 for c in t1["pairs"]}},  # only "não sei": skipped
+                t2["item_id"]: {"labels": {t2["pairs"][0]: 0, t2["pairs"][1]: -1}},
+                "tc-unknown": {"labels": {"A.01": 2}},
+            }
+        },
+    }
+    assert A.import_remote(session, tasks, docs) == {"claude.ai anotador 1": 1, "claude.ai anotador 2": 1}
+    rows = session.query(M.ValidationSample).filter_by(annotator="claude.ai anotador 1").all()
+    assert [(r.item_id, r.right_ref, r.label) for r in rows] == [(t2["item_id"], t2["pairs"][0], 0)]
+    assert A.import_remote(session, tasks, docs)  # idempotent re-import replaces, never duplicates
+    assert session.query(M.ValidationSample).filter_by(annotator="claude.ai anotador 2").count() == len(t1["pairs"])

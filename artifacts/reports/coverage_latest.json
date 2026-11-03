@@ -1,6 +1,6 @@
 {
-  "created_at": "2026-11-02T22:07:37.517876+00:00",
-  "methodology_version": "0.3.2",
+  "created_at": "2026-11-03T13:33:33.779448+00:00",
+  "methodology_version": "0.4.0",
   "set_definitions": [
     {
       "label": "desenvolvimento-de-sistemas",
@@ -35,7 +35,7 @@
     {
       "label": "desenvolvimento-de-sistemas",
       "profile": "cognitiva (TI)",
-      "run_id": "20261102T215713Z-1aa115",
+      "run_id": "20261103T133126Z-6e97a3",
       "occupations": {
         "ONET": {
           "code": "15-1252.00",
@@ -78,30 +78,30 @@
           "code": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
           "title": "software developer",
           "scores": {
-            "OAE": 0.7915,
-            "OAP": 0.0644,
-            "OAuP": 0.4329,
-            "OTP": 0.3084
+            "OAE": 0.7832,
+            "OAP": 0.0638,
+            "OAuP": 0.4288,
+            "OTP": 0.306
           },
           "intervals": {
             "OAE": [
-              0.7374,
-              0.8433
+              0.7366,
+              0.824
             ],
             "OAP": [
-              0.0397,
-              0.0927
+              0.0435,
+              0.0888
             ],
             "OAuP": [
-              0.359,
-              0.5131
+              0.3605,
+              0.4948
             ],
             "OTP": [
-              0.2513,
-              0.3816
+              0.2523,
+              0.3622
             ]
           },
-          "mean_uncertainty": 0.5705,
+          "mean_uncertainty": 0.4871,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "15-1252.00",
           "class_distribution": {
@@ -115,36 +115,35 @@
           "code": "212405",
           "title": "Analista de desenvolvimento de sistemas",
           "scores": {
-            "OAE": 0.7591,
-            "OAP": 0.0639,
-            "OAuP": 0.3901,
-            "OTP": 0.262
+            "OAE": 0.6874,
+            "OAP": 0.0582,
+            "OAuP": 0.3517,
+            "OTP": 0.2359
           },
           "intervals": {
             "OAE": [
-              0.718,
-              0.8
+              0.6454,
+              0.7316
             ],
             "OAP": [
-              0.0527,
-              0.0761
+              0.0488,
+              0.0694
             ],
             "OAuP": [
-              0.3518,
-              0.4301
+              0.3177,
+              0.387
             ],
             "OTP": [
-              0.2362,
-              0.295
+              0.2132,
+              0.2621
             ]
           },
-          "mean_uncertainty": 0.5598,
+          "mean_uncertainty": 0.4781,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "15-1253.00",
           "class_distribution": {
-            "augmentation": 0.9381,
-            "significant_transformation": 0.0477,
-            "point_support": 0.0159
+            "augmentation": 0.954,
+            "point_support": 0.0477
           },
           "observed_usage_coverage": 0,
           "task_count": 63
@@ -226,7 +225,7 @@
     {
       "label": "contabilidade",
       "profile": "cognitiva (não TI)",
-      "run_id": "20261102T215840Z-feed2b",
+      "run_id": "20261103T133212Z-d4c891",
       "occupations": {
         "ONET": {
           "code": "13-2011.00",
@@ -269,35 +268,35 @@
           "code": "http://data.europa.eu/esco/occupation/eda0d957-3c3c-4139-b89a-a18bc9e18897",
           "title": "accountant",
           "scores": {
-            "OAE": 0.715,
-            "OAP": 0.0578,
-            "OAuP": 0.3098,
-            "OTP": 0.2031
+            "OAE": 0.6369,
+            "OAP": 0.0513,
+            "OAuP": 0.279,
+            "OTP": 0.1825
           },
           "intervals": {
             "OAE": [
-              0.6714,
-              0.7556
+              0.5878,
+              0.682
             ],
             "OAP": [
-              0.0407,
-              0.0777
+              0.0394,
+              0.0656
             ],
             "OAuP": [
-              0.2598,
-              0.361
+              0.24,
+              0.3225
             ],
             "OTP": [
-              0.1691,
-              0.2472
+              0.1548,
+              0.2161
             ]
           },
-          "mean_uncertainty": 0.45,
+          "mean_uncertainty": 0.3528,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "13-2011.00",
           "class_distribution": {
-            "point_support": 0.2001,
-            "augmentation": 0.8004
+            "point_support": 0.4002,
+            "augmentation": 0.6003
           },
           "observed_usage_coverage": 0,
           "task_count": 15
@@ -306,35 +305,35 @@
           "code": "252210",
           "title": "Contador",
           "scores": {
-            "OAE": 0.7352,
-            "OAP": 0.0612,
-            "OAuP": 0.3524,
-            "OTP": 0.2361
+            "OAE": 0.6263,
+            "OAP": 0.0523,
+            "OAuP": 0.3016,
+            "OTP": 0.2022
           },
           "intervals": {
             "OAE": [
-              0.7071,
-              0.7648
+              0.5675,
+              0.6761
             ],
             "OAP": [
-              0.0518,
-              0.0717
+              0.0444,
+              0.0606
             ],
             "OAuP": [
-              0.3241,
-              0.382
+              0.2692,
+              0.3327
             ],
             "OTP": [
-              0.2165,
-              0.2596
+              0.1803,
+              0.2267
             ]
           },
-          "mean_uncertainty": 0.5136,
+          "mean_uncertainty": 0.4301,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "13-2011.00",
           "class_distribution": {
-            "augmentation": 0.9443,
-            "point_support": 0.0532
+            "augmentation": 0.8379,
+            "point_support": 0.1596
           },
           "observed_usage_coverage": 0,
           "task_count": 75
@@ -410,7 +409,7 @@
     {
       "label": "eletricista",
       "profile": "manual",
-      "run_id": "20261102T220245Z-a1d20a",
+      "run_id": "20261103T133241Z-10f126",
       "occupations": {
         "ONET": {
           "code": "47-2111.00",
@@ -453,35 +452,35 @@
           "code": "http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
           "title": "domestic electrician",
           "scores": {
-            "OAE": 0.5918,
-            "OAP": 0.0015,
-            "OAuP": 0.3173,
-            "OTP": 0.1628
+            "OAE": 0.4826,
+            "OAP": 0.0012,
+            "OAuP": 0.2586,
+            "OTP": 0.1329
           },
           "intervals": {
             "OAE": [
-              0.548,
-              0.6394
+              0.4186,
+              0.5416
             ],
             "OAP": [
               0.0004,
-              0.0036
+              0.0025
             ],
             "OAuP": [
-              0.2667,
-              0.3706
+              0.2142,
+              0.3041
             ],
             "OTP": [
-              0.1336,
-              0.2007
+              0.108,
+              0.1619
             ]
           },
-          "mean_uncertainty": 0.4349,
+          "mean_uncertainty": 0.3463,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "47-2111.00",
           "class_distribution": {
-            "augmentation": 0.8004,
-            "point_support": 0.2001
+            "augmentation": 0.6003,
+            "point_support": 0.4002
           },
           "observed_usage_coverage": 0,
           "task_count": 15
@@ -490,35 +489,35 @@
           "code": "715610",
           "title": "Eletricista de instalações (edifícios)",
           "scores": {
-            "OAE": 0.6649,
-            "OAP": 0.0015,
-            "OAuP": 0.3596,
-            "OTP": 0.1979
+            "OAE": 0.5351,
+            "OAP": 0.0012,
+            "OAuP": 0.2894,
+            "OTP": 0.1594
           },
           "intervals": {
             "OAE": [
-              0.6251,
-              0.7084
+              0.4672,
+              0.6013
             ],
             "OAP": [
-              0.0007,
-              0.0026
+              0.0006,
+              0.0019
             ],
             "OAuP": [
-              0.325,
-              0.3949
+              0.2486,
+              0.3334
             ],
             "OTP": [
-              0.1776,
-              0.2239
+              0.1382,
+              0.1868
             ]
           },
-          "mean_uncertainty": 0.5255,
+          "mean_uncertainty": 0.4402,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "47-2111.00",
           "class_distribution": {
-            "augmentation": 0.9548,
-            "point_support": 0.0462
+            "augmentation": 0.7546,
+            "point_support": 0.2464
           },
           "observed_usage_coverage": 0,
           "task_count": 65
@@ -594,7 +593,7 @@
     {
       "label": "tecnico-de-enfermagem",
       "profile": "saúde, regulamentada",
-      "run_id": "20261102T220601Z-bce402",
+      "run_id": "20261103T133307Z-338e97",
       "occupations": {
         "ONET": {
           "code": "29-2061.00",
@@ -637,35 +636,35 @@
           "code": "http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
           "title": "nurse assistant",
           "scores": {
-            "OAE": 0.5933,
-            "OAP": 0.0081,
-            "OAuP": 0.3069,
-            "OTP": 0.1893
+            "OAE": 0.4765,
+            "OAP": 0.0065,
+            "OAuP": 0.2464,
+            "OTP": 0.152
           },
           "intervals": {
             "OAE": [
-              0.5614,
-              0.6242
+              0.4154,
+              0.5311
             ],
             "OAP": [
-              0.005,
-              0.0122
+              0.0042,
+              0.0093
             ],
             "OAuP": [
-              0.2689,
-              0.3421
+              0.2101,
+              0.2833
             ],
             "OTP": [
-              0.1645,
-              0.2181
+              0.1299,
+              0.1779
             ]
           },
-          "mean_uncertainty": 0.4723,
+          "mean_uncertainty": 0.3942,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "31-1133.00",
           "class_distribution": {
-            "augmentation": 0.8325,
-            "point_support": 0.1665
+            "augmentation": 0.4662,
+            "point_support": 0.5328
           },
           "observed_usage_coverage": 0,
           "task_count": 30
@@ -674,35 +673,35 @@
           "code": "322205",
           "title": "Técnico de enfermagem",
           "scores": {
-            "OAE": 0.5589,
-            "OAP": 0.0057,
-            "OAuP": 0.2837,
-            "OTP": 0.1656
+            "OAE": 0.4505,
+            "OAP": 0.0046,
+            "OAuP": 0.2288,
+            "OTP": 0.1335
           },
           "intervals": {
             "OAE": [
-              0.5418,
-              0.5762
+              0.3947,
+              0.4983
             ],
             "OAP": [
-              0.0043,
-              0.0074
+              0.0035,
+              0.006
             ],
             "OAuP": [
-              0.2645,
-              0.3033
+              0.1985,
+              0.2585
             ],
             "OTP": [
-              0.1537,
-              0.1818
+              0.1157,
+              0.1533
             ]
           },
-          "mean_uncertainty": 0.4865,
+          "mean_uncertainty": 0.4092,
           "prior_source": "crosswalk_transfer",
           "prior_from_occupation": "29-2061.00",
           "class_distribution": {
-            "augmentation": 0.7,
-            "point_support": 0.3
+            "point_support": 0.69,
+            "augmentation": 0.31
           },
           "observed_usage_coverage": 0,
           "task_count": 100

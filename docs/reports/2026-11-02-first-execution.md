@@ -379,3 +379,38 @@ método registrado em `isco_group_method`.
 
 **Limitação:** as figuras da área "Sobre" mostram a última ocupação avaliada. Figuras por ocupação ficam para
 a interface da fase 7.
+
+---
+
+## Adendo 7 — correção do viés entre bases, metodologia 0.4.0 (2026-11-03)
+
+**Problema (0.3.2):** CBO e ESCO ficavam 0,08–0,16 acima do O*NET para a mesma ocupação, porque suas tarefas
+não tinham uso observado (E3) e o peso desse componente era redistribuído para componentes que tendem a ser
+altos.
+
+**Correção:** cada tarefa CBO/ESCO recebe o E3 da tarefa mais parecida da ocupação O*NET mapeada (aceita na
+revisão, transferida ou combinada em empate), com a mesma regra das tarefas O*NET. Isso inclui o valor 0 das
+tarefas ausentes da amostra do AEI. A incerteza do componente é 0,5 + 0,5 × (1 − similaridade calibrada). A
+tarefa de origem e a similaridade ficam registradas em cada componente.
+
+**Resultado (`python -m observatory.cli coverage`):**
+
+| Conjunto | O*NET OAE | ESCO OAE (0.3.2 → 0.4.0) | CBO OAE (0.3.2 → 0.4.0) | Diferença ESCO / CBO vs O*NET |
+|---|---|---|---|---|
+| Desenvolvimento de sistemas | 0,71 | 0,79 → 0,78 | 0,76 → 0,69 | +0,08 / −0,02 |
+| Contabilidade | 0,63 | 0,71 → 0,64 | 0,74 → 0,63 | +0,01 / 0,00 |
+| Eletricista | 0,50 | 0,59 → 0,48 | 0,66 → 0,54 | −0,02 / +0,03 |
+| Técnico de enfermagem | 0,44 | 0,59 → 0,48 | 0,56 → 0,45 | +0,04 / +0,01 |
+
+- Diferença média absoluta entre bases: **0,108 → 0,027**.
+- A ordem entre perfis se manteve nas três bases: desenvolvimento > contabilidade > eletricista ≈ enfermagem.
+- Incerteza média de CBO/ESCO caiu entre 0,08 e 0,10 em todos os conjuntos (por exemplo, contabilidade ESCO
+  0,45 → 0,35).
+- Técnico de enfermagem na CBO passou a ter "apoio pontual" como classe predominante, como no O*NET.
+
+**Resíduo:** ESCO "software developer" ainda fica 0,08 acima do O*NET. As unidades ESCO são competências, e não
+tarefas, e não têm pesos de importância; a diferença deve ser lida como incerteza de comparabilidade, não como
+diferença real de exposição.
+
+**Pendente de revisão humana:** ESCO "nurse assistant" continua mapeada automaticamente para *Psychiatric Aides*
+(31-1133). O equivalente natural é *Nursing Assistants* (31-1131).

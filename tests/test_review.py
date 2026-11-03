@@ -180,3 +180,19 @@ def test_decision_is_carried_to_a_new_mapping_row(client):
     assert fresh.history[-1].action == "carry"
     s.rollback()
     s.close()
+
+
+def test_accepted_mapping_transfers_observed_usage_to_esco_tasks(client):
+    """0.4.0 bias fix: ESCO/CBO tasks borrow E3 from the nearest task of the mapped O*NET occupation."""
+    target = _esco_mappings(client)[0]
+    assert _post(client, target["id"]).status_code == 303
+    _rerun()
+    esco = next(o for o in client.get("/api/occupations?taxonomy=ESCO").json())
+    comps = client.get(f"/api/occupations/{esco['id']}/assessment").json()["components"]
+    for c in comps:
+        src = c["dimension_sources"]["E3"]
+        assert src["method"].startswith("transferred") and src["from_occupation"] == target["other_code"]
+        assert src["from_task"] and 0 <= src["similarity_calibrated"] <= 1
+        assert c["dimensions"]["E3"] is not None
+        flag = c["dimension_sources"]["uncertainty_flags"]["observed_usage_missing"]
+        assert 0.5 <= flag <= 1.0

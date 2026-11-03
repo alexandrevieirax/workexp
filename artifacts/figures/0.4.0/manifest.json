@@ -1,0 +1,96 @@
+{
+  "methodology_version": "0.4.0",
+  "fingerprint": "b6d997dca906413a5ea0179dace6a465f2f16b11fe4166242c0fede740fedca1",
+  "figures": {
+    "flow": {
+      "file": "flow.mmd",
+      "kind": "mermaid",
+      "title": "Fluxo geral do modelo",
+      "caption": "Etapas do pipeline, da fonte oficial à interface; gerado de PIPELINE_STAGES no código.",
+      "alt": "Fluxograma: fontes, ingestão, normalização, crosswalk, embeddings, dicionário de capacidades, dimensões por tarefa, resultados, agregação e interface.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.4.0",
+      "sha256": "7db45b96999756bb8aa81506425d6b402c7e4892e82cb973c3706af1a31c5967"
+    },
+    "relation": {
+      "file": "relation.mmd",
+      "kind": "mermaid",
+      "title": "Relação ocupação–tarefa–capacidade de IA",
+      "caption": "Como cada evidência entra nas dimensões da tarefa e como as tarefas são agregadas na ocupação.",
+      "alt": "Diagrama: ocupação possui tarefas ponderadas; tarefas se ligam a capacidades de IA; capacidades, uso observado e descritores O*NET alimentam as dimensões; resultados são somados nos índices.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.4.0",
+      "sha256": "7e6e57ab8fc8542e0d505b866bf68ffd797f929af5967ba454596673be3914cd"
+    },
+    "er": {
+      "file": "er.mmd",
+      "kind": "mermaid",
+      "title": "Arquitetura de dados (núcleo analítico)",
+      "caption": "Diagrama entidade-relacionamento gerado automaticamente dos modelos SQLAlchemy.",
+      "alt": "Diagrama entidade-relacionamento das tabelas de fonte, ocupação, tarefa, crosswalk, capacidade, embedding e avaliação.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.4.0",
+      "sha256": "58964da6bf8826fcd795fc800952c8e6b7e1972655ce075f04312f3abd9b39b6"
+    },
+    "curriculum": {
+      "file": "curriculum.mmd",
+      "kind": "mermaid",
+      "title": "Da transformação da ocupação à recomendação curricular",
+      "caption": "Fluxo conceitual do módulo curricular (fase 8, ainda não implementado).",
+      "alt": "Fluxo: curso, extração, ligação a tarefas, exposição, lacunas, recomendações e validação humana.",
+      "data_source": "metadados do código",
+      "methodology_version": "0.4.0",
+      "sha256": "e9514249d4d6aa453be189d8cc0e2c9615c60afccdfc4c21f7412dcb60e4323c"
+    },
+    "calculation": {
+      "file": "calculation.svg",
+      "kind": "image",
+      "title": "Cálculo da exposição ocupacional",
+      "caption": "Cada barra é a contribuição de uma tarefa O*NET (peso normalizado × exposição técnica); a soma é o OAE.",
+      "alt": "Barras horizontais com a contribuição de 22 tarefas para o OAE de 0.44.",
+      "data_source": "assessment #43 run 20261103T133307Z-338e97; ONET 29-2061.00",
+      "methodology_version": "0.4.0",
+      "sha256": "18eea8b5e6c20949fb079b40e6b7cf2c92c06daff1d9b9144fd31dd2cf85b6c6"
+    },
+    "automation_augmentation": {
+      "file": "automation_augmentation.svg",
+      "kind": "image",
+      "title": "Automação versus aumento",
+      "caption": "Cada ponto é uma tarefa; acima da diagonal predomina o aumento de capacidade humana.",
+      "alt": "Dispersão das tarefas com automação no eixo x e aumento no eixo y; a maioria acima da diagonal.",
+      "data_source": "assessment #43 run 20261103T133307Z-338e97; ONET 29-2061.00",
+      "methodology_version": "0.4.0",
+      "sha256": "0e446eed4f10887179c12751daa3bfd3b85ac1bb4a79ff47b5496c31f56a074e"
+    },
+    "sensitivity": {
+      "file": "sensitivity.svg",
+      "kind": "image",
+      "title": "Análise de sensibilidade",
+      "caption": "Efeito no OAE de reduzir (vermelho) ou aumentar (azul) cada peso em 20%, mantendo os demais.",
+      "alt": "Gráfico de tornado; maior variação absoluta do OAE = 0.017.",
+      "data_source": "assessment #43 run 20261103T133307Z-338e97; ONET 29-2061.00",
+      "methodology_version": "0.4.0",
+      "sha256": "7510407b91f2490001dd3c91194eae0720ab322adb05129be5dd3229e9712b2a"
+    },
+    "uncertainty": {
+      "file": "uncertainty.svg",
+      "kind": "image",
+      "title": "Incerteza",
+      "caption": "Intervalos de 90% (Monte Carlo) para os quatro índices de cada ocupação avaliada.",
+      "alt": "Segmentos horizontais com os intervalos de OAE, OAP, OAuP e OTP por ocupação.",
+      "data_source": "assessment #43; assessment #44; assessment #45",
+      "methodology_version": "0.4.0",
+      "sha256": "b755b34939dbf8de1e34524de447c3008124636f4ee043891e6d048de478b52a"
+    },
+    "crosswalk": {
+      "file": "crosswalk.svg",
+      "kind": "image",
+      "title": "Crosswalk CBO–ESCO–O*NET",
+      "caption": "Componentes do mapping_confidence por par; nenhum par é aceito automaticamente.",
+      "alt": "Barras agrupadas com os cinco componentes de cada correspondência proposta e a confiança final.",
+      "data_source": "mapping #1; mapping #2; mapping #3; mapping #4; mapping #5; mapping #6; mapping #7; mapping #8; mapping #9; mapping #10; mapping #11; mapping #12; mapping #13; mapping #14; mapping #15; mapping #16; mapping #17; mapping #18; mapping #19; mapping #20; mapping #21; mapping #22; mapping #23; mapping #24; mapping #25; mapping #26; mapping #27; mapping #28; mapping #29; mapping #30; mapping #31; mapping #32; mapping #33; mapping #34; mapping #35; mapping #36; mapping #37; mapping #38; mapping #39; mapping #40; mapping #41; mapping #42; mapping #43; mapping #44; mapping #45; mapping #46; mapping #47; mapping #48; mapping #49; mapping #50; mapping #51; mapping #52; mapping #53; mapping #54; mapping #55; mapping #56; mapping #57; mapping #58; mapping #59; mapping #60; mapping #61; mapping #62; mapping #63; mapping #64; mapping #65; mapping #66; mapping #67; mapping #68; mapping #69; mapping #70; mapping #71; mapping #72; mapping #73; mapping #74; mapping #75; mapping #76; mapping #77; mapping #78; mapping #79; mapping #80; mapping #81; mapping #82; mapping #83; mapping #84; mapping #85; mapping #86; mapping #87; mapping #88; mapping #89; mapping #90; mapping #91; mapping #92; mapping #93; mapping #94; mapping #95; mapping #96; mapping #97; mapping #98; mapping #99; mapping #100; mapping #101; mapping #102; mapping #103; mapping #104; mapping #105; mapping #106; mapping #107; mapping #108; mapping #109; mapping #110; mapping #111; mapping #112; mapping #113; mapping #114; mapping #115; mapping #116",
+      "methodology_version": "0.4.0",
+      "sha256": "bbd334804d0c9f4a6cc8517e85ef88a6372e2e6527db12a822275e3e67eb1c50"
+    }
+  }
+}

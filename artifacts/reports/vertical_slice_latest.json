@@ -1,6 +1,6 @@
 {
-  "run_id": "20261102T220601Z-bce402",
-  "started_at": "2026-11-02T22:06:01.392399+00:00",
+  "run_id": "20261103T133307Z-338e97",
+  "started_at": "2026-11-03T13:33:07.789760+00:00",
   "sources": {
     "AEI": {
       "status": "loaded",
@@ -39,7 +39,7 @@
       "occupation_id": 28,
       "code": "29-2061.00",
       "title": "Licensed Practical and Licensed Vocational Nurses",
-      "assessment_id": 31,
+      "assessment_id": 43,
       "scores": {
         "OAE": 0.4361,
         "OAP": 0.0054,
@@ -91,29 +91,29 @@
       "occupation_id": 29,
       "code": "http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
       "title": "nurse assistant",
-      "assessment_id": 32,
+      "assessment_id": 44,
       "scores": {
-        "OAE": 0.5933,
-        "OAP": 0.0081,
-        "OAuP": 0.3069,
-        "OTP": 0.1893
+        "OAE": 0.4765,
+        "OAP": 0.0065,
+        "OAuP": 0.2464,
+        "OTP": 0.152
       },
       "intervals": {
         "OAE": [
-          0.5614,
-          0.6242
+          0.4154,
+          0.5311
         ],
         "OAP": [
-          0.005,
-          0.0122
+          0.0042,
+          0.0093
         ],
         "OAuP": [
-          0.2689,
-          0.3421
+          0.2101,
+          0.2833
         ],
         "OTP": [
-          0.1645,
-          0.2181
+          0.1299,
+          0.1779
         ]
       },
       "quality": {
@@ -125,14 +125,14 @@
         "prior_source": "crosswalk_transfer",
         "prior_from_occupation": "31-1133.00",
         "crosswalk_quality": 0.9309,
-        "mean_uncertainty": 0.4723,
+        "mean_uncertainty": 0.3942,
         "class_distribution": {
-          "augmentation": 0.8325,
-          "point_support": 0.1665
+          "augmentation": 0.4662,
+          "point_support": 0.5328
         },
         "embedding_model_is_semantic": true
       },
-      "max_abs_delta_OAE": 0.0016,
+      "max_abs_delta_OAE": 0.0195,
       "limitations": [
         "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
         "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
@@ -146,29 +146,29 @@
       "occupation_id": 30,
       "code": "322205",
       "title": "Técnico de enfermagem",
-      "assessment_id": 33,
+      "assessment_id": 45,
       "scores": {
-        "OAE": 0.5589,
-        "OAP": 0.0057,
-        "OAuP": 0.2837,
-        "OTP": 0.1656
+        "OAE": 0.4505,
+        "OAP": 0.0046,
+        "OAuP": 0.2288,
+        "OTP": 0.1335
       },
       "intervals": {
         "OAE": [
-          0.5418,
-          0.5762
+          0.3947,
+          0.4983
         ],
         "OAP": [
-          0.0043,
-          0.0074
+          0.0035,
+          0.006
         ],
         "OAuP": [
-          0.2645,
-          0.3033
+          0.1985,
+          0.2585
         ],
         "OTP": [
-          0.1537,
-          0.1818
+          0.1157,
+          0.1533
         ]
       },
       "quality": {
@@ -180,14 +180,14 @@
         "prior_source": "crosswalk_transfer",
         "prior_from_occupation": "29-2061.00",
         "crosswalk_quality": 0.8642,
-        "mean_uncertainty": 0.4865,
+        "mean_uncertainty": 0.4092,
         "class_distribution": {
-          "augmentation": 0.7,
-          "point_support": 0.3
+          "point_support": 0.69,
+          "augmentation": 0.31
         },
         "embedding_model_is_semantic": true
       },
-      "max_abs_delta_OAE": 0.0017,
+      "max_abs_delta_OAE": 0.0181,
       "limitations": [
         "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
         "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
@@ -197,7 +197,7 @@
         "Nenhuma evidência de uso observado para as tarefas desta ocupação."
       ]
     },
-    "divergence_ESCO_vs_ONET_OAE": 0.1572
+    "divergence_ESCO_vs_ONET_OAE": 0.0404
   },
   "crosswalks": [
     {
@@ -277,7 +277,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 62
+      "mapping_id": 106
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
@@ -356,7 +356,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 63
+      "mapping_id": 107
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
@@ -435,7 +435,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 64
+      "mapping_id": 108
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
@@ -514,7 +514,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 65
+      "mapping_id": 109
     },
     {
       "source": "ESCO:http://data.europa.eu/esco/occupation/87d0795a-d41f-47ee-979f-0ab7d73836e7",
@@ -595,7 +595,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 66
+      "mapping_id": 110
     },
     {
       "source": "CBO:322205",
@@ -653,7 +653,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 67
+      "mapping_id": 111
     },
     {
       "source": "CBO:322205",
@@ -711,7 +711,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 68
+      "mapping_id": 112
     },
     {
       "source": "CBO:322205",
@@ -769,7 +769,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 69
+      "mapping_id": 113
     },
     {
       "source": "CBO:322205",
@@ -827,7 +827,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 70
+      "mapping_id": 114
     },
     {
       "source": "CBO:322205",
@@ -885,7 +885,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 71
+      "mapping_id": 115
     },
     {
       "source": "CBO:322205",
@@ -936,7 +936,7 @@
         ],
         "auto_accept": false
       },
-      "mapping_id": 72
+      "mapping_id": 116
     }
   ],
   "crosswalk_candidates": {
@@ -1262,7 +1262,7 @@
       }
     },
     "caveat": "Labels are AI-drafted (not gold); calibration uses the same items, so error rates are in-sample.",
-    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261102T220601Z-bce402",
+    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261103T133307Z-338e97",
     "title_pair_calibration": {
       "model_key": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
       "floor": 0.7762947618961336,
@@ -1277,15 +1277,15 @@
     "Title calibration is narrow (floor 0.776, ceiling 0.823, 74+74 pairs): for this model, non-equivalent titles score almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak evidence (weight 0.20)."
   ],
   "methodology": {
-    "version": "0.3.2",
-    "fingerprint": "369282fdcc615f637a6e42e8c53a27c949a3cf9bb6684fd0cb22ede628c543fc",
+    "version": "0.4.0",
+    "fingerprint": "b6d997dca906413a5ea0179dace6a465f2f16b11fe4166242c0fede740fedca1",
     "status": "uncalibrated",
     "capability_dictionary": "0.1.0",
     "capability_review_status": "unreviewed"
   },
   "pipeline": {
-    "source_tree_sha256": "b684dd31046bffeeaf5640930b3c868c55c451dfc6e8173b89f27833452f440c",
-    "git_commit": "f86b4455a35e28859fc647d72e6cc2a7c619df50",
+    "source_tree_sha256": "5fa895e290d6736ae8dc0d820a6b8e53165dd77d15cab08aee6f9c69ac7840dc",
+    "git_commit": "fd8e05b020507b4365d21695860583f8fb5fd94e",
     "git_dirty": true
   }
 }

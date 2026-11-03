@@ -1,0 +1,167 @@
+# Methodology configuration — single source of truth for weights, thresholds and rules.
+# Every value here is an INITIAL HYPOTHESIS (status: uncalibrated). Changing anything in this
+# file changes the methodology fingerprint; see docs/methodology-v0.md §10.
+version: "0.4.0"
+status: uncalibrated
+released_at: "2026-11-02"
+references: [autor2003skill, eloundou2024gpts, felten2021occupational, handa2025which, dellacqua2023navigating,
+             reimers2020making]
+
+# Embedding model is part of the methodology (ADR 0002). Selected on benchmark v0.1.0 with a rule fixed
+# before the results: mean(MAP overall, MAP pt, occupation-pair AUC), FPR not worse than the lexical baseline.
+embedding:
+  provider: "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+  revision: "4328cf26390c98c5e3c738b4460a05b95f4911f5"
+  selection_record: artifacts/experiments/model-comparison-20261102T170325Z/comparison.json
+  fallback_for_tests: baseline
+
+semantic_match:
+  top_k: 3
+  negative_penalty: 1.0          # s = s_pos - penalty * max(0, s_neg - s_pos)
+  calibration:
+    floor_percentile_unrelated: 75
+    ceiling_quantile_related: 0.5
+  min_calibrated_for_match: 0.05  # below this a capability does not count as matched
+
+technical_exposure:
+  weights: {semantic_match: 0.30, technical_capability: 0.30, observed_usage: 0.20, technology_maturity: 0.20}
+  redistribute_when_missing: true
+
+process_redesign:
+  weights: {data_infrastructure: 0.5, technology_maturity: 0.5}
+
+observed_usage:
+  source: AEI
+  release: release_2025_03_27
+  transform: percentile_rank_among_observed
+  absent_from_sample_value: 0.0
+  absent_from_sample_uncertainty: 0.35
+  # 0.4.0: CBO/ESCO units borrow E3 from the nearest task of the mapped O*NET occupation (accepted, transferred
+  # or pooled crosswalk) instead of leaving it missing, which redistributed its weight and inflated their indices.
+  transfer:
+    enabled: true
+    method: nearest_task_in_mapped_onet_occupation
+    base_uncertainty: 0.5     # observed_usage flag = base + (1 - base) * (1 - calibrated similarity)
+
+task_weights:
+  alpha: 0.50   # importance
+  beta: 0.30    # relevance
+  gamma: 0.20   # frequency
+  importance_scale: IM
+  relevance_scale: RT
+  frequency_scale: FT
+  frequency_categories: 7
+  treat_suppressed_as_missing: true
+  non_onet_method: uniform_unweighted_source
+
+# Occupation-level priors from O*NET descriptors. Each element is normalized with its own scale
+# (Scales Reference min/max); "invert: true" means 1 - value.
+occupational_priors:
+  physical_requirement:
+    - {domain: work_context, element_id: "4.C.2.d.1.g", scale: CX}   # hands on objects/tools
+    - {domain: work_context, element_id: "4.C.2.d.1.b", scale: CX}   # standing
+    - {domain: work_context, element_id: "4.C.2.a.3", scale: CX}     # physical proximity
+    - {domain: work_activity, element_id: "4.A.3.a.1", scale: IM}    # general physical activities
+    - {domain: work_activity, element_id: "4.A.3.a.2", scale: IM}    # handling and moving objects
+    - {domain: work_activity, element_id: "4.A.3.b.4", scale: IM}    # repairing mechanical equipment
+  social_requirement:
+    - {domain: work_context, element_id: "4.C.1.a.4", scale: CX}     # contact with others
+    - {domain: work_context, element_id: "4.C.1.b.1.f", scale: CX}   # external customers / public
+    - {domain: work_context, element_id: "4.C.1.a.2.l", scale: CX}   # face-to-face discussions
+    - {domain: work_activity, element_id: "4.A.4.a.5", scale: IM}    # assisting and caring for others
+    - {domain: work_activity, element_id: "4.A.4.a.7", scale: IM}    # resolving conflicts, negotiating
+    - {domain: work_activity, element_id: "4.A.4.a.4", scale: IM}    # interpersonal relationships
+  accountability_requirement:
+    - {domain: work_context, element_id: "4.C.3.a.1", scale: CX}     # consequence of error
+    - {domain: work_context, element_id: "4.C.1.c.1", scale: CX}     # health and safety of other workers
+    - {domain: work_context, element_id: "4.C.1.c.2", scale: CX}     # work outcomes of other workers
+    - {domain: work_context, element_id: "4.C.3.a.2.a", scale: CX}   # impact of decisions
+  human_judgment_requirement:
+    - {domain: work_context, element_id: "4.C.3.a.4", scale: CX}     # freedom to make decisions
+    - {domain: work_context, element_id: "4.C.3.a.2.b", scale: CX}   # frequency of decision making
+    - {domain: work_activity, element_id: "4.A.2.b.1", scale: IM}    # making decisions, solving problems
+    - {domain: work_activity, element_id: "4.A.2.b.2", scale: IM}    # thinking creatively
+  organizational_context:
+    - {domain: work_context, element_id: "4.C.3.b.8", scale: CX}     # determine tasks, priorities, goals
+    - {domain: work_activity, element_id: "4.A.4.b.1", scale: IM}    # coordinating work of others
+    - {domain: work_context, element_id: "4.C.1.b.1.e", scale: CX}   # work group or team
+  process_standardization:
+    - {domain: work_context, element_id: "4.C.3.b.7", scale: CX}     # repeating same tasks
+    - {domain: work_context, element_id: "4.C.3.b.2", scale: CX}     # degree of automation
+    - {domain: work_context, element_id: "4.C.3.a.4", scale: CX, invert: true}  # freedom to decide (inverted)
+  default_prior: 0.5
+  default_prior_uncertainty: 0.6
+
+# Task-level lexical adjustment: value = clip(prior + delta * (pos_hits>0) - delta * (neg_hits>0)).
+# Cue lists live in config/methodology/lexicon_v0.1.0.yaml (pt + en).
+lexical_adjustment:
+  delta: 0.25
+  lexicon_file: lexicon_v0.1.0.yaml
+
+synthetic_outputs:
+  complementarity_source: capability.augmentation_affinity
+  supervision_combines: [capability.supervision_need, accountability_requirement]
+
+uncertainty:
+  weights:
+    observed_usage_missing: 0.20
+    prior_not_direct: 0.25
+    match_ambiguity: 0.15
+    baseline_embedding_model: 0.20
+    capability_priors_unreviewed: 0.10
+    rating_quality: 0.10
+  ambiguity_margin: 0.05          # top1 - top2 calibrated similarity below this is "ambiguous"
+
+classification:
+  insufficient_evidence_uncertainty: 0.70
+  low_applicability_exposure: 0.20
+  point_support_exposure: 0.35
+  structured_automation: {automation: 0.60, standardization: 0.70}
+  supervised_automation: 0.45
+  partial_automation: 0.30
+  transformation: {augmentation: 0.30, transformation: 0.40}
+  augmentation: 0.25
+
+aggregation:
+  monte_carlo:
+    draws: 1000
+    seed: 20261102
+    dimension_noise_base_sd: 0.05
+    dimension_noise_uncertainty_sd: 0.25
+    dirichlet_concentration: 50
+    exponent_sd: 0.10
+    interval: [5, 95]
+  sensitivity:
+    relative_change: 0.20
+  source_quality_min_n: 10
+
+crosswalk:
+  weights: {title_similarity: 0.20, task_similarity: 0.35, skill_similarity: 0.25,
+            hierarchy_consistency: 0.10, qualification_consistency: 0.10}
+  classes:
+    - {min: 0.90, label: very_strong}
+    - {min: 0.75, label: strong}
+    - {min: 0.60, label: moderate}
+    - {min: 0.00, label: not_accepted_automatically}
+  auto_accept: false
+  unknown_component_value: 0.5
+  prior_transfer_min_class: strong   # priors transferred from O*NET only for strong/very_strong mappings
+  null_sample_size: 150              # random O*NET occupations (excluding candidates) forming the empirical null
+  null_seed: 20261102
+  set_similarity_transform: normal_cdf_z_x_relative_to_best
+  # component = Phi((s - mean_null) / sd_null) * clip((s - mean_null) / (s_best - mean_null)); s_best = best candidate
+  official_tables: [ESCO_to_ONET-SOC.xlsx]   # O*NET's official ESCO→O*NET-SOC table (code AND title match)
+  # Other official tables in data/raw/crosswalks/*.csv are chained (≤ 3 hops, e.g. ISCO08→SOC2010→ONETSOC2019);
+  # systems that no chain connects keep the hierarchy component unknown.
+  official_chain_max_hops: 4        # CBO2002→ISCO88→ISCO08→SOC2010→ONETSOC2019 needs 4
+  official_sources_combination: mean   # each applicable official source votes 0/1; disagreements are recorded
+  candidates:
+    embedding_top_k: 8               # O*NET occupations closest to the source titles (title + description)
+    persist_top: 5                   # proposals stored for human review
+    ambiguity_margin: 0.03           # best - runner-up below this → ambiguous
+    require_unambiguous: true        # a single mapping's priors are transferred only if it is unambiguous
+    ambiguous_policy: pool_within_margin   # tied strong candidates → mean of their priors, +0.25 prior uncertainty
+  title_calibration:
+    extra_pair_files: [occupation_pairs_v0.2.0.jsonl]   # 138 pairs with labels from official sources
+    floor_percentile_nonequivalent: 90
+    ceiling_quantile_equivalent: 0.5

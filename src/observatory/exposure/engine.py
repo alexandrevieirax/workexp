@@ -43,9 +43,11 @@ class PriorContext:
     """Occupation-level priors and where they came from (direct O*NET, transferred via crosswalk, default)."""
 
     priors: dict[str, dict]
-    source: str  # onet_direct | crosswalk_transfer | default
+    source: str  # onet_direct | crosswalk_transfer | crosswalk_pooled | default
     mapping_confidence: float | None = None
     from_occupation: str | None = None
+    # Observed usage of the mapped O*NET occupation's tasks: [{"statement", "e3", "status", "onet_code"}].
+    usage_reference: list[dict] | None = None
 
 
 @dataclass
@@ -115,6 +117,7 @@ class ExposureEngine:
             raw[idx] = sc["s_pos"]
             neg[idx] = np.nan_to_num(sc["s_neg"], nan=-1)
 
+        usage_transfer = self._usage_transfer(tasks, prior_ctx)
         caps = self.dictionary.by_id()
         lex = self.m.lexicon
         delta = cfg["lexical_adjustment"]["delta"]
@@ -140,6 +143,7 @@ class ExposureEngine:
 
             # E3 observed usage
             evidence: list[dict] = []
+            transfer = usage_transfer.get(i)
             usage_missing = 0.0
             if t.unit_type in ("onet_task", "onet_emerging_task") and self.aei is not None:
                 ou = self.aei.lookup(t.statement)
@@ -171,6 +175,21 @@ class ExposureEngine:
                             "peer_reviewed": False,
                         }
                     )
+            elif transfer is not None:
+                # CBO/ESCO units have no observed-usage data of their own. Leaving E3 missing redistributes its
+                # weight to E1/E2/E11 and inflated their indices relative to O*NET (0.4.0 fix): borrow the E3 of
+                # the most similar task of the mapped O*NET occupation, absent-from-sample zeros included.
+                ref, sim = transfer
+                d["E3"] = ref["e3"]
+                src["E3"] = {
+                    "method": "transferred from nearest task of mapped O*NET occupation",
+                    "from_occupation": ref["onet_code"],
+                    "from_task": ref["statement"],
+                    "from_status": ref["status"],
+                    "similarity_calibrated": round(sim, 4),
+                }
+                base = cfg["observed_usage"]["transfer"]["base_uncertainty"]
+                usage_missing = base + (1 - base) * (1 - sim)
             else:
                 d["E3"] = None
                 src["E3"] = {"method": "none", "status": "missing", "reason": "no observed-usage source for unit type"}
@@ -216,6 +235,25 @@ class ExposureEngine:
             ]
             rows.append({"task": t, "d": d, "src": src, "flags": flags, "matched": matched, "evidence": evidence})
         return rows
+
+    def _usage_transfer(self, tasks: list[TaskInput], prior_ctx: PriorContext) -> dict[int, tuple[dict, float]]:
+        """For non-O*NET units: nearest reference task (calibrated similarity) in the mapped O*NET occupation."""
+        tr = self.cfg["observed_usage"].get("transfer", {})
+        refs = prior_ctx.usage_reference or []
+        idx = [i for i, t in enumerate(tasks) if t.unit_type not in ("onet_task", "onet_emerging_task")]
+        if not tr.get("enabled") or not refs or not idx:
+            return {}
+        emb = self.index.embedder
+        ref_m = emb.embed([r["statement"] for r in refs], "en", "query")
+        out: dict[int, tuple[dict, float]] = {}
+        for lang in sorted({tasks[i].language for i in idx}):
+            sub_idx = [i for i in idx if tasks[i].language == lang]
+            sims = emb.embed([tasks[i].statement for i in sub_idx], lang, "query") @ ref_m.T
+            cal = self.calibration.apply(sims)
+            for row, i in enumerate(sub_idx):
+                j = int(np.argmax(sims[row]))
+                out[i] = (refs[j], float(cal[row, j]))
+        return out
 
     def _weights(self, tasks: list[TaskInput], alpha: float, beta: float, gamma: float) -> list:
         tw = self.cfg["task_weights"]

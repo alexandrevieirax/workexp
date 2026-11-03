@@ -5,6 +5,20 @@ dicionário, regra de crosswalk ou método curricular exige uma nova seção aqu
 `config/methodology/registry.json`, atualização da área "Sobre" (`methodology_version` no cabeçalho dos
 arquivos de conteúdo) e das referências citadas. `tests/test_about_consistency.py` verifica isso.
 
+## [0.4.0] - 2026-11-03
+
+Status: **não calibrada**. Corrige o viés entre bases encontrado na comparação de quatro ocupações (0.3.2):
+CBO e ESCO ficavam 0,08–0,16 acima do O*NET para a mesma ocupação.
+
+- **Causa:** tarefas CBO/ESCO não têm uso observado próprio; com E3 ausente, seu peso (0,20) era redistribuído
+  para E1/E2/E11, que tendem a ser altos. Nas tarefas O*NET, a ausência na amostra do AEI entra como 0 e puxa
+  o índice para baixo.
+- **Correção:** cada tarefa CBO/ESCO recebe o E3 da tarefa mais parecida da ocupação O*NET mapeada (aceita
+  por revisão humana, transferida ou combinada em empate), incluindo os zeros de "ausente da amostra", com a
+  mesma regra aplicada às tarefas O*NET.
+- **Incerteza:** fator de uso observado = 0,5 + 0,5 × (1 − similaridade calibrada); antes era 1,0 (ausente).
+- Sem crosswalk utilizável (prior padrão), E3 continua ausente, como antes.
+
 ## [0.3.2] - 2026-11-02
 
 Status: **não calibrada**. Fecha as cadeias de tabelas oficiais:

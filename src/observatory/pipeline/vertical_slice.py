@@ -243,6 +243,26 @@ def persist_mapping(
     return mp
 
 
+def onet_usage_reference(onet: OnetArchive, aei: AeiRelease | None, codes: list[str], cfg: dict) -> list[dict] | None:
+    """O*NET tasks of the mapped occupation(s) with their observed-usage value, treated exactly as in O*NET
+    assessments (percentile when matched in the AEI sample, the configured value when absent from it)."""
+    if aei is None:
+        return None
+    out = []
+    for code in codes:
+        for t in onet.tasks(code):
+            ou = aei.lookup(t.statement)
+            out.append(
+                {
+                    "statement": t.statement,
+                    "onet_code": code,
+                    "e3": ou.percentile if ou else cfg["observed_usage"]["absent_from_sample_value"],
+                    "status": ou.match_method if ou else "absent_from_sample",
+                }
+            )
+    return out
+
+
 def onet_priors_for(onet: OnetArchive, codes: list[str], cfg: dict) -> dict:
     """Occupational priors of one O*NET occupation, or the mean of several (pooled for tied candidates)."""
     per = []
@@ -560,6 +580,7 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                         "crosswalk_transfer",
                         mp_dec.mapping_confidence if mp_dec else None,
                         latest,
+                        onet_usage_reference(onet, aei, [latest], m.config),
                     )
                     report.warnings.append(
                         f"{tax}: using the mapping to {latest} accepted by {decisions[tax][latest].reviewer}."
@@ -567,7 +588,11 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                 elif best is not None and strong and unambiguous:
                     code = best.target.split(":", 1)[1]
                     ctx = PriorContext(
-                        onet_priors_for(onet, [code], m.config), "crosswalk_transfer", best.mapping_confidence, code
+                        onet_priors_for(onet, [code], m.config),
+                        "crosswalk_transfer",
+                        best.mapping_confidence,
+                        code,
+                        onet_usage_reference(onet, aei, [code], m.config),
                     )
                 elif pool:
                     codes = [p.target.split(":", 1)[1] for p in tied]
@@ -576,6 +601,7 @@ def run(cfg: SliceConfig | None = None, settings: Settings | None = None) -> Sli
                         "crosswalk_pooled",
                         min(p.mapping_confidence for p in tied),
                         ", ".join(codes),
+                        onet_usage_reference(onet, aei, codes, m.config),
                     )
                     report.warnings.append(
                         f"{tax}: {len(codes)} O*NET candidates tied within the ambiguity margin; priors pooled "

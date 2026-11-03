@@ -1,0 +1,1190 @@
+{
+  "run_id": "20261103T133241Z-10f126",
+  "started_at": "2026-11-03T13:32:41.251137+00:00",
+  "sources": {
+    "AEI": {
+      "status": "loaded",
+      "release": "release_2025_03_27",
+      "tasks": 3365
+    },
+    "ONET": {
+      "status": "loaded",
+      "version": "31.0",
+      "occupation": "47-2111.00",
+      "tasks": 21,
+      "descriptors": 660,
+      "sha256": "6883548adf5fde64cf6f801b35d15519c9225f2732c3cab0e281c652d16b23a9"
+    },
+    "ESCO": {
+      "status": "loaded",
+      "version": "api-default",
+      "uri": "http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "isco": "7411",
+      "essential_skills_as_tasks": 15,
+      "skills_total": 39,
+      "api_responses": 2
+    },
+    "CBO": {
+      "status": "loaded",
+      "version": "CBO2002-estrutura-csv+livros-3a-ed-2010",
+      "code": "715610",
+      "activities": 65,
+      "personal_competencies": 7,
+      "activity_scope": "occupation",
+      "sha256": "a7fd548693f507a00700465264c1c9286ebb17691297f7aa0e1b411f77b15b3c"
+    }
+  },
+  "occupations": {
+    "ONET": {
+      "occupation_id": 20,
+      "code": "47-2111.00",
+      "title": "Electricians",
+      "assessment_id": 40,
+      "scores": {
+        "OAE": 0.5016,
+        "OAP": 0.001,
+        "OAuP": 0.2739,
+        "OTP": 0.1445
+      },
+      "intervals": {
+        "OAE": [
+          0.4404,
+          0.5613
+        ],
+        "OAP": [
+          0.0004,
+          0.002
+        ],
+        "OAuP": [
+          0.2339,
+          0.312
+        ],
+        "OTP": [
+          0.1216,
+          0.1695
+        ]
+      },
+      "quality": {
+        "task_count": 21,
+        "task_coverage": 1.0,
+        "observed_usage_coverage": 0.095,
+        "source_quality": 0.9184,
+        "weight_method": "mixed",
+        "prior_source": "onet_direct",
+        "prior_from_occupation": null,
+        "crosswalk_quality": null,
+        "mean_uncertainty": 0.2382,
+        "class_distribution": {
+          "augmentation": 0.5207,
+          "point_support": 0.4792
+        },
+        "embedding_model_is_semantic": true
+      },
+      "max_abs_delta_OAE": 0.0195,
+      "limitations": [
+        "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
+        "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
+        "Priors do dicionário de capacidades de IA não foram revisados por especialistas."
+      ]
+    },
+    "ESCO": {
+      "occupation_id": 21,
+      "code": "http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "title": "domestic electrician",
+      "assessment_id": 41,
+      "scores": {
+        "OAE": 0.4826,
+        "OAP": 0.0012,
+        "OAuP": 0.2586,
+        "OTP": 0.1329
+      },
+      "intervals": {
+        "OAE": [
+          0.4186,
+          0.5416
+        ],
+        "OAP": [
+          0.0004,
+          0.0025
+        ],
+        "OAuP": [
+          0.2142,
+          0.3041
+        ],
+        "OTP": [
+          0.108,
+          0.1619
+        ]
+      },
+      "quality": {
+        "task_count": 15,
+        "task_coverage": 1.0,
+        "observed_usage_coverage": 0,
+        "source_quality": null,
+        "weight_method": "uniform_unweighted_source",
+        "prior_source": "crosswalk_transfer",
+        "prior_from_occupation": "47-2111.00",
+        "crosswalk_quality": 0.9403,
+        "mean_uncertainty": 0.3463,
+        "class_distribution": {
+          "augmentation": 0.6003,
+          "point_support": 0.4002
+        },
+        "embedding_model_is_semantic": true
+      },
+      "max_abs_delta_OAE": 0.0182,
+      "limitations": [
+        "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
+        "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
+        "Priors do dicionário de capacidades de IA não foram revisados por especialistas.",
+        "Priors E6–E10 transferidos de 47-2111.00 via crosswalk (confiança 0.94).",
+        "A fonte não publica importância/frequência das tarefas: pesos uniformes.",
+        "Nenhuma evidência de uso observado para as tarefas desta ocupação."
+      ]
+    },
+    "CBO": {
+      "occupation_id": 22,
+      "code": "715610",
+      "title": "Eletricista de instalações (edifícios)",
+      "assessment_id": 42,
+      "scores": {
+        "OAE": 0.5351,
+        "OAP": 0.0012,
+        "OAuP": 0.2894,
+        "OTP": 0.1594
+      },
+      "intervals": {
+        "OAE": [
+          0.4672,
+          0.6013
+        ],
+        "OAP": [
+          0.0006,
+          0.0019
+        ],
+        "OAuP": [
+          0.2486,
+          0.3334
+        ],
+        "OTP": [
+          0.1382,
+          0.1868
+        ]
+      },
+      "quality": {
+        "task_count": 65,
+        "task_coverage": 1.0,
+        "observed_usage_coverage": 0,
+        "source_quality": null,
+        "weight_method": "uniform_unweighted_source",
+        "prior_source": "crosswalk_transfer",
+        "prior_from_occupation": "47-2111.00",
+        "crosswalk_quality": 0.8211,
+        "mean_uncertainty": 0.4402,
+        "class_distribution": {
+          "augmentation": 0.7546,
+          "point_support": 0.2464
+        },
+        "embedding_model_is_semantic": true
+      },
+      "max_abs_delta_OAE": 0.0216,
+      "limitations": [
+        "Exposição técnica não equivale a adoção, substituição ou risco de desemprego.",
+        "Pesos e fórmulas da metodologia 0.1.0 não estão calibrados (hipóteses iniciais).",
+        "Priors do dicionário de capacidades de IA não foram revisados por especialistas.",
+        "Priors E6–E10 transferidos de 47-2111.00 via crosswalk (confiança 0.82).",
+        "A fonte não publica importância/frequência das tarefas: pesos uniformes.",
+        "Nenhuma evidência de uso observado para as tarefas desta ocupação."
+      ]
+    },
+    "divergence_ESCO_vs_ONET_OAE": 0.019
+  },
+  "crosswalks": [
+    {
+      "source": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "target": "ONET:47-2111.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.9954,
+      "skill_similarity": 0.9011,
+      "hierarchy_consistency": 1.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.9403,
+      "confidence_class": "very_strong",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "hierarchy: O*NET ESCO→O*NET-SOC table (esco_code_and_title); target in the 2 mapped occupations",
+        "hierarchy: chain of official tables ISCO08 → SOC2010 → ONETSOC2019 (linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale"
+      ],
+      "details": {
+        "raw_title_cosine": 0.9976,
+        "unknown_components": [],
+        "null": {
+          "tasks": {
+            "raw": 0.6224,
+            "null_mean": 0.3812,
+            "null_sd": 0.0927,
+            "null_max": 0.6178,
+            "n_null": 150,
+            "z": 2.603,
+            "raw_rank_vs_null": 1.0,
+            "relative_to_best": 1.0
+          },
+          "skills": {
+            "raw": 0.6333,
+            "null_mean": 0.4506,
+            "null_sd": 0.0835,
+            "null_max": 0.652,
+            "n_null": 150,
+            "z": 2.188,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.9142
+          }
+        },
+        "official": {
+          "onet_esco_table": {
+            "method": "esco_code_and_title",
+            "official_targets": [
+              "47-2111.00",
+              "47-3013.00"
+            ]
+          },
+          "official_table_chain": {
+            "systems": [
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "onet_esco_table": 1.0,
+            "official_table_chain": 1.0
+          }
+        },
+        "languages": [
+          "en",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 95
+    },
+    {
+      "source": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "target": "ONET:49-9051.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.9231,
+      "skill_similarity": 0.944,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 1.0,
+      "mapping_confidence": 0.8591,
+      "confidence_class": "strong",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "hierarchy: O*NET ESCO→O*NET-SOC table (esco_code_and_title); target not in the 2 mapped occupations",
+        "hierarchy: chain of official tables ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8489,
+        "unknown_components": [],
+        "null": {
+          "tasks": {
+            "raw": 0.6056,
+            "null_mean": 0.3812,
+            "null_sd": 0.0927,
+            "null_max": 0.6178,
+            "n_null": 150,
+            "z": 2.421,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.9303
+          },
+          "skills": {
+            "raw": 0.6413,
+            "null_mean": 0.4506,
+            "null_sd": 0.0835,
+            "null_max": 0.652,
+            "n_null": 150,
+            "z": 2.285,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.9547
+          }
+        },
+        "official": {
+          "onet_esco_table": {
+            "method": "esco_code_and_title",
+            "official_targets": [
+              "47-2111.00",
+              "47-3013.00"
+            ]
+          },
+          "official_table_chain": {
+            "systems": [
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "onet_esco_table": 0.0,
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "en",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 96
+    },
+    {
+      "source": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "target": "ONET:49-2095.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.885,
+      "skill_similarity": 0.9917,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.8243,
+      "confidence_class": "strong",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "hierarchy: O*NET ESCO→O*NET-SOC table (esco_code_and_title); target not in the 2 mapped occupations",
+        "hierarchy: chain of official tables ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8993,
+        "unknown_components": [],
+        "null": {
+          "tasks": {
+            "raw": 0.5968,
+            "null_mean": 0.3812,
+            "null_sd": 0.0927,
+            "null_max": 0.6178,
+            "n_null": 150,
+            "z": 2.326,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.8939
+          },
+          "skills": {
+            "raw": 0.6504,
+            "null_mean": 0.4506,
+            "null_sd": 0.0835,
+            "null_max": 0.652,
+            "n_null": 150,
+            "z": 2.393,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 1.0
+          }
+        },
+        "official": {
+          "onet_esco_table": {
+            "method": "esco_code_and_title",
+            "official_targets": [
+              "47-2111.00",
+              "47-3013.00"
+            ]
+          },
+          "official_table_chain": {
+            "systems": [
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "onet_esco_table": 0.0,
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "en",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 97
+    },
+    {
+      "source": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "target": "ONET:47-3013.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.6993,
+      "skill_similarity": 0.8112,
+      "hierarchy_consistency": 0.5,
+      "qualification_consistency": 1.0,
+      "mapping_confidence": 0.7975,
+      "confidence_class": "strong",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "hierarchy: O*NET ESCO→O*NET-SOC table (esco_code_and_title); target in the 2 mapped occupations",
+        "hierarchy: chain of official tables ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "hierarchy: official sources disagree {'onet_esco_table': 1.0, 'official_table_chain': 0.0} → mean 0.50",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale"
+      ],
+      "details": {
+        "raw_title_cosine": 0.9046,
+        "unknown_components": [],
+        "null": {
+          "tasks": {
+            "raw": 0.5551,
+            "null_mean": 0.3812,
+            "null_sd": 0.0927,
+            "null_max": 0.6178,
+            "n_null": 150,
+            "z": 1.876,
+            "raw_rank_vs_null": 0.9733,
+            "relative_to_best": 0.7211
+          },
+          "skills": {
+            "raw": 0.6165,
+            "null_mean": 0.4506,
+            "null_sd": 0.0835,
+            "null_max": 0.652,
+            "n_null": 150,
+            "z": 1.988,
+            "raw_rank_vs_null": 0.98,
+            "relative_to_best": 0.8306
+          }
+        },
+        "official": {
+          "onet_esco_table": {
+            "method": "esco_code_and_title",
+            "official_targets": [
+              "47-2111.00",
+              "47-3013.00"
+            ]
+          },
+          "official_table_chain": {
+            "systems": [
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "onet_esco_table": 1.0,
+            "official_table_chain": 0.0
+          },
+          "disagreement": true
+        },
+        "languages": [
+          "en",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 98
+    },
+    {
+      "source": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "target": "ONET:49-2094.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.8052,
+      "skill_similarity": 0.8814,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.7689,
+      "confidence_class": "strong",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "hierarchy: O*NET ESCO→O*NET-SOC table (esco_code_and_title); target not in the 2 mapped occupations",
+        "hierarchy: chain of official tables ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale"
+      ],
+      "details": {
+        "raw_title_cosine": 0.9385,
+        "unknown_components": [],
+        "null": {
+          "tasks": {
+            "raw": 0.5787,
+            "null_mean": 0.3812,
+            "null_sd": 0.0927,
+            "null_max": 0.6178,
+            "n_null": 150,
+            "z": 2.131,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.8188
+          },
+          "skills": {
+            "raw": 0.6296,
+            "null_mean": 0.4506,
+            "null_sd": 0.0835,
+            "null_max": 0.652,
+            "n_null": 150,
+            "z": 2.144,
+            "raw_rank_vs_null": 0.9867,
+            "relative_to_best": 0.8958
+          }
+        },
+        "official": {
+          "onet_esco_table": {
+            "method": "esco_code_and_title",
+            "official_targets": [
+              "47-2111.00",
+              "47-3013.00"
+            ]
+          },
+          "official_table_chain": {
+            "systems": [
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "onet_esco_table": 0.0,
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "en",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 99
+    },
+    {
+      "source": "CBO:715610",
+      "target": "ONET:47-2111.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.9411,
+      "skill_similarity": null,
+      "hierarchy_consistency": 1.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.8211,
+      "confidence_class": "strong",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: chain of official tables CBO2002 → ISCO88 → ISCO08 → SOC2010 → ONETSOC2019 (linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['skill_similarity']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8416,
+        "unknown_components": [
+          "skill_similarity"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.6338,
+            "null_mean": 0.4738,
+            "null_sd": 0.0739,
+            "null_max": 0.6527,
+            "n_null": 150,
+            "z": 2.164,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.9557
+          }
+        },
+        "official": {
+          "official_table_chain": {
+            "systems": [
+              "CBO2002",
+              "ISCO88",
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "official_table_chain": 1.0
+          }
+        },
+        "languages": [
+          "pt",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 100
+    },
+    {
+      "source": "CBO:715610",
+      "target": "ONET:49-2095.00",
+      "title_similarity": 1.0,
+      "task_similarity": 0.8755,
+      "skill_similarity": null,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.6981,
+      "confidence_class": "moderate",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: chain of official tables CBO2002 → ISCO88 → ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['skill_similarity']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8308,
+        "unknown_components": [
+          "skill_similarity"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.6236,
+            "null_mean": 0.4738,
+            "null_sd": 0.0739,
+            "null_max": 0.6527,
+            "n_null": 150,
+            "z": 2.025,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 0.8946
+          }
+        },
+        "official": {
+          "official_table_chain": {
+            "systems": [
+              "CBO2002",
+              "ISCO88",
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "pt",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 101
+    },
+    {
+      "source": "CBO:715610",
+      "target": "ONET:49-2094.00",
+      "title_similarity": 0.6619,
+      "task_similarity": 0.9882,
+      "skill_similarity": null,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.6699,
+      "confidence_class": "moderate",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: chain of official tables CBO2002 → ISCO88 → ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['skill_similarity']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8073,
+        "unknown_components": [
+          "skill_similarity"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.6412,
+            "null_mean": 0.4738,
+            "null_sd": 0.0739,
+            "null_max": 0.6527,
+            "n_null": 150,
+            "z": 2.264,
+            "raw_rank_vs_null": 0.9933,
+            "relative_to_best": 1.0
+          }
+        },
+        "official": {
+          "official_table_chain": {
+            "systems": [
+              "CBO2002",
+              "ISCO88",
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "pt",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 102
+    },
+    {
+      "source": "CBO:715610",
+      "target": "ONET:49-9051.00",
+      "title_similarity": 0.666,
+      "task_similarity": 0.7339,
+      "skill_similarity": null,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 1.0,
+      "mapping_confidence": 0.6151,
+      "confidence_class": "moderate",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: chain of official tables CBO2002 → ISCO88 → ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['skill_similarity']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8075,
+        "unknown_components": [
+          "skill_similarity"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.602,
+            "null_mean": 0.4738,
+            "null_sd": 0.0739,
+            "null_max": 0.6527,
+            "n_null": 150,
+            "z": 1.733,
+            "raw_rank_vs_null": 0.9733,
+            "relative_to_best": 0.7657
+          }
+        },
+        "official": {
+          "official_table_chain": {
+            "systems": [
+              "CBO2002",
+              "ISCO88",
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "pt",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 103
+    },
+    {
+      "source": "CBO:715610",
+      "target": "ONET:49-9062.00",
+      "title_similarity": 0.6271,
+      "task_similarity": 0.8073,
+      "skill_similarity": null,
+      "hierarchy_consistency": 0.0,
+      "qualification_consistency": 0.6667,
+      "mapping_confidence": 0.5997,
+      "confidence_class": "not_accepted_automatically",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: Phi(z) vs empirical null (n=150) x closeness to the best candidate (s - mean_null) / (s_best - mean_null)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: chain of official tables CBO2002 → ISCO88 → ISCO08 → SOC2010 → ONETSOC2019 (not linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['skill_similarity']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8057,
+        "unknown_components": [
+          "skill_similarity"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.6131,
+            "null_mean": 0.4738,
+            "null_sd": 0.0739,
+            "null_max": 0.6527,
+            "n_null": 150,
+            "z": 1.884,
+            "raw_rank_vs_null": 0.98,
+            "relative_to_best": 0.8321
+          }
+        },
+        "official": {
+          "official_table_chain": {
+            "systems": [
+              "CBO2002",
+              "ISCO88",
+              "ISCO08",
+              "SOC2010",
+              "ONETSOC2019"
+            ]
+          },
+          "votes": {
+            "official_table_chain": 0.0
+          }
+        },
+        "languages": [
+          "pt",
+          "en"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 104
+    },
+    {
+      "source": "CBO:715610",
+      "target": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "title_similarity": 1.0,
+      "task_similarity": null,
+      "skill_similarity": null,
+      "hierarchy_consistency": 1.0,
+      "qualification_consistency": 1.0,
+      "mapping_confidence": 0.7,
+      "confidence_class": "moderate",
+      "status": "proposed",
+      "rules_applied": [
+        "title: max cosine over preferred/alternative labels, pair-calibrated",
+        "tasks: fewer than 5 null occupations → component unknown (raw 0.702 recorded)",
+        "skills: unavailable on one side → component unknown",
+        "hierarchy: chain of official tables CBO2002 → ISCO88 → ISCO08 (linked)",
+        "qualification: 1 - |level_a - level_b| on harmonized ISCO skill-level scale",
+        "unknown components set to 0.5: ['task_similarity', 'skill_similarity']"
+      ],
+      "details": {
+        "raw_title_cosine": 0.8328,
+        "unknown_components": [
+          "task_similarity",
+          "skill_similarity"
+        ],
+        "null": {
+          "tasks": {
+            "raw": 0.7017,
+            "n_null": 0
+          }
+        },
+        "official": {
+          "official_table_chain": {
+            "systems": [
+              "CBO2002",
+              "ISCO88",
+              "ISCO08"
+            ]
+          },
+          "votes": {
+            "official_table_chain": 1.0
+          }
+        },
+        "languages": [
+          "pt",
+          "pt"
+        ],
+        "auto_accept": false
+      },
+      "mapping_id": 105
+    }
+  ],
+  "crosswalk_candidates": {
+    "ESCO": {
+      "source": "ESCO:http://data.europa.eu/esco/occupation/5dbb9cf0-b226-402c-a295-2f42ef05ff8b",
+      "ambiguous": false,
+      "margin": 0.0812,
+      "tied": [],
+      "candidates": [
+        {
+          "target": "ONET:47-2111.00",
+          "origin": "official_table",
+          "mapping_confidence": 0.9403,
+          "confidence_class": "very_strong",
+          "title": 1.0,
+          "tasks": 0.9954,
+          "skills": 0.9011,
+          "hierarchy": 1.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:49-9051.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.8591,
+          "confidence_class": "strong",
+          "title": 1.0,
+          "tasks": 0.9231,
+          "skills": 0.944,
+          "hierarchy": 0.0,
+          "qualification": 1.0
+        },
+        {
+          "target": "ONET:49-2095.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.8243,
+          "confidence_class": "strong",
+          "title": 1.0,
+          "tasks": 0.885,
+          "skills": 0.9917,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:47-3013.00",
+          "origin": "official_table",
+          "mapping_confidence": 0.7975,
+          "confidence_class": "strong",
+          "title": 1.0,
+          "tasks": 0.6993,
+          "skills": 0.8112,
+          "hierarchy": 0.5,
+          "qualification": 1.0
+        },
+        {
+          "target": "ONET:49-2094.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.7689,
+          "confidence_class": "strong",
+          "title": 1.0,
+          "tasks": 0.8052,
+          "skills": 0.8814,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:51-8013.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.7593,
+          "confidence_class": "strong",
+          "title": 1.0,
+          "tasks": 0.7579,
+          "skills": 0.7763,
+          "hierarchy": 0.0,
+          "qualification": 1.0
+        },
+        {
+          "target": "ONET:51-2022.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.6291,
+          "confidence_class": "moderate",
+          "title": 0.6446,
+          "tasks": 0.6505,
+          "skills": 0.6898,
+          "hierarchy": 0.0,
+          "qualification": 1.0
+        },
+        {
+          "target": "ONET:49-2092.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.6031,
+          "confidence_class": "moderate",
+          "title": 0.1051,
+          "tasks": 0.7966,
+          "skills": 0.9463,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:17-2071.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.5935,
+          "confidence_class": "not_accepted_automatically",
+          "title": 1.0,
+          "tasks": 0.6114,
+          "skills": 0.5847,
+          "hierarchy": 0.0,
+          "qualification": 0.3333
+        }
+      ],
+      "human_decisions": {}
+    },
+    "CBO": {
+      "source": "CBO:715610",
+      "ambiguous": false,
+      "margin": 0.123,
+      "tied": [],
+      "candidates": [
+        {
+          "target": "ONET:47-2111.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.8211,
+          "confidence_class": "strong",
+          "title": 1.0,
+          "tasks": 0.9411,
+          "skills": null,
+          "hierarchy": 1.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:49-2095.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.6981,
+          "confidence_class": "moderate",
+          "title": 1.0,
+          "tasks": 0.8755,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:49-2094.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.6699,
+          "confidence_class": "moderate",
+          "title": 0.6619,
+          "tasks": 0.9882,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:49-9051.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.6151,
+          "confidence_class": "moderate",
+          "title": 0.666,
+          "tasks": 0.7339,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 1.0
+        },
+        {
+          "target": "ONET:49-9062.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.5997,
+          "confidence_class": "not_accepted_automatically",
+          "title": 0.6271,
+          "tasks": 0.8073,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:49-2096.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.5648,
+          "confidence_class": "not_accepted_automatically",
+          "title": 0.9401,
+          "tasks": 0.529,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        },
+        {
+          "target": "ONET:51-2022.00",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.4598,
+          "confidence_class": "not_accepted_automatically",
+          "title": 0.0,
+          "tasks": 0.6708,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 1.0
+        },
+        {
+          "target": "ONET:47-1011.03",
+          "origin": "embedding_prefilter",
+          "mapping_confidence": 0.286,
+          "confidence_class": "not_accepted_automatically",
+          "title": 0.0,
+          "tasks": 0.2694,
+          "skills": null,
+          "hierarchy": 0.0,
+          "qualification": 0.6667
+        }
+      ],
+      "human_decisions": {}
+    }
+  },
+  "benchmark": {
+    "model": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
+    "calibration": {
+      "model_key": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
+      "floor": 0.23697087168693542,
+      "ceiling": 0.6137651801109314,
+      "benchmark_version": "0.1.0",
+      "n_related": 44,
+      "n_unrelated": 101,
+      "method": "floor=p75(unrelated), ceiling=median(related)"
+    },
+    "overall": {
+      "p@1": 0.6129,
+      "p@3": 0.4516,
+      "p@5": 0.3613,
+      "r@1": 0.2102,
+      "r@3": 0.4629,
+      "r@5": 0.5839,
+      "MAP": 0.5543,
+      "ndcg@5": 0.6039,
+      "n_queries": 31
+    },
+    "spearman_grade_vs_score": 0.8767,
+    "false_positive_rate": 0.0198,
+    "false_negative_rate": 0.0455,
+    "by_language": {
+      "pt": {
+        "p@1": 0.8571,
+        "p@3": 0.4762,
+        "p@5": 0.3714,
+        "r@1": 0.35,
+        "r@3": 0.5024,
+        "r@5": 0.6143,
+        "MAP": 0.6672,
+        "ndcg@5": 0.7173,
+        "n_queries": 7
+      },
+      "en": {
+        "p@1": 0.5417,
+        "p@3": 0.4444,
+        "p@5": 0.3583,
+        "r@1": 0.1694,
+        "r@3": 0.4514,
+        "r@5": 0.575,
+        "MAP": 0.5214,
+        "ndcg@5": 0.5708,
+        "n_queries": 24
+      }
+    },
+    "caveat": "Labels are AI-drafted (not gold); calibration uses the same items, so error rates are in-sample.",
+    "artifact": "C:\\Users\\alexa\\Documents\\Sistemas\\WorkExp\\artifacts\\experiments\\benchmark-20261103T133241Z-10f126",
+    "title_pair_calibration": {
+      "model_key": "sentence-transformers:sentence-transformers/paraphrase-multilingual-mpnet-base-v2@4328cf26390c",
+      "floor": 0.7762947618961336,
+      "ceiling": 0.8231405913829803,
+      "benchmark_version": "0.1.0+occupation_pairs_v0.2.0.jsonl",
+      "n_related": 74,
+      "n_unrelated": 74,
+      "method": "floor=p90(non-equivalent), ceiling=q0.5(equivalent)"
+    }
+  },
+  "warnings": [
+    "Title calibration is narrow (floor 0.776, ceiling 0.823, 74+74 pairs): for this model, non-equivalent titles score almost like equivalent ones, so title_similarity behaves close to a 0/1 step. Treat it as weak evidence (weight 0.20)."
+  ],
+  "methodology": {
+    "version": "0.4.0",
+    "fingerprint": "b6d997dca906413a5ea0179dace6a465f2f16b11fe4166242c0fede740fedca1",
+    "status": "uncalibrated",
+    "capability_dictionary": "0.1.0",
+    "capability_review_status": "unreviewed"
+  },
+  "pipeline": {
+    "source_tree_sha256": "5fa895e290d6736ae8dc0d820a6b8e53165dd77d15cab08aee6f9c69ac7840dc",
+    "git_commit": "fd8e05b020507b4365d21695860583f8fb5fd94e",
+    "git_dirty": true
+  }
+}

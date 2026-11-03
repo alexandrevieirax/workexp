@@ -54,7 +54,10 @@ são preservados no campo `task.unit_type` porque não são equivalentes:
 - **E3 (uso observado)**: percentil da participação da tarefa nas conversas do
   Anthropic Economic Index. Tarefa ausente da amostra recebe 0 **com** flag
   `absent_from_sample` e acréscimo de incerteza — ausência não é prova de não uso.
-  Para tarefas ESCO/CBO, E3 = desconhecido (`missing`), não zero.
+  Para tarefas ESCO/CBO (desde a 0.4.0): E3 da tarefa mais parecida da ocupação O*NET mapeada (aceita,
+  transferida ou combinada), com fator de incerteza 0,5 + 0,5 × (1 − similaridade calibrada). Sem crosswalk
+  utilizável, E3 = desconhecido (`missing`), não zero. Antes da 0.4.0 ficava sempre ausente, e a
+  redistribuição do peso inflava os índices CBO/ESCO em 0,08–0,16 em relação ao O*NET.
 - **E6–E10 e padronização de processo**: prior ocupacional calculado a partir de
   elementos de *Work Context* e *Work Activities* do O*NET (cada escala
   normalizada separadamente por seu mínimo/máximo do *Scales Reference*),

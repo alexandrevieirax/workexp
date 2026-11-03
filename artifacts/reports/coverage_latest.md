@@ -1,21 +1,21 @@
-# Comparação entre ocupações — metodologia 0.3.2
+# Comparação entre ocupações — metodologia 0.4.0
 
-Gerado em 2026-11-02T22:07:37.517876+00:00. Intervalos de 90% por Monte Carlo. Exposição não é risco de desemprego.
+Gerado em 2026-11-03T13:33:33.779448+00:00. Intervalos de 90% por Monte Carlo. Exposição não é risco de desemprego.
 
 | Conjunto | Perfil | Base | Ocupação | OAE | OAP | OAuP | OTP | E14 | Priors | Classe predominante |
 |---|---|---|---|---|---|---|---|---|---|---|
 | desenvolvimento-de-sistemas | cognitiva (TI) | ONET | Software Developers | 0.71 [0.67–0.75] | 0.07 | 0.43 | 0.30 | 0.25 | onet_direct | augmentation (81%) |
-| desenvolvimento-de-sistemas | cognitiva (TI) | ESCO | software developer | 0.79 [0.74–0.84] | 0.06 | 0.43 | 0.31 | 0.57 | crosswalk_transfer (15-1252.00) | augmentation (87%) |
-| desenvolvimento-de-sistemas | cognitiva (TI) | CBO | Analista de desenvolvimento de sistemas | 0.76 [0.72–0.80] | 0.06 | 0.39 | 0.26 | 0.56 | crosswalk_transfer (15-1253.00) | augmentation (94%) |
+| desenvolvimento-de-sistemas | cognitiva (TI) | ESCO | software developer | 0.78 [0.74–0.82] | 0.06 | 0.43 | 0.31 | 0.49 | crosswalk_transfer (15-1252.00) | augmentation (87%) |
+| desenvolvimento-de-sistemas | cognitiva (TI) | CBO | Analista de desenvolvimento de sistemas | 0.69 [0.65–0.73] | 0.06 | 0.35 | 0.24 | 0.48 | crosswalk_transfer (15-1253.00) | augmentation (95%) |
 | contabilidade | cognitiva (não TI) | ONET | Accountants and Auditors | 0.63 [0.56–0.68] | 0.06 | 0.29 | 0.20 | 0.24 | onet_direct | augmentation (76%) |
-| contabilidade | cognitiva (não TI) | ESCO | accountant | 0.71 [0.67–0.76] | 0.06 | 0.31 | 0.20 | 0.45 | crosswalk_transfer (13-2011.00) | augmentation (80%) |
-| contabilidade | cognitiva (não TI) | CBO | Contador | 0.74 [0.71–0.76] | 0.06 | 0.35 | 0.24 | 0.51 | crosswalk_transfer (13-2011.00) | augmentation (94%) |
+| contabilidade | cognitiva (não TI) | ESCO | accountant | 0.64 [0.59–0.68] | 0.05 | 0.28 | 0.18 | 0.35 | crosswalk_transfer (13-2011.00) | augmentation (60%) |
+| contabilidade | cognitiva (não TI) | CBO | Contador | 0.63 [0.57–0.68] | 0.05 | 0.30 | 0.20 | 0.43 | crosswalk_transfer (13-2011.00) | augmentation (84%) |
 | eletricista | manual | ONET | Electricians | 0.50 [0.44–0.56] | 0.00 | 0.27 | 0.14 | 0.24 | onet_direct | augmentation (52%) |
-| eletricista | manual | ESCO | domestic electrician | 0.59 [0.55–0.64] | 0.00 | 0.32 | 0.16 | 0.43 | crosswalk_transfer (47-2111.00) | augmentation (80%) |
-| eletricista | manual | CBO | Eletricista de instalações (edifícios) | 0.66 [0.63–0.71] | 0.00 | 0.36 | 0.20 | 0.53 | crosswalk_transfer (47-2111.00) | augmentation (95%) |
+| eletricista | manual | ESCO | domestic electrician | 0.48 [0.42–0.54] | 0.00 | 0.26 | 0.13 | 0.35 | crosswalk_transfer (47-2111.00) | augmentation (60%) |
+| eletricista | manual | CBO | Eletricista de instalações (edifícios) | 0.54 [0.47–0.60] | 0.00 | 0.29 | 0.16 | 0.44 | crosswalk_transfer (47-2111.00) | augmentation (75%) |
 | tecnico-de-enfermagem | saúde, regulamentada | ONET | Licensed Practical and Licensed Vocational Nurses | 0.44 [0.38–0.49] | 0.01 | 0.22 | 0.13 | 0.24 | onet_direct | point_support (80%) |
-| tecnico-de-enfermagem | saúde, regulamentada | ESCO | nurse assistant | 0.59 [0.56–0.62] | 0.01 | 0.31 | 0.19 | 0.47 | crosswalk_transfer (31-1133.00) | augmentation (83%) |
-| tecnico-de-enfermagem | saúde, regulamentada | CBO | Técnico de enfermagem | 0.56 [0.54–0.58] | 0.01 | 0.28 | 0.17 | 0.49 | crosswalk_transfer (29-2061.00) | augmentation (70%) |
+| tecnico-de-enfermagem | saúde, regulamentada | ESCO | nurse assistant | 0.48 [0.42–0.53] | 0.01 | 0.25 | 0.15 | 0.39 | crosswalk_transfer (31-1133.00) | point_support (53%) |
+| tecnico-de-enfermagem | saúde, regulamentada | CBO | Técnico de enfermagem | 0.45 [0.39–0.50] | 0.00 | 0.23 | 0.13 | 0.41 | crosswalk_transfer (29-2061.00) | point_support (69%) |
 
 ## Crosswalks
 
